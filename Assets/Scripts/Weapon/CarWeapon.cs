@@ -13,6 +13,9 @@ public class CarWeapon : MonoBehaviour
     public AudioSource gunAudioSource;
     public float gunFadeOutSpeed = 12f;
 
+    [Header("Muzzle Flash")]
+    public ParticleSystem muzzleFlash;
+
     [Header("Aiming")]
     public float aimDistance = 100f;
     public float gunRotateSpeed = 12f;
@@ -25,7 +28,6 @@ public class CarWeapon : MonoBehaviour
     private Vector3 currentAimPoint;
     private Collider[] ownerColliders;
 
-    private bool wasFiring;
     private float originalGunVolume;
 
     private void Awake()
@@ -37,6 +39,11 @@ public class CarWeapon : MonoBehaviour
             originalGunVolume = gunAudioSource.volume;
             gunAudioSource.playOnAwake = false;
             gunAudioSource.loop = true;
+        }
+
+        if (muzzleFlash != null)
+        {
+            muzzleFlash.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
     }
 
@@ -56,8 +63,6 @@ public class CarWeapon : MonoBehaviour
         {
             HandleGunAudioStop();
         }
-
-        wasFiring = isFiring;
     }
 
     private void UpdateAimPoint()
@@ -122,6 +127,17 @@ public class CarWeapon : MonoBehaviour
         {
             bullet.Launch(shootDirection, ownerColliders);
         }
+
+        PlayMuzzleFlash();
+    }
+
+    private void PlayMuzzleFlash()
+    {
+        if (muzzleFlash == null)
+            return;
+
+        muzzleFlash.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        muzzleFlash.Play();
     }
 
     private void HandleGunAudioStart()
