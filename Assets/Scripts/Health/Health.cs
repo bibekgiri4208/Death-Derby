@@ -62,4 +62,12 @@ public class Health : MonoBehaviour
 
         Destroy(gameObject);
     }
+    private void Update()
+    {
+        // Press H to test taking 20 damage on whatever object this script is attached to
+        if (UnityEngine.InputSystem.Keyboard.current != null && UnityEngine.InputSystem.Keyboard.current.hKey.wasPressedThisFrame)
+        {
+            TakeDamage(20);
+        }
+    }
 }

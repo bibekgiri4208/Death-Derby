@@ -156,3 +156,6 @@ MonoBehaviour:
   speed: 80
   lifetime: 3
   damage: 10
+  castRadius: 0.12
+  sparkPrefab: {fileID: 5128029994065406355, guid: 0167f3f53fe86c344929079308673203,
+    type: 3}

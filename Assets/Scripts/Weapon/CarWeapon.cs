@@ -125,7 +125,8 @@ public class CarWeapon : MonoBehaviour
 
         if (bullet != null)
         {
-            bullet.Launch(shootDirection, ownerColliders);
+            // PASS THE AIM DISTANCE HERE AS THE THIRD ARGUMENT
+            bullet.Launch(shootDirection, ownerColliders, aimDistance);
         }
 
         PlayMuzzleFlash();
