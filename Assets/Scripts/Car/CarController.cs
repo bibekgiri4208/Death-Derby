@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class CarController : MonoBehaviour
 {
@@ -24,12 +25,16 @@ public class CarController : MonoBehaviour
     public float maxForwardSpeed = 35f;
     public float maxReverseSpeed = 12f;
 
+    [Header("NOS Boost")]
+    public float boostForce = 9000f;
+    public float boostMaxSpeed = 55f;
+    public ParticleSystem[] boostFlames;
+    public AudioSource nosAudioSource;
+
     [Header("Steering Assist")]
     public float steerSmoothSpeed = 6f;
     public float minSteerAngleAtHighSpeed = 10f;
     public float steeringSpeedForMinAngle = 30f;
-
-    private float currentSteerAngle;    
 
     [Header("Stability")]
     public float downForce = 80f;
@@ -37,9 +42,10 @@ public class CarController : MonoBehaviour
 
     private float horizontalInput;
     private float verticalInput;
-    private bool isBraking;
     private bool isHandbraking;
+    private bool isBoosting;
 
+    private float currentSteerAngle;
     private Rigidbody rb;
 
     private void Start()
@@ -50,11 +56,26 @@ public class CarController : MonoBehaviour
         {
             rb.centerOfMass += centerOfMassOffset;
         }
+
+        foreach (ParticleSystem flame in boostFlames)
+        {
+            if (flame != null)
+            {
+                flame.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            }
+        }
+
+        if (nosAudioSource != null)
+        {
+            nosAudioSource.playOnAwake = false;
+            nosAudioSource.loop = true;
+        }
     }
 
     private void Update()
     {
         GetInput();
+        UpdateBoostEffects();
         UpdateWheelMeshes();
     }
 
@@ -63,6 +84,7 @@ public class CarController : MonoBehaviour
         HandleMotor();
         HandleSteering();
         HandleBraking();
+        HandleBoost();
         ApplyDownforce();
     }
 
@@ -71,27 +93,52 @@ public class CarController : MonoBehaviour
         horizontalInput = 0f;
         verticalInput = 0f;
 
-        if (Input.GetKey(KeyCode.A))
-            horizontalInput = -1f;
+        // Keyboard steering
+        if (Keyboard.current != null)
+        {
+            if (Keyboard.current.aKey.isPressed)
+                horizontalInput -= 1f;
 
-        if (Input.GetKey(KeyCode.D))
-            horizontalInput = 1f;
+            if (Keyboard.current.dKey.isPressed)
+                horizontalInput += 1f;
 
-        if (Input.GetKey(KeyCode.W))
-            verticalInput = 1f;
+            if (Keyboard.current.wKey.isPressed)
+                verticalInput += 1f;
 
-        if (Input.GetKey(KeyCode.S))
-            verticalInput = -1f;
+            if (Keyboard.current.sKey.isPressed)
+                verticalInput -= 1f;
 
-        isBraking = Input.GetKey(KeyCode.S);
-        isHandbraking = Input.GetKey(KeyCode.Space);
+            isHandbraking = Keyboard.current.spaceKey.isPressed;
+            isBoosting = Keyboard.current.leftShiftKey.isPressed;
+        }
+
+        // Gamepad input
+        if (Gamepad.current != null)
+        {
+            Vector2 leftStick = Gamepad.current.leftStick.ReadValue();
+
+            float r2 = Gamepad.current.rightTrigger.ReadValue();
+            float l2 = Gamepad.current.leftTrigger.ReadValue();
+
+            horizontalInput += leftStick.x;
+            verticalInput += r2 - l2;
+
+            // Xbox A / PlayStation X
+            if (Gamepad.current.buttonSouth.isPressed)
+            {
+                isBoosting = true;
+            }
+        }
+
+        horizontalInput = Mathf.Clamp(horizontalInput, -1f, 1f);
+        verticalInput = Mathf.Clamp(verticalInput, -1f, 1f);
     }
 
     private void HandleMotor()
     {
         float forwardSpeed = Vector3.Dot(rb.linearVelocity, transform.forward);
 
-        bool overForwardSpeed = forwardSpeed >= maxForwardSpeed && verticalInput > 0f;
+        bool overForwardSpeed = forwardSpeed >= maxForwardSpeed && verticalInput > 0f && !isBoosting;
         bool overReverseSpeed = forwardSpeed <= -maxReverseSpeed && verticalInput < 0f;
 
         if (overForwardSpeed || overReverseSpeed)
@@ -107,6 +154,52 @@ public class CarController : MonoBehaviour
         rearRightCollider.motorTorque = torque;
     }
 
+    private void HandleBoost()
+    {
+        if (!isBoosting)
+            return;
+
+        float forwardSpeed = Vector3.Dot(rb.linearVelocity, transform.forward);
+
+        if (forwardSpeed >= boostMaxSpeed)
+            return;
+
+        rb.AddForce(transform.forward * boostForce, ForceMode.Force);
+    }
+
+    private void UpdateBoostEffects()
+    {
+        if (isBoosting)
+        {
+            foreach (ParticleSystem flame in boostFlames)
+            {
+                if (flame != null && !flame.isPlaying)
+                {
+                    flame.Play();
+                }
+            }
+
+            if (nosAudioSource != null && !nosAudioSource.isPlaying)
+            {
+                nosAudioSource.Play();
+            }
+        }
+        else
+        {
+            foreach (ParticleSystem flame in boostFlames)
+            {
+                if (flame != null && flame.isPlaying)
+                {
+                    flame.Stop();
+                }
+            }
+
+            if (nosAudioSource != null && nosAudioSource.isPlaying)
+            {
+                nosAudioSource.Stop();
+            }
+        }
+    }
 
     private void HandleSteering()
     {
@@ -136,12 +229,11 @@ public class CarController : MonoBehaviour
     {
         float forwardSpeed = Vector3.Dot(rb.linearVelocity, transform.forward);
 
-        bool pressingReverse = verticalInput < 0f;
+        bool pressingReverse = verticalInput < -0.1f;
         bool movingForward = forwardSpeed > 1f;
 
         float currentBrakeForce = 0f;
 
-        // If pressing S while moving forward, brake first
         if (pressingReverse && movingForward)
         {
             currentBrakeForce = brakeForce;
