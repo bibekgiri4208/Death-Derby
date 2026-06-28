@@ -52,9 +52,16 @@ public class CarWeapon : MonoBehaviour
         UpdateAimPoint();
         RotateGunYawOnly();
 
+        bool altPressed =
+            Keyboard.current != null &&
+            Keyboard.current.leftAltKey.isPressed;
+
         bool isFiring =
-    (Mouse.current != null && Mouse.current.leftButton.isPressed) ||
-    (Gamepad.current != null && Gamepad.current.rightShoulder.isPressed);
+            !altPressed &&
+            (
+                (Mouse.current != null && Mouse.current.leftButton.isPressed) ||
+                (Gamepad.current != null && Gamepad.current.rightShoulder.isPressed)
+            );
 
         if (isFiring)
         {

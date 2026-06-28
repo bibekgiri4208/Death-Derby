@@ -43,14 +43,18 @@ public class CarFollowCamera : MonoBehaviour
         }
     }
 
+    private bool isUIMode;
+
     private void Update()
     {
-        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+        isUIMode = Keyboard.current != null &&
+                   Keyboard.current.leftAltKey.isPressed;
+
+        if (isUIMode)
         {
             UnlockCursor();
         }
-
-        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+        else
         {
             LockCursor();
         }
@@ -67,6 +71,13 @@ public class CarFollowCamera : MonoBehaviour
 
     private void HandleMouseLook()
     {
+        // Don't rotate camera while holding Left Alt
+        if (Keyboard.current != null &&
+            Keyboard.current.leftAltKey.isPressed)
+        {
+            return;
+        }
+
         Vector2 lookInput = Vector2.zero;
 
         if (Mouse.current != null)
