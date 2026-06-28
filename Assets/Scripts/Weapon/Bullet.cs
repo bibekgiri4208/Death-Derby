@@ -129,7 +129,8 @@ public class Bullet : MonoBehaviour
 
     private void Hit(GameObject hitObject, Vector3 point, Vector3 normal)
     {
-        Health health = hitObject.GetComponent<Health>();
+        // FIX: Look on this object, and if it's not there, look up the hierarchy!
+        Health health = hitObject.GetComponentInParent<Health>();
 
         if (health != null)
         {
