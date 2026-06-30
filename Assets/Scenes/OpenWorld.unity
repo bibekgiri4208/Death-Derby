@@ -1052,7 +1052,7 @@ PrefabInstance:
     - target: {fileID: 4374587557340997999, guid: 176d262b70694fe4eb9685547d40e894,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.0000000944259
+      value: 0.254
       objectReference: {fileID: 0}
     - target: {fileID: 4374587557340997999, guid: 176d262b70694fe4eb9685547d40e894,
         type: 3}
@@ -36288,6 +36288,9 @@ MonoBehaviour:
   - {fileID: 2210471560844163539}
   - {fileID: 5076240567510847344}
   nosAudioSource: {fileID: 3361945905524053228}
+  desertSmokeEffects: []
+  maxSmokeEmissionRate: 120
+  maxSmokeParticleSpeed: 8
   steerSmoothSpeed: 6
   minSteerAngleAtHighSpeed: 10
   steeringSpeedForMinAngle: 30
