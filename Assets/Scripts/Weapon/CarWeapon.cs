@@ -4,30 +4,22 @@ using UnityEngine.InputSystem;
 public class CarWeapon : MonoBehaviour
 {
     [Header("Weapon Setup")]
-    public Transform gunPivot;
-    public Transform gunPoint;
+    public Transform[] gunPoints;
     public GameObject bulletPrefab;
-    public Camera playerCamera;
+    public float bulletRange = 200f;
 
     [Header("Audio")]
     public AudioSource gunAudioSource;
     public float gunFadeOutSpeed = 12f;
 
     [Header("Muzzle Flash")]
-    public ParticleSystem muzzleFlash;
-
-    [Header("Aiming")]
-    public float aimDistance = 100f;
-    public float gunRotateSpeed = 12f;
-    public LayerMask aimMask = ~0;
+    public ParticleSystem[] muzzleFlashes;
 
     [Header("Shooting")]
     public float fireRate = 0.12f;
 
     private float nextFireTime;
-    private Vector3 currentAimPoint;
     private Collider[] ownerColliders;
-
     private float originalGunVolume;
 
     private void Awake()
@@ -41,17 +33,20 @@ public class CarWeapon : MonoBehaviour
             gunAudioSource.loop = true;
         }
 
-        if (muzzleFlash != null)
+        if (muzzleFlashes != null)
         {
-            muzzleFlash.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            foreach (ParticleSystem flash in muzzleFlashes)
+            {
+                if (flash != null)
+                {
+                    flash.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                }
+            }
         }
     }
 
     private void Update()
     {
-        UpdateAimPoint();
-        RotateGunYawOnly();
-
         bool altPressed =
             Keyboard.current != null &&
             Keyboard.current.leftAltKey.isPressed;
@@ -74,68 +69,35 @@ public class CarWeapon : MonoBehaviour
         }
     }
 
-    private void UpdateAimPoint()
-    {
-        if (playerCamera == null)
-            return;
-
-        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-
-        if (Physics.Raycast(ray, out RaycastHit hit, aimDistance, aimMask))
-        {
-            currentAimPoint = hit.point;
-        }
-        else
-        {
-            currentAimPoint = ray.GetPoint(aimDistance);
-        }
-    }
-
-    private void RotateGunYawOnly()
-    {
-        if (gunPivot == null)
-            return;
-
-        Vector3 direction = currentAimPoint - gunPivot.position;
-        direction.y = 0f;
-
-        if (direction.sqrMagnitude < 0.01f)
-            return;
-
-        Quaternion targetRotation = Quaternion.LookRotation(direction);
-
-        gunPivot.rotation = Quaternion.Slerp(
-            gunPivot.rotation,
-            targetRotation,
-            gunRotateSpeed * Time.deltaTime
-        );
-    }
-
     private void Shoot()
     {
         if (Time.time < nextFireTime)
             return;
 
-        if (bulletPrefab == null || gunPoint == null)
+        if (bulletPrefab == null || gunPoints == null || gunPoints.Length == 0)
             return;
 
         nextFireTime = Time.time + fireRate;
 
-        Vector3 shootDirection = gunPoint.forward;
-        Vector3 spawnPosition = gunPoint.position + shootDirection * 0.8f;
-
-        GameObject bulletObject = Instantiate(
-            bulletPrefab,
-            spawnPosition,
-            Quaternion.LookRotation(shootDirection)
-        );
-
-        Bullet bullet = bulletObject.GetComponent<Bullet>();
-
-        if (bullet != null)
+        foreach (Transform gunPoint in gunPoints)
         {
-            // PASS THE AIM DISTANCE HERE AS THE THIRD ARGUMENT
-            bullet.Launch(shootDirection, ownerColliders, aimDistance);
+            if (gunPoint == null)
+                continue;
+
+            Vector3 shootDirection = gunPoint.forward;
+
+            GameObject bulletObject = Instantiate(
+                bulletPrefab,
+                gunPoint.position,
+                gunPoint.rotation
+            );
+
+            Bullet bullet = bulletObject.GetComponent<Bullet>();
+
+            if (bullet != null)
+            {
+                bullet.Launch(shootDirection, ownerColliders, bulletRange);
+            }
         }
 
         PlayMuzzleFlash();
@@ -143,11 +105,17 @@ public class CarWeapon : MonoBehaviour
 
     private void PlayMuzzleFlash()
     {
-        if (muzzleFlash == null)
+        if (muzzleFlashes == null)
             return;
 
-        muzzleFlash.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        muzzleFlash.Play();
+        foreach (ParticleSystem flash in muzzleFlashes)
+        {
+            if (flash == null)
+                continue;
+
+            flash.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            flash.Play();
+        }
     }
 
     private void HandleGunAudioStart()
