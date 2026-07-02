@@ -529,7 +529,7 @@ PrefabInstance:
     - target: {fileID: 7358854059992640779, guid: 176d262b70694fe4eb9685547d40e894,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1339,6 +1339,12 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 65.707, y: -90, z: 0}
+--- !u!4 &1235170364 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4374587557340997999, guid: 176d262b70694fe4eb9685547d40e894,
+    type: 3}
+  m_PrefabInstance: {fileID: 476138071}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1412524808
 GameObject:
   m_ObjectHideFlags: 0
@@ -1609,7 +1615,7 @@ PrefabInstance:
     - target: {fileID: 436547849921054849, guid: 37fbd146c718e7b449da9443f3514cf9,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3798303161122020800, guid: 37fbd146c718e7b449da9443f3514cf9,
         type: 3}
@@ -1893,12 +1899,6 @@ RectTransform:
   m_AnchoredPosition: {x: -839, y: 491.6}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!4 &2125024789 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 3798303161122020800, guid: 37fbd146c718e7b449da9443f3514cf9,
-    type: 3}
-  m_PrefabInstance: {fileID: 1598288695}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1856860405911531
 GameObject:
   m_ObjectHideFlags: 0
@@ -3508,7 +3508,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a194243844819a645bff54ede5bf627c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CarFollowCamera
-  target: {fileID: 2125024789}
+  target: {fileID: 1235170364}
   offset: {x: 0, y: 5, z: -4}
   followSmoothness: 12
   lookHeight: 1.5
