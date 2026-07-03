@@ -27,6 +27,11 @@ public class HelicopterChaseLoop : MonoBehaviour
     public float maxBankAngle = 15f;
     public float rotationSmoothness = 6f;
 
+    [Header("Audio Settings")]
+    public AudioSource helicopterAudio;      // Drag your AudioSource here
+    [Tooltip("Time in seconds to fade audio in/out")]
+    public float audioFadeDuration = 0.5f;
+
     // Private state machine
     private enum State { FlyingToB, WaitingAtB, WaitingAtA }
     private State currentState;
@@ -34,6 +39,10 @@ public class HelicopterChaseLoop : MonoBehaviour
     private float progress;
     private Vector3 previousPos;
     private Quaternion targetRotation;
+
+    // Audio state
+    private float audioTargetVolume = 0f;
+    private float audioCurrentVolume = 0f;
 
     void Start()
     {
@@ -43,6 +52,25 @@ public class HelicopterChaseLoop : MonoBehaviour
         transform.rotation = targetRotation;
         currentState = State.FlyingToB;
         progress = 0f;
+
+        // Audio setup
+        if (helicopterAudio == null)
+        {
+            helicopterAudio = GetComponent<AudioSource>();
+            if (helicopterAudio == null)
+            {
+                Debug.LogWarning("No AudioSource found! Add an AudioSource component.");
+            }
+        }
+
+        if (helicopterAudio != null)
+        {
+            helicopterAudio.loop = true;
+            helicopterAudio.volume = 0f;
+            helicopterAudio.Play();
+            audioCurrentVolume = 0f;
+            audioTargetVolume = 1f; // Start with audio on since we're flying initially
+        }
     }
 
     void Update()
@@ -56,13 +84,14 @@ public class HelicopterChaseLoop : MonoBehaviour
                     progress = 1f;
                     currentState = State.WaitingAtB;
                     stateTimer = 0f;
+                    audioTargetVolume = 0f; // Fade out when reaching B
                 }
-                MoveAlongPath(progress, chaseNoseAngle); // <-- Passing the chase tilt
+                MoveAlongPath(progress, chaseNoseAngle);
                 break;
 
             case State.WaitingAtB:
                 stateTimer += Time.deltaTime;
-                HoverInPlace(pointB, hoverNoseAngle); // <-- Passing the hover tilt
+                HoverInPlace(pointB, hoverNoseAngle);
 
                 if (stateTimer >= waitTimeAtB)
                 {
@@ -73,6 +102,7 @@ public class HelicopterChaseLoop : MonoBehaviour
                     transform.rotation = targetRotation;
                     currentState = State.WaitingAtA;
                     stateTimer = 0f;
+                    audioTargetVolume = 0f; // Keep silent while waiting at A
                 }
                 break;
 
@@ -84,12 +114,27 @@ public class HelicopterChaseLoop : MonoBehaviour
                 {
                     currentState = State.FlyingToB;
                     progress = 0f;
+                    audioTargetVolume = 1f; // Fade in when starting chase
                 }
                 break;
         }
+
+        // --- Handle Audio Fade ---
+        if (helicopterAudio != null)
+        {
+            // Smoothly interpolate volume
+            audioCurrentVolume = Mathf.MoveTowards(audioCurrentVolume, audioTargetVolume, Time.deltaTime / audioFadeDuration);
+            helicopterAudio.volume = audioCurrentVolume;
+
+            // Stop audio if completely silent (optional optimization)
+            if (audioCurrentVolume <= 0.01f && helicopterAudio.isPlaying)
+            {
+                // Keep playing but at 0 volume - this prevents click/pop when restarting
+                // You can also pause it, but pausing can cause issues with restarting
+            }
+        }
     }
 
-    // --- UPDATED: Now accepts a noseAngle parameter ---
     void MoveAlongPath(float t, float noseAngle)
     {
         Vector3 basePos = Vector3.Lerp(pointA, pointB, t);
@@ -104,13 +149,8 @@ public class HelicopterChaseLoop : MonoBehaviour
             Vector3 localDir = transform.InverseTransformDirection(dir);
             float sideForce = Mathf.Clamp(localDir.x, -1f, 1f);
 
-            // 1. Face the direction of movement
             Quaternion lookRot = Quaternion.LookRotation(dir, Vector3.up);
-
-            // 2. Combine the Nose Tilt (pitch) and Banking (roll) into one attitude
-            //    Negative X = nose down, Z is the roll for banking.
             Quaternion attitudeRot = Quaternion.Euler(noseAngle, 0, -sideForce * maxBankAngle);
-
             targetRotation = lookRot * attitudeRot;
         }
 
@@ -118,21 +158,16 @@ public class HelicopterChaseLoop : MonoBehaviour
         previousPos = targetPos;
     }
 
-    // --- UPDATED: Now accepts a noseAngle parameter ---
     void HoverInPlace(Vector3 center, float noseAngle)
     {
-        // Subtle idle drift while waiting
         float idleWeave = Mathf.Sin(Time.time * 0.8f + 1.2f) * 0.8f;
         float idleBob = Mathf.Sin(Time.time * 0.6f + 3.4f) * 0.4f;
         Vector3 sideDir = Vector3.Cross((pointB - pointA).normalized, Vector3.up).normalized;
 
         transform.position = center + sideDir * idleWeave + Vector3.up * idleBob;
 
-        // Keep facing forward, but apply a gentle nose-down for hovering
         Vector3 forwardDir = (pointB - pointA).normalized;
         Quaternion lookRot = Quaternion.LookRotation(forwardDir, Vector3.up);
-
-        // Apply the hover-specific nose tilt (no banking while idle)
         Quaternion attitudeRot = Quaternion.Euler(noseAngle, 0, 0);
         targetRotation = lookRot * attitudeRot;
 
