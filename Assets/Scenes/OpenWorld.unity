@@ -479,6 +479,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Dust Devil
       objectReference: {fileID: 0}
+    - target: {fileID: 7358854059992640779, guid: 176d262b70694fe4eb9685547d40e894,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2762,6 +2767,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Hot Rod
       objectReference: {fileID: 0}
+    - target: {fileID: 436547849921054849, guid: 37fbd146c718e7b449da9443f3514cf9,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3798303161122020800, guid: 37fbd146c718e7b449da9443f3514cf9,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -3200,6 +3210,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Goliath
+      objectReference: {fileID: 0}
+    - target: {fileID: 5089216353689272328, guid: 866842c52b04ffc46b000fa9baab7b30,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
