@@ -36124,7 +36124,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071068, z: 0.7071068, w: 0}
   m_LocalPosition: {x: 0, y: 0.973, z: -1.867}
-  m_LocalScale: {x: 2, y: 0.5, z: 2}
+  m_LocalScale: {x: 2, y: 0.7, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5829046538043103367}
@@ -36650,8 +36650,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CarEngineAudio
   carRigidbody: {fileID: 1165270531653802252}
-  minPitch: 0.5
-  maxPitch: 1.8
+  minPitch: 1
+  maxPitch: 2.5
   maxSpeed: 40
   minVolume: 0.35
   maxVolume: 1
@@ -36668,7 +36668,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 6aa5b6b4327fb6f478fc9e252bb01207, type: 3}
+  m_Resource: {fileID: 8300000, guid: b805171d30712184e887485d9431c0c5, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
