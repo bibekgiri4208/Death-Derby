@@ -666,7 +666,7 @@ Transform:
   m_GameObject: {fileID: 2252428717704741184}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.8180237, y: 0.6156151, z: -2.7549286}
+  m_LocalPosition: {x: 0, y: 0.6156151, z: -2.7549286}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -15907,7 +15907,7 @@ Transform:
   m_GameObject: {fileID: 3201152648707713195}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.296, z: 4.586}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -36400,7 +36400,7 @@ Transform:
   m_GameObject: {fileID: 4511492737583331375}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.199, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.365, z: 0.701}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -36517,6 +36517,7 @@ GameObject:
   - component: {fileID: 1780318506756514012}
   - component: {fileID: 7128058199594960034}
   - component: {fileID: 2015331201084047062}
+  - component: {fileID: -8135542523867847790}
   m_Layer: 0
   m_Name: Bone Shaker
   m_TagString: Untagged
@@ -36621,17 +36622,6 @@ MonoBehaviour:
   maxReverseSpeed: 12
   boostForce: 7000
   boostMaxSpeed: 50
-  boostFlames:
-  - {fileID: 6220001230223511821}
-  - {fileID: 99630736867036697}
-  nosAudioSource: {fileID: 5603779562372001669}
-  desertSmokeEffects:
-  - {fileID: 2080741044288939509}
-  - {fileID: 4514186674657659219}
-  - {fileID: 7596476981592124535}
-  - {fileID: 2459667104991348297}
-  maxSmokeEmissionRate: 120
-  maxSmokeParticleSpeed: 4
   steerSmoothSpeed: 6
   minSteerAngleAtHighSpeed: 20
   steeringSpeedForMinAngle: 30
@@ -36754,6 +36744,29 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-8135542523867847790
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4722638119448103207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b53506a0cadb675449279cc67139f6aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CarEffects
+  boostFlames:
+  - {fileID: 6220001230223511821}
+  - {fileID: 99630736867036697}
+  nosAudioSource: {fileID: 5603779562372001669}
+  desertSmokeEffects:
+  - {fileID: 2080741044288939509}
+  - {fileID: 4514186674657659219}
+  - {fileID: 7596476981592124535}
+  - {fileID: 2459667104991348297}
+  maxSmokeEmissionRate: 120
+  maxSmokeParticleSpeed: 4
 --- !u!1 &4821941054992882418
 GameObject:
   m_ObjectHideFlags: 0

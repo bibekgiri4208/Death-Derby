@@ -747,6 +747,12 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 243554869}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &336353005 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3008824373412090360, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
+    type: 3}
+  m_PrefabInstance: {fileID: 1215728940}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &406615661
 GameObject:
   m_ObjectHideFlags: 0
@@ -1554,12 +1560,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1058267293}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!4 &1155788619 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 896840999620234733, guid: 866842c52b04ffc46b000fa9baab7b30,
-    type: 3}
-  m_PrefabInstance: {fileID: 2042026918}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1174982879
 GameObject:
   m_ObjectHideFlags: 0
@@ -2018,7 +2018,7 @@ PrefabInstance:
     - target: {fileID: 4722638119448103207, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8716776059174208612, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
         type: 3}
@@ -2516,7 +2516,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -738.7, y: 446}
+  m_AnchoredPosition: {x: 736, y: 446}
   m_SizeDelta: {x: 400, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1673429035
@@ -2653,7 +2653,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -839, y: 491.6}
+  m_AnchoredPosition: {x: 651, y: 491.6}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1729662442
@@ -3256,7 +3256,7 @@ PrefabInstance:
     - target: {fileID: 5089216353689272328, guid: 866842c52b04ffc46b000fa9baab7b30,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5012,7 +5012,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a194243844819a645bff54ede5bf627c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CarFollowCamera
-  target: {fileID: 1155788619}
+  target: {fileID: 336353005}
   offset: {x: 0, y: 5, z: -4}
   followSmoothness: 12
   lookHeight: 1.5

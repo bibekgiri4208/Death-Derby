@@ -25,17 +25,9 @@ public class CarController : MonoBehaviour
     public float maxForwardSpeed = 35f;
     public float maxReverseSpeed = 12f;
 
-    [Header("NOS Boost")]
+    [Header("NOS Boost Settings")]
     public float boostForce = 9000f;
     public float boostMaxSpeed = 55f;
-    public ParticleSystem[] boostFlames;
-    public AudioSource nosAudioSource;
-
-    [Header("Desert Smoke / Dust Effect")]
-    [Tooltip("Assign the smoke particle systems for all 4 wheels here.")]
-    public ParticleSystem[] desertSmokeEffects;
-    public float maxSmokeEmissionRate = 120f; // Maximum particles per second (per wheel) at top speed
-    public float maxSmokeParticleSpeed = 4f;  // Particle start speed at top speed
 
     [Header("Steering Assist")]
     public float steerSmoothSpeed = 6f;
@@ -49,65 +41,26 @@ public class CarController : MonoBehaviour
     private float horizontalInput;
     private float verticalInput;
     private bool isHandbraking;
-    private bool isBoosting;
+
+    // Public properties so CarEffects can access them
+    public bool IsBoosting { get; private set; }
+    public Rigidbody CarRigidbody { get; private set; }
 
     private float currentSteerAngle;
-    private Rigidbody rb;
-
-    // Cached particle system modules for performance
-    private ParticleSystem.EmissionModule[] smokeEmissions;
-    private ParticleSystem.MainModule[] smokeMains;
 
     private void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        CarRigidbody = GetComponent<Rigidbody>();
 
-        if (rb != null)
+        if (CarRigidbody != null)
         {
-            rb.centerOfMass += centerOfMassOffset;
-        }
-
-        // Initialize NOS flames
-        foreach (ParticleSystem flame in boostFlames)
-        {
-            if (flame != null)
-            {
-                flame.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-            }
-        }
-
-        if (nosAudioSource != null)
-        {
-            nosAudioSource.playOnAwake = false;
-            nosAudioSource.loop = true;
-        }
-
-        // Initialize all wheel smoke modules
-        if (desertSmokeEffects != null && desertSmokeEffects.Length > 0)
-        {
-            smokeEmissions = new ParticleSystem.EmissionModule[desertSmokeEffects.Length];
-            smokeMains = new ParticleSystem.MainModule[desertSmokeEffects.Length];
-
-            for (int i = 0; i < desertSmokeEffects.Length; i++)
-            {
-                if (desertSmokeEffects[i] != null)
-                {
-                    smokeEmissions[i] = desertSmokeEffects[i].emission;
-                    smokeMains[i] = desertSmokeEffects[i].main;
-
-                    // Force simulation space to World so smoke trails behind naturally
-                    smokeMains[i].simulationSpace = ParticleSystemSimulationSpace.World;
-                    smokeEmissions[i].rateOverTime = 0f;
-                }
-            }
+            CarRigidbody.centerOfMass += centerOfMassOffset;
         }
     }
 
     private void Update()
     {
         GetInput();
-        UpdateBoostEffects();
-        UpdateDesertSmoke();
         UpdateWheelMeshes();
     }
 
@@ -141,7 +94,7 @@ public class CarController : MonoBehaviour
                 verticalInput -= 1f;
 
             isHandbraking = Keyboard.current.spaceKey.isPressed;
-            isBoosting = Keyboard.current.leftShiftKey.isPressed;
+            IsBoosting = Keyboard.current.leftShiftKey.isPressed;
         }
 
         // Gamepad input
@@ -157,7 +110,7 @@ public class CarController : MonoBehaviour
 
             if (Gamepad.current.buttonSouth.isPressed)
             {
-                isBoosting = true;
+                IsBoosting = true;
             }
         }
 
@@ -167,9 +120,9 @@ public class CarController : MonoBehaviour
 
     private void HandleMotor()
     {
-        float forwardSpeed = Vector3.Dot(rb.linearVelocity, transform.forward);
+        float forwardSpeed = Vector3.Dot(CarRigidbody.linearVelocity, transform.forward);
 
-        bool overForwardSpeed = forwardSpeed >= maxForwardSpeed && verticalInput > 0f && !isBoosting;
+        bool overForwardSpeed = forwardSpeed >= maxForwardSpeed && verticalInput > 0f && !IsBoosting;
         bool overReverseSpeed = forwardSpeed <= -maxReverseSpeed && verticalInput < 0f;
 
         if (overForwardSpeed || overReverseSpeed)
@@ -187,78 +140,20 @@ public class CarController : MonoBehaviour
 
     private void HandleBoost()
     {
-        if (!isBoosting)
+        if (!IsBoosting)
             return;
 
-        float forwardSpeed = Vector3.Dot(rb.linearVelocity, transform.forward);
+        float forwardSpeed = Vector3.Dot(CarRigidbody.linearVelocity, transform.forward);
 
         if (forwardSpeed >= boostMaxSpeed)
             return;
 
-        rb.AddForce(transform.forward * boostForce, ForceMode.Force);
-    }
-
-    private void UpdateBoostEffects()
-    {
-        if (isBoosting)
-        {
-            foreach (ParticleSystem flame in boostFlames)
-            {
-                if (flame != null && !flame.isPlaying)
-                {
-                    flame.Play();
-                }
-            }
-
-            if (nosAudioSource != null && !nosAudioSource.isPlaying)
-            {
-                nosAudioSource.Play();
-            }
-        }
-        else
-        {
-            foreach (ParticleSystem flame in boostFlames)
-            {
-                if (flame != null && flame.isPlaying)
-                {
-                    flame.Stop();
-                }
-            }
-
-            if (nosAudioSource != null && nosAudioSource.isPlaying)
-            {
-                nosAudioSource.Stop();
-            }
-        }
-    }
-
-    private void UpdateDesertSmoke()
-    {
-        if (desertSmokeEffects == null || desertSmokeEffects.Length == 0) return;
-
-        // Calculate current speed magnitude
-        float currentSpeed = rb.linearVelocity.magnitude;
-
-        // Determine dynamic target limit based on whether the truck is boosting or driving normally
-        float absoluteMaxSpeed = isBoosting ? boostMaxSpeed : maxForwardSpeed;
-
-        // Establish relative performance ratio (0.0 to 1.0)
-        float speedRatio = Mathf.Clamp01(currentSpeed / absoluteMaxSpeed);
-
-        // Loop through all assigned smoke systems and apply calculations
-        for (int i = 0; i < desertSmokeEffects.Length; i++)
-        {
-            if (desertSmokeEffects[i] == null) continue;
-
-            smokeEmissions[i].rateOverTime = speedRatio * maxSmokeEmissionRate;
-            smokeMains[i].startSpeed = Mathf.Lerp(1.0f, maxSmokeParticleSpeed, speedRatio);
-        }
+        CarRigidbody.AddForce(transform.forward * boostForce, ForceMode.Force);
     }
 
     private void HandleSteering()
     {
-        float speed = rb.linearVelocity.magnitude;
-
+        float speed = CarRigidbody.linearVelocity.magnitude;
         float speedPercent = Mathf.Clamp01(speed / steeringSpeedForMinAngle);
 
         float adjustedMaxSteerAngle = Mathf.Lerp(
@@ -281,7 +176,7 @@ public class CarController : MonoBehaviour
 
     private void HandleBraking()
     {
-        float forwardSpeed = Vector3.Dot(rb.linearVelocity, transform.forward);
+        float forwardSpeed = Vector3.Dot(CarRigidbody.linearVelocity, transform.forward);
 
         bool pressingReverse = verticalInput < -0.1f;
         bool movingForward = forwardSpeed > 1f;
@@ -310,9 +205,8 @@ public class CarController : MonoBehaviour
 
     private void ApplyDownforce()
     {
-        float speed = rb.linearVelocity.magnitude;
-
-        rb.AddForce(-transform.up * downForce * speed);
+        float speed = CarRigidbody.linearVelocity.magnitude;
+        CarRigidbody.AddForce(-transform.up * downForce * speed);
     }
 
     private void UpdateWheelMeshes()

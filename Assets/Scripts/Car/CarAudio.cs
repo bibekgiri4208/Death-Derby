@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
-public class CarEngineAudio : MonoBehaviour
+public class CarAudio : MonoBehaviour
 {
     [Header("References")]
     public Rigidbody carRigidbody;

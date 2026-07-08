@@ -5041,6 +5041,7 @@ GameObject:
   - component: {fileID: 1399705824548507613}
   - component: {fileID: 8127556869509884603}
   - component: {fileID: 4034600121485056746}
+  - component: {fileID: 491834579451730387}
   m_Layer: 3
   m_Name: Hot Rod
   m_TagString: Untagged
@@ -5145,13 +5146,6 @@ MonoBehaviour:
   maxReverseSpeed: 12
   boostForce: 7000
   boostMaxSpeed: 45
-  boostFlames:
-  - {fileID: 749137996272760877}
-  - {fileID: 5961139467975954062}
-  nosAudioSource: {fileID: 4206453142004094226}
-  desertSmokeEffects: []
-  maxSmokeEmissionRate: 120
-  maxSmokeParticleSpeed: 4
   steerSmoothSpeed: 6
   minSteerAngleAtHighSpeed: 10
   steeringSpeedForMinAngle: 30
@@ -5315,6 +5309,25 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &491834579451730387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 436547849921054849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b53506a0cadb675449279cc67139f6aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CarEffects
+  boostFlames:
+  - {fileID: 749137996272760877}
+  - {fileID: 5961139467975954062}
+  nosAudioSource: {fileID: 4206453142004094226}
+  desertSmokeEffects: []
+  maxSmokeEmissionRate: 120
+  maxSmokeParticleSpeed: 4
 --- !u!1 &479130319416868290
 GameObject:
   m_ObjectHideFlags: 0
@@ -5658,7 +5671,7 @@ Transform:
   m_GameObject: {fileID: 767855915667055931}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1.037, z: -2.561}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -43880,7 +43893,7 @@ Transform:
   m_GameObject: {fileID: 7073146882792806826}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1.099, z: 1.03}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

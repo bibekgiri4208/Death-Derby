@@ -10409,7 +10409,7 @@ Transform:
   m_GameObject: {fileID: 1567883447886442261}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.2700002, y: -0.466, z: -0.8699999}
+  m_LocalPosition: {x: 0, y: -0.466, z: -0.8699999}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -60150,7 +60150,7 @@ Transform:
   m_GameObject: {fileID: 5372920910958571612}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1.27, z: 2.43}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -65515,7 +65515,7 @@ Transform:
   m_GameObject: {fileID: 6364699532821544024}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.199, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1.246, z: -0.315}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -70681,6 +70681,7 @@ GameObject:
   - component: {fileID: 2765993437376756914}
   - component: {fileID: 1193485670062200931}
   - component: {fileID: 4269534890607649191}
+  - component: {fileID: 1939776595353855184}
   m_Layer: 0
   m_Name: Dust Devil
   m_TagString: Untagged
@@ -70788,17 +70789,6 @@ MonoBehaviour:
   maxReverseSpeed: 12
   boostForce: 7000
   boostMaxSpeed: 50
-  boostFlames:
-  - {fileID: 2006150579083844643}
-  - {fileID: 5541486772231340855}
-  nosAudioSource: {fileID: 2107090587066897082}
-  desertSmokeEffects:
-  - {fileID: 2824521041760666998}
-  - {fileID: 3358230657232451650}
-  - {fileID: 5865625772103919835}
-  - {fileID: 8296538325369357437}
-  maxSmokeEmissionRate: 250
-  maxSmokeParticleSpeed: 3
   steerSmoothSpeed: 6
   minSteerAngleAtHighSpeed: 20
   steeringSpeedForMinAngle: 30
@@ -70945,6 +70935,29 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1939776595353855184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7358854059992640779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b53506a0cadb675449279cc67139f6aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CarEffects
+  boostFlames:
+  - {fileID: 2006150579083844643}
+  - {fileID: 5541486772231340855}
+  nosAudioSource: {fileID: 2107090587066897082}
+  desertSmokeEffects:
+  - {fileID: 2824521041760666998}
+  - {fileID: 3358230657232451650}
+  - {fileID: 5865625772103919835}
+  - {fileID: 8296538325369357437}
+  maxSmokeEmissionRate: 120
+  maxSmokeParticleSpeed: 4
 --- !u!1 &7380067237303633031
 GameObject:
   m_ObjectHideFlags: 0
