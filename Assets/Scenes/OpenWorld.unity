@@ -482,7 +482,7 @@ PrefabInstance:
     - target: {fileID: 7358854059992640779, guid: 176d262b70694fe4eb9685547d40e894,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8830478945398585765, guid: 176d262b70694fe4eb9685547d40e894,
         type: 3}
@@ -822,12 +822,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 406615661}
   m_CullTransparentMesh: 1
---- !u!4 &615322493 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4374587557340997999, guid: 176d262b70694fe4eb9685547d40e894,
-    type: 3}
-  m_PrefabInstance: {fileID: 185339603}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &658812809
 GameObject:
   m_ObjectHideFlags: 0
@@ -1763,6 +1757,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 65.707, y: -90, z: 0}
+--- !u!114 &1198996758 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8127556869509884603, guid: 37fbd146c718e7b449da9443f3514cf9,
+    type: 3}
+  m_PrefabInstance: {fileID: 1756623411}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd04655ed4a8f8a4c93a0132f6bf2d02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Health
+--- !u!4 &1198996764 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3798303161122020800, guid: 37fbd146c718e7b449da9443f3514cf9,
+    type: 3}
+  m_PrefabInstance: {fileID: 1756623411}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1202691740
 GameObject:
   m_ObjectHideFlags: 0
@@ -2447,7 +2459,19 @@ MonoBehaviour:
   m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1198996758}
+        m_TargetAssemblyTypeName: Health, Assembly-CSharp
+        m_MethodName: TakeDamage
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 10
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!224 &1671222944
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2763,7 +2787,7 @@ PrefabInstance:
     - target: {fileID: 436547849921054849, guid: 37fbd146c718e7b449da9443f3514cf9,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3798303161122020800, guid: 37fbd146c718e7b449da9443f3514cf9,
         type: 3}
@@ -4980,7 +5004,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a194243844819a645bff54ede5bf627c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CarFollowCamera
-  target: {fileID: 615322493}
+  target: {fileID: 1198996764}
   offset: {x: 0, y: 5, z: -4}
   followSmoothness: 12
   lookHeight: 1.5
