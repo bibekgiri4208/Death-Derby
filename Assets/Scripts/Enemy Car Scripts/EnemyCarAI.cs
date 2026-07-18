@@ -33,6 +33,9 @@ public class EnemyCarNavMesh : MonoBehaviour
     {
         if (playerTarget == null) return;
 
+        // ADD THIS LINE: If the agent isn't snapped to the NavMesh yet, wait!
+        if (!agent.isOnNavMesh) return;
+
         // Only recalculate the path occasionally to save performance
         if (Time.time >= nextUpdateTime)
         {
