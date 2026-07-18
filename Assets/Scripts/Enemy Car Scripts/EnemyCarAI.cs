@@ -18,7 +18,14 @@ public class EnemyCarNavMesh : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
 
-        // Auto-find player by tag if not assigned
+        // FORCE SNAP TO NAVMESH ON WAKEUP
+        UnityEngine.AI.NavMeshHit hit;
+        // Search within a 2.0 unit radius of the current position for the blue mesh
+        if (UnityEngine.AI.NavMesh.SamplePosition(transform.position, out hit, 2.0f, UnityEngine.AI.NavMesh.AllAreas))
+        {
+            agent.Warp(hit.position); // Hard-snaps the agent's logic directly to the coordinates
+        }
+
         if (playerTarget == null)
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
