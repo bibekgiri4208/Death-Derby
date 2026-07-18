@@ -101,7 +101,7 @@ GameObject:
   - component: {fileID: 2989879713939707810}
   - component: {fileID: 8313632526460162070}
   - component: {fileID: 7247039959930657669}
-  - component: {fileID: 3641285591744462318}
+  - component: {fileID: 8186710317536805391}
   m_Layer: 0
   m_Name: Buggy Root
   m_TagString: Untagged
@@ -137,7 +137,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 849170410071992545}
   serializedVersion: 5
-  m_Mass: 1200
+  m_Mass: 800
   m_LinearDamping: 0.05
   m_AngularDamping: 0.5
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -177,7 +177,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.9751568, y: 1.0024698, z: 2.7644877}
   m_Center: {x: 0.0046434402, y: 0.8765147, z: 0.0738228}
---- !u!114 &3641285591744462318
+--- !u!114 &8186710317536805391
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -186,30 +186,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 849170410071992545}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c84c8eebb2452fc4fb9b35af5e32428e, type: 3}
+  m_Script: {fileID: 11500000, guid: 46e7e861047317f43825be8c96e8eb5f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CarController
-  frontLeftCollider: {fileID: 6062345064954463112}
-  frontRightCollider: {fileID: 4029289908441208097}
-  rearLeftCollider: {fileID: 175157180462801350}
-  rearRightCollider: {fileID: 8171310979562449035}
-  frontLeftMesh: {fileID: 5700465389545579000}
-  frontRightMesh: {fileID: 470838669897668050}
-  rearLeftMesh: {fileID: 6882706292607129425}
-  rearRightMesh: {fileID: 3318388073483680811}
-  motorForce: 1500
-  brakeForce: 3000
-  maxSteerAngle: 30
-  handbrakeForce: 5000
-  maxForwardSpeed: 35
-  maxReverseSpeed: 20
-  boostForce: 9000
-  boostMaxSpeed: 50
-  steerSmoothSpeed: 6
-  minSteerAngleAtHighSpeed: 25
-  steeringSpeedForMinAngle: 30
-  downForce: 80
-  centerOfMassOffset: {x: 0, y: -0.5, z: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyCarAI
+  playerTarget: {fileID: 0}
+  speed: 8
+  rotationSpeed: 5
 --- !u!1 &897138092381927868
 GameObject:
   m_ObjectHideFlags: 0
