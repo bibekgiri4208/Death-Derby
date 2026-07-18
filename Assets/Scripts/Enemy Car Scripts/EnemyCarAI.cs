@@ -1,21 +1,24 @@
 using UnityEngine;
+using UnityEngine.AI; // Required for NavMesh
 
-public class EnemyCarAI : MonoBehaviour
+[RequireComponent(typeof(NavMeshAgent))]
+public class EnemyCarNavMesh : MonoBehaviour
 {
     [Header("Target Settings")]
-    public Transform playerTarget; // Drag your Player GameObject here
+    public Transform playerTarget;
 
-    [Header("Movement Settings")]
-    public float speed = 15f;
-    public float rotationSpeed = 5f;
+    [Header("Update Frequency")]
+    [Tooltip("How often (in seconds) the path recalculates. Lower is more accurate, higher saves CPU performance.")]
+    public float pathUpdateRate = 0.2f;
 
-    private Rigidbody rb;
+    private NavMeshAgent agent;
+    private float nextUpdateTime;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        agent = GetComponent<NavMeshAgent>();
 
-        // If you didn't assign a player in the inspector, try to find it by tag
+        // Auto-find player by tag if not assigned
         if (playerTarget == null)
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
@@ -26,32 +29,17 @@ public class EnemyCarAI : MonoBehaviour
         }
     }
 
-    void FixedUpdate()
+    void Update()
     {
         if (playerTarget == null) return;
 
-        HandleMovement();
-    }
-
-    void HandleMovement()
-    {
-        // 1. Calculate the direction to the player
-        Vector3 direction = (playerTarget.position - transform.position).normalized;
-
-        // Keep the enemy on the same flat ground plane (Y-axis)
-        direction.y = 0;
-
-        // 2. Smoothly rotate towards the player
-        if (direction != Vector3.zero)
+        // Only recalculate the path occasionally to save performance
+        if (Time.time >= nextUpdateTime)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
+            nextUpdateTime = Time.time + pathUpdateRate;
+
+            // Tell the NavMesh agent to calculate a path to the player
+            agent.SetDestination(playerTarget.position);
         }
-
-        // 3. Move forward in the direction the enemy car is currently facing
-        Vector3 moveVelocity = transform.forward * speed;
-
-        // Apply velocity but preserve current vertical gravity fall
-        rb.linearVelocity = new Vector3(moveVelocity.x, rb.linearVelocity.y, moveVelocity.z);
     }
 }
