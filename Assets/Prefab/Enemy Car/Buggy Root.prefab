@@ -102,6 +102,7 @@ GameObject:
   - component: {fileID: 8313632526460162070}
   - component: {fileID: 7247039959930657669}
   - component: {fileID: 8186710317536805391}
+  - component: {fileID: 2631356581159631273}
   - component: {fileID: 7313560132759330601}
   - component: {fileID: 2587042026205020583}
   m_Layer: 0
@@ -195,6 +196,26 @@ MonoBehaviour:
   pathUpdateRate: 0.2
   stoppingDistanceThreshold: 10
   brakingDeceleration: 20
+--- !u!114 &2631356581159631273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 849170410071992545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d764a75e55c711d4da6ff89d98131662, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyWheelAnimator
+  agent: {fileID: 7313560132759330601}
+  frontLeftWheel: {fileID: 5700465389545579000}
+  frontRightWheel: {fileID: 470838669897668050}
+  rearLeftWheel: {fileID: 6882706292607129425}
+  rearRightWheel: {fileID: 3318388073483680811}
+  wheelRadius: 0.4
+  maxSteerAngle: 35
+  steerSmoothing: 10
 --- !u!195 &7313560132759330601
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -205,7 +226,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: -334000983
   m_Radius: 1
-  m_Speed: 10
+  m_Speed: 40
   m_Acceleration: 10
   avoidancePriority: 50
   m_AngularSpeed: 120
