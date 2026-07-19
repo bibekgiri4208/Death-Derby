@@ -482,7 +482,7 @@ PrefabInstance:
     - target: {fileID: 7358854059992640779, guid: 176d262b70694fe4eb9685547d40e894,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8830478945398585765, guid: 176d262b70694fe4eb9685547d40e894,
         type: 3}
@@ -495,12 +495,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 176d262b70694fe4eb9685547d40e894, type: 3}
---- !u!4 &185339604 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4374587557340997999, guid: 176d262b70694fe4eb9685547d40e894,
-    type: 3}
-  m_PrefabInstance: {fileID: 185339603}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &190193789
 GameObject:
   m_ObjectHideFlags: 0
@@ -2900,7 +2894,7 @@ PrefabInstance:
     - target: {fileID: 436547849921054849, guid: 37fbd146c718e7b449da9443f3514cf9,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3798303161122020800, guid: 37fbd146c718e7b449da9443f3514cf9,
         type: 3}
@@ -2957,6 +2951,12 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 37fbd146c718e7b449da9443f3514cf9, type: 3}
+--- !u!4 &1756623412 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3798303161122020800, guid: 37fbd146c718e7b449da9443f3514cf9,
+    type: 3}
+  m_PrefabInstance: {fileID: 1756623411}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1809195438
 GameObject:
   m_ObjectHideFlags: 0
@@ -6221,7 +6221,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a194243844819a645bff54ede5bf627c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CarFollowCamera
-  target: {fileID: 185339604}
+  target: {fileID: 1756623412}
   offset: {x: 0, y: 5, z: -4}
   followSmoothness: 12
   lookHeight: 1.5
