@@ -1,29 +1,48 @@
 using UnityEngine;
-using UnityEngine.AI;
+using UnityEngine.AI; // Required for NavMesh
 
 [RequireComponent(typeof(NavMeshAgent))]
+[RequireComponent(typeof(Rigidbody))]
 public class EnemyCarNavMesh : MonoBehaviour
 {
     [Header("Target Settings")]
     public Transform playerTarget;
 
     [Header("Update Frequency")]
+    [Tooltip("How often (in seconds) the path recalculates.")]
     public float pathUpdateRate = 0.2f;
+
+    [Header("Proximity Stopping Settings")]
+    [Tooltip("The distance (in meters) from the player where the enemy car will stop chasing.")]
+    public float stoppingDistanceThreshold = 4.5f;
+    [Tooltip("How fast the enemy car slows down to a halt when getting close.")]
+    public float brakingDeceleration = 20f;
 
     private NavMeshAgent agent;
     private float nextUpdateTime;
+    private float originalAcceleration;
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
 
-        // Force snap to NavMesh on wakeup to prevent initialization errors
+        // Ensure the Rigidbody remains purely Kinematic since we are dodging physics crashes entirely
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+        }
+
+        originalAcceleration = agent.acceleration;
+
+        // Force snap to NavMesh on awake
         NavMeshHit hit;
         if (NavMesh.SamplePosition(transform.position, out hit, 2.0f, NavMesh.AllAreas))
         {
             agent.Warp(hit.position);
         }
 
+        // Auto-find player by tag if not assigned
         if (playerTarget == null)
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
@@ -36,55 +55,29 @@ public class EnemyCarNavMesh : MonoBehaviour
 
     void Update()
     {
-        if (playerTarget == null || agent.isStopped) return;
+        if (playerTarget == null) return;
 
-        if (Time.time >= nextUpdateTime)
+        // Calculate the flat horizontal distance between the two vehicles
+        float distanceToPlayer = Vector3.Distance(transform.position, playerTarget.position);
+
+        if (distanceToPlayer <= stoppingDistanceThreshold)
         {
-            nextUpdateTime = Time.time + pathUpdateRate;
-            agent.SetDestination(playerTarget.position);
+            // PROXIMITY STOP TRIGGERED:
+            // Crank up acceleration/braking so it halts cleanly instead of sliding into the player
+            agent.acceleration = brakingDeceleration;
+            agent.isStopped = true;
+            agent.ResetPath();
         }
-    }
-
-    // --- FORCEFUL COLLISION OVERRIDE ---
-    void OnCollisionEnter(Collision collision)
-    {
-        // Check for the player tag (Double check your Player GameObject is tagged "Player"!)
-        if (collision.gameObject.CompareTag("Player"))
+        else
         {
-            // 1. Instantly kill the agent component so it has ZERO physical presence
-            agent.enabled = false;
+            // RESUME CHASE:
+            // Restore normal acceleration properties and track the player
+            agent.acceleration = originalAcceleration;
+            agent.isStopped = false;
 
-            // 2. Clear out any leftover momentum from the Rigidbody
-            Rigidbody rb = GetComponent<Rigidbody>();
-            if (rb != null)
+            if (Time.time >= nextUpdateTime)
             {
-                rb.linearVelocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
-            }
-        }
-    }
-
-    void OnCollisionExit(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            // Give the player 1.5 seconds to escape before the AI wakes back up
-            Invoke(nameof(ResumeChasing), 1.5f);
-        }
-    }
-
-    void ResumeChasing()
-    {
-        if (agent != null)
-        {
-            // Turn the navigation engine back on
-            agent.enabled = true;
-
-            // Immediately sample the ground to make sure it wakes up safely
-            NavMeshHit hit;
-            if (NavMesh.SamplePosition(transform.position, out hit, 2.0f, NavMesh.AllAreas))
-            {
-                agent.Warp(hit.position);
+                nextUpdateTime = Time.time + pathUpdateRate;
                 agent.SetDestination(playerTarget.position);
             }
         }
