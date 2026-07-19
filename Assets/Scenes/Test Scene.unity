@@ -1589,6 +1589,74 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1894245818}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1001 &2124240380
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 825923026707514783, guid: 86c0c7f1bc593fa42b4093a6de9be1a3,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 825923026707514783, guid: 86c0c7f1bc593fa42b4093a6de9be1a3,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 825923026707514783, guid: 86c0c7f1bc593fa42b4093a6de9be1a3,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 825923026707514783, guid: 86c0c7f1bc593fa42b4093a6de9be1a3,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 825923026707514783, guid: 86c0c7f1bc593fa42b4093a6de9be1a3,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 825923026707514783, guid: 86c0c7f1bc593fa42b4093a6de9be1a3,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 825923026707514783, guid: 86c0c7f1bc593fa42b4093a6de9be1a3,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 825923026707514783, guid: 86c0c7f1bc593fa42b4093a6de9be1a3,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 825923026707514783, guid: 86c0c7f1bc593fa42b4093a6de9be1a3,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 825923026707514783, guid: 86c0c7f1bc593fa42b4093a6de9be1a3,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8471211934507840798, guid: 86c0c7f1bc593fa42b4093a6de9be1a3,
+        type: 3}
+      propertyPath: m_Name
+      value: Offroad Buggy
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 86c0c7f1bc593fa42b4093a6de9be1a3, type: 3}
 --- !u!1 &2135962432
 GameObject:
   m_ObjectHideFlags: 0
@@ -243665,3 +243733,4 @@ SceneRoots:
   - {fileID: 957389013}
   - {fileID: 772043372}
   - {fileID: 1453845988}
+  - {fileID: 2124240380}
