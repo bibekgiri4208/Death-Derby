@@ -10,18 +10,20 @@ public class EnemyCarNavMesh : MonoBehaviour
     public float pathUpdateRate = 0.2f;
 
     [Header("Proximity & Braking")]
-    [Tooltip("Distance at which the enemy starts applying brakes to prevent ramping under you.")]
     public float stopDistance = 4.5f;
     public float brakingDeceleration = 30f;
 
-    [Header("Ramming / Buzzing Physics")]
-    [Tooltip("Minimum impact speed from player required to knock this enemy back.")]
-    public float ramImpactThreshold = 6f;
-    [Tooltip("Force multiplier applied to enemy when player rams it.")]
-    public float knockbackForce = 12f;
+    [Header("Buzzing / Ramming Physics")]
+    [Tooltip("Radius around the enemy car to detect incoming fast player hits.")]
+    public float buzzDetectionRadius = 2.5f;
+    [Tooltip("Minimum player speed required to trigger a buzz/knockback.")]
+    public float minBuzzSpeed = 5f;
+    [Tooltip("Force multiplier applied to enemy when player buzzes it.")]
+    public float knockbackForce = 15f;
 
     private NavMeshAgent agent;
     private Rigidbody rb;
+    private Rigidbody playerRb;
     private float nextUpdateTime;
     private float defaultAcceleration;
     private bool isKnockedOut = false;
@@ -31,10 +33,9 @@ public class EnemyCarNavMesh : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
 
-        rb.isKinematic = true; // Keep kinematic while NavMesh controls movement
+        rb.isKinematic = true;
         defaultAcceleration = agent.acceleration;
 
-        // Snap to NavMesh on start
         NavMeshHit hit;
         if (NavMesh.SamplePosition(transform.position, out hit, 2.0f, NavMesh.AllAreas))
         {
@@ -44,7 +45,15 @@ public class EnemyCarNavMesh : MonoBehaviour
         if (playerTarget == null)
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null) playerTarget = player.transform;
+            if (player != null)
+            {
+                playerTarget = player.transform;
+            }
+        }
+
+        if (playerTarget != null)
+        {
+            playerRb = playerTarget.GetComponent<Rigidbody>();
         }
     }
 
@@ -54,7 +63,19 @@ public class EnemyCarNavMesh : MonoBehaviour
 
         float distanceToPlayer = Vector3.Distance(transform.position, playerTarget.position);
 
-        // 1. BRAKING SYSTEM (Prevents driving under player when player brakes)
+        // --- BUZZ SENSOR CHECK ---
+        // If the player is within buzzing distance AND moving fast, trigger knockback instantly
+        if (distanceToPlayer <= buzzDetectionRadius && playerRb != null)
+        {
+            float playerSpeed = playerRb.linearVelocity.magnitude;
+            if (playerSpeed >= minBuzzSpeed)
+            {
+                TriggerBuzz(playerRb.linearVelocity);
+                return;
+            }
+        }
+
+        // --- BRAKING / CHASE SYSTEM ---
         if (distanceToPlayer <= stopDistance)
         {
             agent.acceleration = brakingDeceleration;
@@ -74,40 +95,31 @@ public class EnemyCarNavMesh : MonoBehaviour
         }
     }
 
-    // 2. RAMMING / BUZZING DETECTOR
-    void OnCollisionEnter(Collision collision)
+    void TriggerBuzz(Vector3 playerVelocity)
     {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            float impactSpeed = collision.relativeVelocity.magnitude;
-
-            // If the player rams the enemy fast enough, knock the enemy out of pathfinding
-            if (impactSpeed >= ramImpactThreshold)
-            {
-                StopAllCoroutines();
-                StartCoroutine(HandleKnockback(collision, impactSpeed));
-            }
-        }
+        StopAllCoroutines();
+        StartCoroutine(HandleBuzzKnockback(playerVelocity));
     }
 
-    System.Collections.IEnumerator HandleKnockback(Collision collision, float speed)
+    System.Collections.IEnumerator HandleBuzzKnockback(Vector3 playerVelocity)
     {
         isKnockedOut = true;
 
-        // Disable agent & activate physics
+        // Immediately drop NavMesh control and unlock physics
         agent.enabled = false;
         rb.isKinematic = false;
 
-        // Calculate push vector away from player impact
-        Vector3 pushDir = (transform.position - collision.transform.position).normalized;
-        pushDir.y = 0.1f; // Slight upward pop for dramatic visual hit
+        // Apply directional knockback based on the player's momentum
+        Vector3 pushDirection = playerVelocity.normalized;
+        pushDirection.y = 0.05f; // Slight pop so wheels unstick from ground
 
-        rb.AddForce(pushDir * speed * knockbackForce, ForceMode.Impulse);
+        rb.AddForce(pushDirection * playerVelocity.magnitude * knockbackForce, ForceMode.Impulse);
+        rb.AddTorque(transform.up * Random.Range(-50f, 50f), ForceMode.Impulse); // Visual spin out
 
-        // Let the physics slide happen for 1.2 seconds before AI recovers
+        // Let the enemy car physically spin/slide for 1.2s
         yield return new WaitForSeconds(1.2f);
 
-        // Reset physics and restore agent control
+        // Reset velocities and restore AI
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
         rb.isKinematic = true;
@@ -120,5 +132,12 @@ public class EnemyCarNavMesh : MonoBehaviour
         {
             agent.Warp(hit.position);
         }
+    }
+
+    // Visual debugging ring in Scene view to check your buzz radius
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, buzzDetectionRadius);
     }
 }
