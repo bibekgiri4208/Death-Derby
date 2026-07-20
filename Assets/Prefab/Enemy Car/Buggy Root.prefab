@@ -101,9 +101,6 @@ GameObject:
   - component: {fileID: 2989879713939707810}
   - component: {fileID: 8313632526460162070}
   - component: {fileID: 7247039959930657669}
-  - component: {fileID: 8186710317536805391}
-  - component: {fileID: 2631356581159631273}
-  - component: {fileID: 7313560132759330601}
   m_Layer: 0
   m_Name: Buggy Root
   m_TagString: Enemy
@@ -179,67 +176,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.9751568, y: 1.0024698, z: 2.7644877}
   m_Center: {x: 0.0046434402, y: 0.8765147, z: 0.0738228}
---- !u!114 &8186710317536805391
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 849170410071992545}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 46e7e861047317f43825be8c96e8eb5f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyCarAI
-  playerTarget: {fileID: 0}
-  pathUpdateRate: 0.2
-  stopDistance: 5
-  brakingDeceleration: 20
-  buzzDetectionRadius: 2.5
-  minBuzzSpeed: 5
-  knockbackForce: 12
---- !u!114 &2631356581159631273
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 849170410071992545}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d764a75e55c711d4da6ff89d98131662, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyWheelAnimator
-  agent: {fileID: 7313560132759330601}
-  frontLeftWheel: {fileID: 5700465389545579000}
-  frontRightWheel: {fileID: 470838669897668050}
-  rearLeftWheel: {fileID: 6882706292607129425}
-  rearRightWheel: {fileID: 3318388073483680811}
-  wheelRadius: 0.4
-  maxSteerAngle: 35
-  steerSmoothing: 10
---- !u!195 &7313560132759330601
-NavMeshAgent:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 849170410071992545}
-  m_Enabled: 1
-  m_AgentTypeID: -334000983
-  m_Radius: 1
-  m_Speed: 40
-  m_Acceleration: 10
-  avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 0
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
-  m_AutoRepath: 1
-  m_Height: 2
-  m_BaseOffset: 0
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
 --- !u!1 &897138092381927868
 GameObject:
   m_ObjectHideFlags: 0
@@ -2109,7 +2045,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7011600778402872349}
-  - component: {fileID: 8900618983315234673}
   m_Layer: 0
   m_Name: Buggy
   m_TagString: Untagged
@@ -2137,25 +2072,6 @@ Transform:
   - {fileID: 3318388073483680811}
   m_Father: {fileID: 2989879713939707810}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
---- !u!114 &8900618983315234673
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8668509790595374725}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15b8595a9baf66641aa9b7dfb6ed3404, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NavMeshCarVisuals
-  agent: {fileID: 7313560132759330601}
-  VisualModel: {fileID: 7011600778402872349}
-  tiltAmount: 5
-  tiltSpeed: 8
-  maxDriftAngle: 25
-  driftSmoothTime: 0.1
-  driftThresholdSpeed: 2
 --- !u!1 &8879797133675048199
 GameObject:
   m_ObjectHideFlags: 0
