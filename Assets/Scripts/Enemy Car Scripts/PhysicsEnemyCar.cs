@@ -7,9 +7,9 @@ public class PhysicsEnemyCar : MonoBehaviour
     public Transform playerTarget;
 
     [Header("Car Driving Physics")]
-    public float motorForce = 1500f;
+    public float acceleration = 25f;
     public float maxSpeed = 15f;
-    public float turnSpeed = 3f;
+    public float turnSpeed = 5f;
     public float stopDistance = 4f;
 
     private Rigidbody rb;
@@ -17,9 +17,10 @@ public class PhysicsEnemyCar : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-
-        // Ensure Rigidbody is non-kinematic
         rb.isKinematic = false;
+
+        // Helps prevent the car from catching edges/friction on the ground
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
 
         if (playerTarget == null)
         {
@@ -33,30 +34,30 @@ public class PhysicsEnemyCar : MonoBehaviour
         if (playerTarget == null) return;
 
         Vector3 targetDirection = playerTarget.position - transform.position;
-        targetDirection.y = 0; // Keep driving horizontal
+        targetDirection.y = 0;
 
         float distanceToPlayer = targetDirection.magnitude;
 
-        // 1. STEERING / TURNING (Rotate towards player using Physics)
+        // 1. ROTATE TOWARDS PLAYER
         if (distanceToPlayer > 0.5f)
         {
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Time.fixedDeltaTime);
         }
 
-        // 2. FORWARD ACCELERATION & BRAKING
+        // 2. DRIVE FORWARD USING VELOCITY CHANGE
         if (distanceToPlayer > stopDistance)
         {
-            // Only apply forward force if under max speed
             if (rb.linearVelocity.magnitude < maxSpeed)
             {
-                rb.AddForce(transform.forward * motorForce, ForceMode.Force);
+                // ForceMode.VelocityChange ensures snappy acceleration regardless of car mass
+                rb.AddForce(transform.forward * acceleration, ForceMode.Acceleration);
             }
         }
         else
         {
-            // Apply gentle brake drag when close so it doesn't ram relentlessly
-            rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, Vector3.zero, Time.fixedDeltaTime * 3f);
+            // Smoothly slow down near player
+            rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, Vector3.zero, Time.fixedDeltaTime * 4f);
         }
     }
 }
