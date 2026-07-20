@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.AI; // Required for NavMesh
+using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Rigidbody))]
@@ -7,72 +7,63 @@ public class EnemyCarNavMesh : MonoBehaviour
 {
     [Header("Target Settings")]
     public Transform playerTarget;
-
-    [Header("Update Frequency")]
-    [Tooltip("How often (in seconds) the path recalculates.")]
     public float pathUpdateRate = 0.2f;
 
-    [Header("Proximity Stopping Settings")]
-    [Tooltip("The distance (in meters) from the player where the enemy car will stop chasing.")]
-    public float stoppingDistanceThreshold = 4.5f;
-    [Tooltip("How fast the enemy car slows down to a halt when getting close.")]
-    public float brakingDeceleration = 20f;
+    [Header("Proximity & Braking")]
+    [Tooltip("Distance at which the enemy starts applying brakes to prevent ramping under you.")]
+    public float stopDistance = 4.5f;
+    public float brakingDeceleration = 30f;
+
+    [Header("Ramming / Buzzing Physics")]
+    [Tooltip("Minimum impact speed from player required to knock this enemy back.")]
+    public float ramImpactThreshold = 6f;
+    [Tooltip("Force multiplier applied to enemy when player rams it.")]
+    public float knockbackForce = 12f;
 
     private NavMeshAgent agent;
+    private Rigidbody rb;
     private float nextUpdateTime;
-    private float originalAcceleration;
+    private float defaultAcceleration;
+    private bool isKnockedOut = false;
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+        rb = GetComponent<Rigidbody>();
 
-        // Ensure the Rigidbody remains purely Kinematic since we are dodging physics crashes entirely
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.isKinematic = true;
-        }
+        rb.isKinematic = true; // Keep kinematic while NavMesh controls movement
+        defaultAcceleration = agent.acceleration;
 
-        originalAcceleration = agent.acceleration;
-
-        // Force snap to NavMesh on awake
+        // Snap to NavMesh on start
         NavMeshHit hit;
         if (NavMesh.SamplePosition(transform.position, out hit, 2.0f, NavMesh.AllAreas))
         {
             agent.Warp(hit.position);
         }
 
-        // Auto-find player by tag if not assigned
         if (playerTarget == null)
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null)
-            {
-                playerTarget = player.transform;
-            }
+            if (player != null) playerTarget = player.transform;
         }
     }
 
     void Update()
     {
-        if (playerTarget == null) return;
+        if (playerTarget == null || isKnockedOut) return;
 
-        // Calculate the flat horizontal distance between the two vehicles
         float distanceToPlayer = Vector3.Distance(transform.position, playerTarget.position);
 
-        if (distanceToPlayer <= stoppingDistanceThreshold)
+        // 1. BRAKING SYSTEM (Prevents driving under player when player brakes)
+        if (distanceToPlayer <= stopDistance)
         {
-            // PROXIMITY STOP TRIGGERED:
-            // Crank up acceleration/braking so it halts cleanly instead of sliding into the player
             agent.acceleration = brakingDeceleration;
             agent.isStopped = true;
-            agent.ResetPath();
+            agent.velocity = Vector3.Lerp(agent.velocity, Vector3.zero, Time.deltaTime * 5f);
         }
         else
         {
-            // RESUME CHASE:
-            // Restore normal acceleration properties and track the player
-            agent.acceleration = originalAcceleration;
+            agent.acceleration = defaultAcceleration;
             agent.isStopped = false;
 
             if (Time.time >= nextUpdateTime)
@@ -80,6 +71,54 @@ public class EnemyCarNavMesh : MonoBehaviour
                 nextUpdateTime = Time.time + pathUpdateRate;
                 agent.SetDestination(playerTarget.position);
             }
+        }
+    }
+
+    // 2. RAMMING / BUZZING DETECTOR
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            float impactSpeed = collision.relativeVelocity.magnitude;
+
+            // If the player rams the enemy fast enough, knock the enemy out of pathfinding
+            if (impactSpeed >= ramImpactThreshold)
+            {
+                StopAllCoroutines();
+                StartCoroutine(HandleKnockback(collision, impactSpeed));
+            }
+        }
+    }
+
+    System.Collections.IEnumerator HandleKnockback(Collision collision, float speed)
+    {
+        isKnockedOut = true;
+
+        // Disable agent & activate physics
+        agent.enabled = false;
+        rb.isKinematic = false;
+
+        // Calculate push vector away from player impact
+        Vector3 pushDir = (transform.position - collision.transform.position).normalized;
+        pushDir.y = 0.1f; // Slight upward pop for dramatic visual hit
+
+        rb.AddForce(pushDir * speed * knockbackForce, ForceMode.Impulse);
+
+        // Let the physics slide happen for 1.2 seconds before AI recovers
+        yield return new WaitForSeconds(1.2f);
+
+        // Reset physics and restore agent control
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.isKinematic = true;
+
+        agent.enabled = true;
+        isKnockedOut = false;
+
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(transform.position, out hit, 3.0f, NavMesh.AllAreas))
+        {
+            agent.Warp(hit.position);
         }
     }
 }

@@ -194,8 +194,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyCarAI
   playerTarget: {fileID: 0}
   pathUpdateRate: 0.2
-  stoppingDistanceThreshold: 10
+  stopDistance: 5
   brakingDeceleration: 20
+  ramImpactThreshold: 6
+  knockbackForce: 12
 --- !u!114 &2631356581159631273
 MonoBehaviour:
   m_ObjectHideFlags: 0
