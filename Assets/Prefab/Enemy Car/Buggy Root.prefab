@@ -104,7 +104,6 @@ GameObject:
   - component: {fileID: 8186710317536805391}
   - component: {fileID: 2631356581159631273}
   - component: {fileID: 7313560132759330601}
-  - component: {fileID: 2587042026205020583}
   m_Layer: 0
   m_Name: Buggy Root
   m_TagString: Enemy
@@ -155,7 +154,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 3
@@ -187,7 +186,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 849170410071992545}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 46e7e861047317f43825be8c96e8eb5f, type: 3}
   m_Name: 
@@ -196,7 +195,8 @@ MonoBehaviour:
   pathUpdateRate: 0.2
   stopDistance: 5
   brakingDeceleration: 20
-  ramImpactThreshold: 6
+  buzzDetectionRadius: 2.5
+  minBuzzSpeed: 5
   knockbackForce: 12
 --- !u!114 &2631356581159631273
 MonoBehaviour:
@@ -205,7 +205,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 849170410071992545}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d764a75e55c711d4da6ff89d98131662, type: 3}
   m_Name: 
@@ -240,26 +240,6 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &2587042026205020583
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 849170410071992545}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshModifier
-  m_SerializedVersion: 0
-  m_OverrideArea: 1
-  m_Area: 0
-  m_OverrideGenerateLinks: 0
-  m_GenerateLinks: 0
-  m_IgnoreFromBuild: 0
-  m_ApplyToChildren: 1
-  m_AffectedAgents: ffffffff
 --- !u!1 &897138092381927868
 GameObject:
   m_ObjectHideFlags: 0
