@@ -21,7 +21,7 @@ public class CarSelection : MonoBehaviour
 
     [Header("UI Panels")]
     [SerializeField] private GameObject mainMenuPanel;
-    [SerializeField] private GameObject trackSelectionPanel;
+    [SerializeField] private GameObject stageSelectionPanel;
 
     int currentCarIndex;
 
@@ -102,40 +102,34 @@ public class CarSelection : MonoBehaviour
     {
         if (cars == null || cars.Length == 0) return;
 
-        // Save the car choice right away when entering the track menu
+        // Save the car choice right away when entering the stage menu
         currentCarIndex = Mathf.Clamp(currentCarIndex, 0, cars.Length - 1);
         PlayerPrefs.SetInt("CarIndexValue", currentCarIndex);
         PlayerPrefs.Save();
 
-        // Switch panels: Hide main menu, show track choices
+        // Switch panels: Hide main menu, show stage choices
         if (mainMenuPanel != null) mainMenuPanel.SetActive(false);
-        if (trackSelectionPanel != null) trackSelectionPanel.SetActive(true);
+        if (stageSelectionPanel != null) stageSelectionPanel.SetActive(true);
     }
 
-    // Call this from the "Back" button in the track panel
+    // Call this from the "Back" button in the stage panel
     public void BackToMainMenu()
     {
         // Switch panels back
         if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
-        if (trackSelectionPanel != null) trackSelectionPanel.SetActive(false);
+        if (stageSelectionPanel != null) stageSelectionPanel.SetActive(false);
     }
 
-    // Track Selection Button Functions
-    public void LoadTrack1()
+    // Stage Selection Button Functions
+    public void LoadStage1()
     {
-        SceneManager.LoadScene("Level1"); // Or whatever your Track 1 scene name is
+        SceneManager.LoadScene("Level1");
     }
 
-    public void LoadTrack2()
+    public void LoadStage2()
     {
         SceneManager.LoadScene("Level2");
     }
-
-    public void LoadTrack3()
-    {
-        SceneManager.LoadScene("Level3");
-    }
-
     public void PracticeButton()
     {
         if (cars == null || cars.Length == 0) return;
