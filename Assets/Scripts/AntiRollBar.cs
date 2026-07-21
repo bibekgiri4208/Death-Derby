@@ -10,7 +10,7 @@ public class AntiRollBar4Wheel : MonoBehaviour
     public WheelCollider RearLeftWheel;
     public WheelCollider RearRightWheel;
 
-    // Adjust these separately if needed. Trucks often need stiffer rear anti-roll.
+
     public float FrontAntiRollStiffness = 5000f;
     public float RearAntiRollStiffness = 5000f;
 
