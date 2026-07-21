@@ -566,6 +566,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
   carInfos: []
   carNameText: {fileID: 0}
   mainMenuPanel: {fileID: 0}
@@ -921,17 +922,17 @@ PrefabInstance:
     - target: {fileID: 240509911597133763, guid: 3bc13cf0ec3f0dd4f8d9dbf02b9781de,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.19449005
+      value: -0.003
       objectReference: {fileID: 0}
     - target: {fileID: 240509911597133763, guid: 3bc13cf0ec3f0dd4f8d9dbf02b9781de,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.93230003
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 240509911597133763, guid: 3bc13cf0ec3f0dd4f8d9dbf02b9781de,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.45957327
+      value: 0.038
       objectReference: {fileID: 0}
     - target: {fileID: 240509911597133763, guid: 3bc13cf0ec3f0dd4f8d9dbf02b9781de,
         type: 3}
@@ -1856,12 +1857,12 @@ PrefabInstance:
     - target: {fileID: 2357402654165968111, guid: df3fa82584f0f2d468a90f79e51815f8,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.026666641
+      value: 0.003
       objectReference: {fileID: 0}
     - target: {fileID: 2357402654165968111, guid: df3fa82584f0f2d468a90f79e51815f8,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.31835
+      value: 1.06
       objectReference: {fileID: 0}
     - target: {fileID: 2357402654165968111, guid: df3fa82584f0f2d468a90f79e51815f8,
         type: 3}
@@ -1907,6 +1908,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Goliath
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228972961806677989, guid: df3fa82584f0f2d468a90f79e51815f8,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3052,7 +3058,7 @@ PrefabInstance:
     - target: {fileID: 1568849019793711753, guid: a3dd07c47767cbe4093b1e0a85aea0fe,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5346751273744930673, guid: a3dd07c47767cbe4093b1e0a85aea0fe,
         type: 3}
@@ -3072,17 +3078,17 @@ PrefabInstance:
     - target: {fileID: 5346751273744930673, guid: a3dd07c47767cbe4093b1e0a85aea0fe,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.35757336
+      value: -0.003
       objectReference: {fileID: 0}
     - target: {fileID: 5346751273744930673, guid: a3dd07c47767cbe4093b1e0a85aea0fe,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.93230003
+      value: 1.03
       objectReference: {fileID: 0}
     - target: {fileID: 5346751273744930673, guid: a3dd07c47767cbe4093b1e0a85aea0fe,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.45957327
+      value: 0.038
       objectReference: {fileID: 0}
     - target: {fileID: 5346751273744930673, guid: a3dd07c47767cbe4093b1e0a85aea0fe,
         type: 3}
@@ -3452,7 +3458,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: b0b53288d75d8f8498a87738fdd21a4e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3683,15 +3689,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 1663275866}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c018cb56cab71ab489dc66bbe1c3784f, type: 3}
+  m_Script: {fileID: 11500000, guid: e6f2d1685976d384682858ffd851fc47, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HandheldCameraController
-  wanderRadius: 1.5
-  wanderSpeed: 0.1
-  swayAmplitude: 0.1
-  swaySpeed: 0.4
-  shakeAmplitude: 0.2
-  shakeSpeed: 1
+  m_EditorClassIdentifier: Assembly-CSharp::MenuCameraFloat
+  walkSideRange: 0.3
+  walkForwardRange: 0.1
+  walkSpeed: 0.2
+  handFloatRange: {x: 0.06, y: 0.05, z: 0.03}
+  handFloatSpeed: 0.8
+  rotationRange: {x: 0.8, y: 1.2, z: 0.5}
+  rotationSpeed: 0.6
+  cameraSmoothness: 3
 --- !u!1001 &1664244313
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3728,17 +3736,17 @@ PrefabInstance:
     - target: {fileID: 8939707377629218181, guid: 0a95ebadb12b03744840d1e68a5b9264,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.40603328
+      value: -0.003
       objectReference: {fileID: 0}
     - target: {fileID: 8939707377629218181, guid: 0a95ebadb12b03744840d1e68a5b9264,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.31835
+      value: 1.03
       objectReference: {fileID: 0}
     - target: {fileID: 8939707377629218181, guid: 0a95ebadb12b03744840d1e68a5b9264,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.45957327
+      value: 0.038
       objectReference: {fileID: 0}
     - target: {fileID: 8939707377629218181, guid: 0a95ebadb12b03744840d1e68a5b9264,
         type: 3}
