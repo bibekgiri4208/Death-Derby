@@ -747,6 +747,80 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 243554869}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1001 &340133492
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 483540647592100171, guid: 5f6ca979cad536d47b8d39ed505212ec,
+        type: 3}
+      propertyPath: m_Name
+      value: Mercedes Truck
+      objectReference: {fileID: 0}
+    - target: {fileID: 5262533900271700297, guid: 5f6ca979cad536d47b8d39ed505212ec,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 196.85692
+      objectReference: {fileID: 0}
+    - target: {fileID: 5262533900271700297, guid: 5f6ca979cad536d47b8d39ed505212ec,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.000009061678
+      objectReference: {fileID: 0}
+    - target: {fileID: 5262533900271700297, guid: 5f6ca979cad536d47b8d39ed505212ec,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 162.69331
+      objectReference: {fileID: 0}
+    - target: {fileID: 5262533900271700297, guid: 5f6ca979cad536d47b8d39ed505212ec,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5262533900271700297, guid: 5f6ca979cad536d47b8d39ed505212ec,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5262533900271700297, guid: 5f6ca979cad536d47b8d39ed505212ec,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5262533900271700297, guid: 5f6ca979cad536d47b8d39ed505212ec,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5262533900271700297, guid: 5f6ca979cad536d47b8d39ed505212ec,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5262533900271700297, guid: 5f6ca979cad536d47b8d39ed505212ec,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5262533900271700297, guid: 5f6ca979cad536d47b8d39ed505212ec,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5f6ca979cad536d47b8d39ed505212ec, type: 3}
+--- !u!4 &340133493 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5262533900271700297, guid: 5f6ca979cad536d47b8d39ed505212ec,
+    type: 3}
+  m_PrefabInstance: {fileID: 340133492}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &406615661
 GameObject:
   m_ObjectHideFlags: 0
@@ -2894,7 +2968,7 @@ PrefabInstance:
     - target: {fileID: 436547849921054849, guid: 37fbd146c718e7b449da9443f3514cf9,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3798303161122020800, guid: 37fbd146c718e7b449da9443f3514cf9,
         type: 3}
@@ -2951,12 +3025,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 37fbd146c718e7b449da9443f3514cf9, type: 3}
---- !u!4 &1756623412 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 3798303161122020800, guid: 37fbd146c718e7b449da9443f3514cf9,
-    type: 3}
-  m_PrefabInstance: {fileID: 1756623411}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1809195438
 GameObject:
   m_ObjectHideFlags: 0
@@ -6221,7 +6289,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a194243844819a645bff54ede5bf627c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CarFollowCamera
-  target: {fileID: 1756623412}
+  target: {fileID: 340133493}
   offset: {x: 0, y: 5, z: -4}
   followSmoothness: 12
   lookHeight: 1.5
@@ -9062,5 +9130,6 @@ SceneRoots:
   - {fileID: 185339603}
   - {fileID: 1756623411}
   - {fileID: 1215728940}
+  - {fileID: 340133492}
   - {fileID: 2006109573}
   - {fileID: 1004252288}
