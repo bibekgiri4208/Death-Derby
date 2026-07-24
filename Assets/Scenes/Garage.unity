@@ -1065,6 +1065,8 @@ MonoBehaviour:
   nightSkybox: {fileID: 2100000, guid: ab675e6698bde46fd87143fb0d7580cb, type: 2}
   dayFogColor: {r: 0.9490197, g: 0.7607844, b: 0.48235297, a: 1}
   nightFogColor: {r: 0.043137256, g: 0.09019608, b: 0.2509804, a: 1}
+  dayFogDensity: 0.011
+  nightFogDensity: 0.021
   sunLight: {fileID: 0}
 --- !u!4 &479241776
 Transform:
