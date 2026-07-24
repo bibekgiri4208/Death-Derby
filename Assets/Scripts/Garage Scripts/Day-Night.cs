@@ -6,9 +6,11 @@ public class SkyboxToggle : MonoBehaviour
     [SerializeField] private Material daySkybox;
     [SerializeField] private Material nightSkybox;
 
-    [Header("Fog Colors (Built-in)")]
+    [Header("Fog Settings (Built-in)")]
     [SerializeField] private Color dayFogColor = new Color(0.5f, 0.6f, 0.7f);
     [SerializeField] private Color nightFogColor = new Color(0.05f, 0.05f, 0.1f);
+    [Range(0f, 1f)][SerializeField] private float dayFogDensity = 0.01f;
+    [Range(0f, 1f)][SerializeField] private float nightFogDensity = 0.05f;
 
     [Header("Optional Directional Light")]
     [SerializeField] private Light sunLight;
@@ -20,6 +22,7 @@ public class SkyboxToggle : MonoBehaviour
         // Set initial day states
         RenderSettings.skybox = daySkybox;
         RenderSettings.fogColor = dayFogColor;
+        RenderSettings.fogDensity = dayFogDensity;
         DynamicGI.UpdateEnvironment();
     }
 
@@ -30,13 +33,15 @@ public class SkyboxToggle : MonoBehaviour
         if (isNight)
         {
             RenderSettings.skybox = nightSkybox;
-            RenderSettings.fogColor = nightFogColor; // Updates standard fog color
+            RenderSettings.fogColor = nightFogColor;
+            RenderSettings.fogDensity = nightFogDensity;
             if (sunLight != null) sunLight.gameObject.SetActive(false);
         }
         else
         {
             RenderSettings.skybox = daySkybox;
-            RenderSettings.fogColor = dayFogColor; // Updates standard fog color
+            RenderSettings.fogColor = dayFogColor;
+            RenderSettings.fogDensity = dayFogDensity;
             if (sunLight != null) sunLight.gameObject.SetActive(true);
         }
 

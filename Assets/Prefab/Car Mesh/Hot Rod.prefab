@@ -737,8 +737,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8939707377629218181}
-  - component: {fileID: 1548306731660858408}
-  - component: {fileID: 1933121082656364243}
   m_Layer: 3
   m_Name: Hot Rod
   m_TagString: Untagged
@@ -762,54 +760,6 @@ Transform:
   - {fileID: 1305546200080096324}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &1548306731660858408
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 813512694355830102}
-  serializedVersion: 5
-  m_Mass: 1200
-  m_LinearDamping: 0.05
-  m_AngularDamping: 0.5
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 1
-  m_Constraints: 0
-  m_CollisionDetection: 2
---- !u!65 &1933121082656364243
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 813512694355830102}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 2.4207783, y: 1.6505872, z: 4.250747}
-  m_Center: {x: -0.0050866604, y: 0.81013507, z: -0.09332299}
 --- !u!1 &872350529310116004
 GameObject:
   m_ObjectHideFlags: 0

@@ -488,8 +488,8 @@ Transform:
   m_GameObject: {fileID: 1130103900687895443}
   serializedVersion: 2
   m_LocalRotation: {x: -0.50000006, y: -0.49999994, z: -0.49999997, w: 0.50000006}
-  m_LocalPosition: {x: 0, y: 0.428, z: -2.236}
-  m_LocalScale: {x: 97.494484, y: 97.494484, z: 97.494484}
+  m_LocalPosition: {x: 0, y: 0.399, z: -2.213}
+  m_LocalScale: {x: 100, y: 100, z: 100}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3976448308559439220}
@@ -868,8 +868,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 240509911597133763}
-  - component: {fileID: 7911661927766686770}
-  - component: {fileID: 3735322069180706095}
   m_Layer: 0
   m_Name: Dust Devil
   m_TagString: Untagged
@@ -894,54 +892,6 @@ Transform:
   - {fileID: 8104203139273875369}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &7911661927766686770
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1868500275101880713}
-  serializedVersion: 5
-  m_Mass: 1200
-  m_LinearDamping: 0.05
-  m_AngularDamping: 0.5
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 1
-  m_Constraints: 0
-  m_CollisionDetection: 2
---- !u!65 &3735322069180706095
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1868500275101880713}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1.9569981, y: 1.3242369, z: 4.0120006}
-  m_Center: {x: -0.00000011920929, y: 0.46419573, z: -0.01992774}
 --- !u!1 &1946944179246102940
 GameObject:
   m_ObjectHideFlags: 0
