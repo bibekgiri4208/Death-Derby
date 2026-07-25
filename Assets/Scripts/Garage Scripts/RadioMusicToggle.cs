@@ -10,15 +10,13 @@ public class RadioMusicToggle : MonoBehaviour
     public ParticleSystem particleEffect2;
 
     [Header("Speaker Bounce Settings")]
-    [Tooltip("Assign your left and right speaker cone meshes here.")]
-    public Transform leftSpeaker;
-    public Transform rightSpeaker;
+    [Tooltip("Drag up to 4 speaker cone transforms here.")]
+    public Transform[] speakers = new Transform[4];
 
-    public float pulseSpeed = 10f; // How fast the speakers bounce
+    public float pulseSpeed = 10f;   // How fast the speakers bounce
     public float pulseAmount = 0.05f; // How much they expand (0.05 = 5% bigger)
 
-    private Vector3 originalLeftScale;
-    private Vector3 originalRightScale;
+    private Vector3[] originalScales;
 
     void Start()
     {
@@ -28,9 +26,18 @@ public class RadioMusicToggle : MonoBehaviour
             radioAudioSource = GetComponent<AudioSource>();
         }
 
-        // Store original scales if assigned
-        if (leftSpeaker != null) originalLeftScale = leftSpeaker.localScale;
-        if (rightSpeaker != null) originalRightScale = rightSpeaker.localScale;
+        // Save original scales for each assigned speaker
+        if (speakers != null)
+        {
+            originalScales = new Vector3[speakers.Length];
+            for (int i = 0; i < speakers.Length; i++)
+            {
+                if (speakers[i] != null)
+                {
+                    originalScales[i] = speakers[i].localScale;
+                }
+            }
+        }
 
         // Sync particle state with initial audio state on game start
         UpdateParticles();
@@ -43,28 +50,34 @@ public class RadioMusicToggle : MonoBehaviour
 
         if (isMusicPlaying)
         {
-            // Smooth bouncing scale using a sine wave
+            // Calculate a smooth bouncing scale using a sine wave
             float scaleOffset = Mathf.Abs(Mathf.Sin(Time.time * pulseSpeed)) * pulseAmount;
             Vector3 bounceOffset = new Vector3(scaleOffset, scaleOffset, scaleOffset);
 
-            if (leftSpeaker != null)
-                leftSpeaker.localScale = originalLeftScale + bounceOffset;
-
-            if (rightSpeaker != null)
-                rightSpeaker.localScale = originalRightScale + bounceOffset;
+            // Apply pulse to all speakers
+            for (int i = 0; i < speakers.Length; i++)
+            {
+                if (speakers[i] != null)
+                {
+                    speakers[i].localScale = originalScales[i] + bounceOffset;
+                }
+            }
         }
         else
         {
-            // Smoothly reset back to original scales when muted/stopped
-            ResetSpeakerScale(leftSpeaker, originalLeftScale);
-            ResetSpeakerScale(rightSpeaker, originalRightScale);
+            // Smoothly reset all speakers back to their original scale
+            for (int i = 0; i < speakers.Length; i++)
+            {
+                if (speakers[i] != null && originalScales != null)
+                {
+                    ResetSpeakerScale(speakers[i], originalScales[i]);
+                }
+            }
         }
     }
 
     private void ResetSpeakerScale(Transform speaker, Vector3 originalScale)
     {
-        if (speaker == null) return;
-
         if (speaker.localScale != originalScale)
         {
             speaker.localScale = Vector3.Lerp(

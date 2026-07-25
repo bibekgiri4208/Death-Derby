@@ -884,7 +884,7 @@ GameObject:
   - component: {fileID: 289309541}
   - component: {fileID: 289309540}
   m_Layer: 0
-  m_Name: AUX_IN_1
+  m_Name: AUX L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9233,7 +9233,7 @@ GameObject:
   - component: {fileID: 8042903420233364677}
   - component: {fileID: 6350464379911131968}
   m_Layer: 0
-  m_Name: CIRCULO_SECUNDARIO_ABAJO6
+  m_Name: Inner Ring R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19833,7 +19833,7 @@ GameObject:
   - component: {fileID: 7650789838096948244}
   - component: {fileID: 1064806421262088457}
   m_Layer: 0
-  m_Name: MEMBRANA_ABAJO1
+  m_Name: Outer Hole R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -25353,7 +25353,7 @@ GameObject:
   - component: {fileID: 2426670098263159528}
   - component: {fileID: 4031335313700864403}
   m_Layer: 0
-  m_Name: CIRCULO_SECUNDARIO_ABAJO2
+  m_Name: Volume Knob L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -25389,7 +25389,7 @@ GameObject:
   - component: {fileID: 8740873758872311250}
   - component: {fileID: 7977238009715364774}
   m_Layer: 0
-  m_Name: CIRCULO_PRINCIPAL_ABAJO
+  m_Name: Ring L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31609,7 +31609,7 @@ GameObject:
   - component: {fileID: 1847092955024672369}
   - component: {fileID: 8595702882200895350}
   m_Layer: 0
-  m_Name: CAJA_1
+  m_Name: Case L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -33253,7 +33253,7 @@ GameObject:
   - component: {fileID: 904765592588162061}
   - component: {fileID: 8878641731898284955}
   m_Layer: 0
-  m_Name: CENTRO_ABAJO1
+  m_Name: Hole R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -35702,7 +35702,7 @@ GameObject:
   - component: {fileID: 2014451416666484221}
   - component: {fileID: 3563713618390128993}
   m_Layer: 0
-  m_Name: AUX_IN
+  m_Name: AUX L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -36418,7 +36418,7 @@ GameObject:
   - component: {fileID: 2454475472293591807}
   - component: {fileID: 6414962751294805246}
   m_Layer: 0
-  m_Name: CENTRO_ABAJO
+  m_Name: Hole L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -36624,7 +36624,7 @@ GameObject:
   - component: {fileID: 3082490201668767084}
   - component: {fileID: 4637102853523880101}
   m_Layer: 0
-  m_Name: CIRCULO_SECUNDARIO_ABAJO3
+  m_Name: Volume Knob L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -36676,7 +36676,7 @@ GameObject:
   - component: {fileID: 5297207574812588613}
   - component: {fileID: 3036601455112256811}
   m_Layer: 0
-  m_Name: CIRCULO_PRINCIPAL_ARRIBA
+  m_Name: Small Ring R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -37374,7 +37374,7 @@ GameObject:
   - component: {fileID: 6474012904875890781}
   - component: {fileID: 4382884791811944606}
   m_Layer: 0
-  m_Name: MEMBRANA_ABAJO
+  m_Name: Outer Hole L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -37401,20 +37401,20 @@ Transform:
   - {fileID: 6312186209203430356}
   - {fileID: 6783527723641451942}
   - {fileID: 4571438238905109188}
-  - {fileID: 8620033657946165080}
   - {fileID: 1948627811724862573}
+  - {fileID: 8620033657946165080}
   - {fileID: 2215806159458238737}
+  - {fileID: 8097653333262972525}
   - {fileID: 8138447333320147439}
   - {fileID: 884031973015235061}
+  - {fileID: 3770933066859522339}
+  - {fileID: 5134713112011899833}
   - {fileID: 4888367319059763983}
   - {fileID: 120783057525941941}
-  - {fileID: 8097653333262972525}
   - {fileID: 462033609502265112}
   - {fileID: 7203720715983817038}
   - {fileID: 3841506395606953631}
   - {fileID: 4729889747030165753}
-  - {fileID: 3770933066859522339}
-  - {fileID: 5134713112011899833}
   - {fileID: 3462020719113566254}
   - {fileID: 3683650584343249430}
   - {fileID: 3300709505384652291}
@@ -38379,9 +38379,14 @@ MonoBehaviour:
   radioAudioSource: {fileID: 7601293725626915562}
   particleEffect1: {fileID: 1339513461548692043}
   particleEffect2: {fileID: 2894907613471490445}
-  speakerTransform: {fileID: 6783527723641451942}
+  speakers:
+  - {fileID: 6783527723641451942}
+  - {fileID: 4571438238905109188}
+  - {fileID: 1948627811724862573}
+  - {fileID: 8620033657946165080}
+  - {fileID: 7077099991207346258}
   pulseSpeed: 10
-  pulseAmount: 0.05
+  pulseAmount: 0.1
 --- !u!33 &7606442907965150984
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -38500,7 +38505,7 @@ GameObject:
   - component: {fileID: 8540100637898384285}
   - component: {fileID: 3153715653549558689}
   m_Layer: 0
-  m_Name: CIRCULO_PRINCIPAL_ARRIBA1
+  m_Name: Small Ring L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -39177,7 +39182,7 @@ GameObject:
   - component: {fileID: 2563975237782116712}
   - component: {fileID: 7049557933252238700}
   m_Layer: 0
-  m_Name: CIRCULO_SECUNDARIO_ABAJO
+  m_Name: Inner Ring L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -39406,7 +39411,7 @@ GameObject:
   - component: {fileID: 7087508473271212906}
   - component: {fileID: 3987745225718415519}
   m_Layer: 0
-  m_Name: CAJA_2
+  m_Name: Case R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -41090,7 +41095,7 @@ GameObject:
   - component: {fileID: 7704416372161496992}
   - component: {fileID: 7002254107797993447}
   m_Layer: 0
-  m_Name: CIRCULO_PRINCIPAL_ABAJO1
+  m_Name: Ring R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
