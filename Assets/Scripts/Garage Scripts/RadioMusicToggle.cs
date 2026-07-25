@@ -9,6 +9,17 @@ public class RadioMusicToggle : MonoBehaviour
     public ParticleSystem particleEffect1;
     public ParticleSystem particleEffect2;
 
+    [Header("Speaker Bounce Settings")]
+    [Tooltip("Assign your left and right speaker cone meshes here.")]
+    public Transform leftSpeaker;
+    public Transform rightSpeaker;
+
+    public float pulseSpeed = 10f; // How fast the speakers bounce
+    public float pulseAmount = 0.05f; // How much they expand (0.05 = 5% bigger)
+
+    private Vector3 originalLeftScale;
+    private Vector3 originalRightScale;
+
     void Start()
     {
         // Auto-get AudioSource if not assigned in Inspector
@@ -17,8 +28,51 @@ public class RadioMusicToggle : MonoBehaviour
             radioAudioSource = GetComponent<AudioSource>();
         }
 
+        // Store original scales if assigned
+        if (leftSpeaker != null) originalLeftScale = leftSpeaker.localScale;
+        if (rightSpeaker != null) originalRightScale = rightSpeaker.localScale;
+
         // Sync particle state with initial audio state on game start
         UpdateParticles();
+    }
+
+    void Update()
+    {
+        // Check if music is actively playing and unmuted
+        bool isMusicPlaying = radioAudioSource != null && !radioAudioSource.mute && radioAudioSource.isPlaying;
+
+        if (isMusicPlaying)
+        {
+            // Smooth bouncing scale using a sine wave
+            float scaleOffset = Mathf.Abs(Mathf.Sin(Time.time * pulseSpeed)) * pulseAmount;
+            Vector3 bounceOffset = new Vector3(scaleOffset, scaleOffset, scaleOffset);
+
+            if (leftSpeaker != null)
+                leftSpeaker.localScale = originalLeftScale + bounceOffset;
+
+            if (rightSpeaker != null)
+                rightSpeaker.localScale = originalRightScale + bounceOffset;
+        }
+        else
+        {
+            // Smoothly reset back to original scales when muted/stopped
+            ResetSpeakerScale(leftSpeaker, originalLeftScale);
+            ResetSpeakerScale(rightSpeaker, originalRightScale);
+        }
+    }
+
+    private void ResetSpeakerScale(Transform speaker, Vector3 originalScale)
+    {
+        if (speaker == null) return;
+
+        if (speaker.localScale != originalScale)
+        {
+            speaker.localScale = Vector3.Lerp(
+                speaker.localScale,
+                originalScale,
+                Time.deltaTime * 10f
+            );
+        }
     }
 
     void OnMouseDown()
