@@ -19,11 +19,15 @@ public class SkyboxToggle : MonoBehaviour
 
     void Start()
     {
-        // Set initial day states
         RenderSettings.skybox = daySkybox;
         RenderSettings.fogColor = dayFogColor;
         RenderSettings.fogDensity = dayFogDensity;
         DynamicGI.UpdateEnvironment();
+    }
+
+    private void OnMouseDown()
+    {
+        ToggleDayNight();
     }
 
     public void ToggleDayNight()
