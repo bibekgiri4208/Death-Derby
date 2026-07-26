@@ -1000,6 +1000,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Interactable3DButton
   hoverScaleMultiplier: {x: 1.15, y: 1.15, z: 1.15}
   scaleSpeed: 12
+  useClickTint: 1
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  clickColor: {r: 0, g: 0.68235296, b: 1, a: 1}
+  colorSpeed: 15
   audioSource: {fileID: 1051037855}
   hoverSound: {fileID: 8300000, guid: d31bca4c3bcea574399d3f8c6fdb7425, type: 3}
   clickSound: {fileID: 8300000, guid: c0c945abf5e1c2b408daab67511299cc, type: 3}
@@ -1259,6 +1263,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Interactable3DButton
   hoverScaleMultiplier: {x: 1.15, y: 1.15, z: 1.15}
   scaleSpeed: 12
+  useClickTint: 1
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  clickColor: {r: 0, g: 0.68235296, b: 1, a: 1}
+  colorSpeed: 15
   audioSource: {fileID: 1051037855}
   hoverSound: {fileID: 8300000, guid: d31bca4c3bcea574399d3f8c6fdb7425, type: 3}
   clickSound: {fileID: 8300000, guid: c0c945abf5e1c2b408daab67511299cc, type: 3}
@@ -4742,6 +4750,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Interactable3DButton
   hoverScaleMultiplier: {x: 1.15, y: 1.15, z: 1.15}
   scaleSpeed: 12
+  useClickTint: 1
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  clickColor: {r: 0, g: 0.68235296, b: 1, a: 1}
+  colorSpeed: 15
   audioSource: {fileID: 1051037855}
   hoverSound: {fileID: 8300000, guid: d31bca4c3bcea574399d3f8c6fdb7425, type: 3}
   clickSound: {fileID: 8300000, guid: c0c945abf5e1c2b408daab67511299cc, type: 3}
@@ -7990,6 +8002,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Interactable3DButton
   hoverScaleMultiplier: {x: 1.15, y: 1.15, z: 1.15}
   scaleSpeed: 12
+  useClickTint: 1
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  clickColor: {r: 0, g: 0.68235296, b: 1, a: 1}
+  colorSpeed: 15
   audioSource: {fileID: 1051037855}
   hoverSound: {fileID: 8300000, guid: d31bca4c3bcea574399d3f8c6fdb7425, type: 3}
   clickSound: {fileID: 8300000, guid: c0c945abf5e1c2b408daab67511299cc, type: 3}
