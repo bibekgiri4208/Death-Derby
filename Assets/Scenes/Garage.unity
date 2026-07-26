@@ -616,7 +616,7 @@ RectTransform:
   m_GameObject: {fileID: 230486258}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 611914697}
@@ -624,7 +624,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -415}
+  m_AnchoredPosition: {x: -412, y: -415}
   m_SizeDelta: {x: 360, y: 130}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &230486260
@@ -1629,37 +1629,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &479241774
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 479241776}
-  m_Layer: 0
-  m_Name: DayNightManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &479241776
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 479241774}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.87601, y: -0, z: 1.1902}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &533589000
 GameObject:
   m_ObjectHideFlags: 0
@@ -2234,8 +2203,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 60
-  m_fontSizeBase: 60
+  m_fontSize: 50
+  m_fontSizeBase: 50
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -3389,7 +3358,7 @@ GameObject:
   - component: {fileID: 852666546}
   - component: {fileID: 852666548}
   m_Layer: 0
-  m_Name: 3D Menu Functions
+  m_Name: 3D Menu Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3637,7 +3606,7 @@ GameObject:
   - component: {fileID: 880446458}
   - component: {fileID: 880446461}
   m_Layer: 5
-  m_Name: Upgrade
+  m_Name: Graphics
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3652,7 +3621,7 @@ RectTransform:
   m_GameObject: {fileID: 880446456}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1073917910}
@@ -3660,7 +3629,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 488, y: -415}
+  m_AnchoredPosition: {x: 412, y: -415}
   m_SizeDelta: {x: 360, y: 130}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &880446458
@@ -4136,7 +4105,7 @@ GameObject:
   - component: {fileID: 1073917912}
   - component: {fileID: 1073917911}
   m_Layer: 5
-  m_Name: Upgrade Button
+  m_Name: Graphics Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4181,7 +4150,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Upgrade
+  m_text: Graphics
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2d53fd792117cad4d850c1c0659e7c9c, type: 2}
   m_sharedMaterial: {fileID: -6606624046926313164, guid: 2d53fd792117cad4d850c1c0659e7c9c,
@@ -4209,8 +4178,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 60
-  m_fontSizeBase: 60
+  m_fontSize: 50
+  m_fontSizeBase: 50
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -7413,8 +7382,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1882282348}
   - {fileID: 230486259}
+  - {fileID: 1882282348}
   - {fileID: 880446457}
   m_Father: {fileID: 1553509054}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -7675,7 +7644,7 @@ RectTransform:
   m_GameObject: {fileID: 1882282347}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.2, y: 1.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2141018461}
@@ -7683,7 +7652,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -488, y: -415}
+  m_AnchoredPosition: {x: 0, y: -415}
   m_SizeDelta: {x: 360, y: 130}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1882282349
@@ -42612,7 +42581,6 @@ SceneRoots:
   - {fileID: 614670266}
   - {fileID: 2124773684}
   - {fileID: 250357259}
-  - {fileID: 479241776}
   - {fileID: 1302257853}
   - {fileID: 1632111691}
   - {fileID: 1367924743}
@@ -42622,6 +42590,6 @@ SceneRoots:
   - {fileID: 13746142}
   - {fileID: 1553509054}
   - {fileID: 1289266277}
+  - {fileID: 852666547}
   - {fileID: 847935972}
   - {fileID: 1051037854}
-  - {fileID: 852666547}

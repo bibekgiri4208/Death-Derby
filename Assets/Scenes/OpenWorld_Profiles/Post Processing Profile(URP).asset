@@ -92,7 +92,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3eb4b772797da9440885e8bd939e9560, type: 3}
   m_Name: ColorCurves
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.ColorCurves
-  active: 1
+  active: 0
   master:
     m_OverrideState: 0
     m_Value:
@@ -284,7 +284,7 @@ MonoBehaviour:
   active: 1
   postExposure:
     m_OverrideState: 1
-    m_Value: 0.1
+    m_Value: 0
   contrast:
     m_OverrideState: 0
     m_Value: 0
@@ -355,13 +355,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5485954d14dfb9a4c8ead8edb0ded5b1, type: 3}
   m_Name: LiftGammaGain
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.LiftGammaGain
-  active: 1
+  active: 0
   lift:
     m_OverrideState: 0
     m_Value: {x: 1, y: 1, z: 1, w: 0}
   gamma:
     m_OverrideState: 0
-    m_Value: {x: 1, y: 1, z: 1, w: 0}
+    m_Value: {x: 1, y: 0.8513447, z: 0.9779878, w: 0}
   gain:
     m_OverrideState: 0
     m_Value: {x: 1, y: 1, z: 1, w: 0}
@@ -408,7 +408,7 @@ MonoBehaviour:
     m_Value: 2
   scatter:
     m_OverrideState: 0
-    m_Value: 0.35
+    m_Value: 0.042
   clamp:
     m_OverrideState: 0
     m_Value: 65472
