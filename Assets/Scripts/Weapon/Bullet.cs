@@ -25,7 +25,6 @@ public class Bullet : MonoBehaviour
         bulletCollider = GetComponent<Collider>();
     }
 
-    // Added maxRange parameter to the Launch method
     public void Launch(Vector3 direction, Collider[] ownerColliders, float range)
     {
         ignoredColliders = ownerColliders;
@@ -60,12 +59,11 @@ public class Bullet : MonoBehaviour
             return;
 
         // --- RANGE CHECK ---
-        // Calculate total distance traveled from the muzzle point
         float distanceTraveled = Vector3.Distance(startPosition, transform.position);
         if (distanceTraveled >= maxRange)
         {
             Destroy(gameObject);
-            return; // Stop processing further physics
+            return;
         }
         // -------------------
 
@@ -129,12 +127,12 @@ public class Bullet : MonoBehaviour
 
     private void Hit(GameObject hitObject, Vector3 point, Vector3 normal)
     {
-        // FIX: Look on this object, and if it's not there, look up the hierarchy!
-        Health health = hitObject.GetComponentInParent<Health>();
+        // Finds ANY component on the hit object (or its parent) that implements IDamageable
+        IDamageable damageable = hitObject.GetComponentInParent<IDamageable>();
 
-        if (health != null)
+        if (damageable != null)
         {
-            health.TakeDamage(damage);
+            damageable.TakeDamage(damage);
         }
 
         if (sparkPrefab != null)
