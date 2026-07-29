@@ -9,77 +9,133 @@ public class OilTank : MonoBehaviour, IDamageable
 
     [Header("Visual Effects")]
     [SerializeField] private Renderer tankRenderer;
-    [SerializeField] private Color damageColor = Color.red;
+    [SerializeField] private Color burntColor = new Color(0.1f, 0.1f, 0.1f, 1f); // Pitch black / scorched
     [SerializeField] private ParticleSystem fireParticleSystem;
     [SerializeField] private float fireDuration = 5f;
 
     [Header("Explosion FX (Optional)")]
     [SerializeField] private GameObject explosionEffectPrefab;
 
-    private Coroutine fireCoroutine;
+    [Header("Audio Settings")]
+    [SerializeField] private AudioClip explosionSound;
+    [SerializeField] private AudioClip fireLoopSound;
+    [SerializeField][Range(0f, 1f)] private float explosionVolume = 1.0f;
+    [SerializeField][Range(0f, 1f)] private float fireVolume = 0.8f;
+
+    private Color originalColor;
+    private Material tankMaterial;
+    private AudioSource audioSource;
     private bool isDestroyed = false;
+
+    private void Awake()
+    {
+        // 1. Setup AudioSource component
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        // Configure AudioSource defaults for 3D world space
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 1.0f; // Full 3D sound (quieter further away)
+
+        // 2. Forcibly stop fire from playing on scene start
+        if (fireParticleSystem != null)
+        {
+            fireParticleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+    }
 
     private void Start()
     {
         currentHealth = maxHealth;
 
-        // Auto-assign renderer if not dragged in Inspector
         if (tankRenderer == null)
             tankRenderer = GetComponent<Renderer>();
 
-        // Ensure fire particles don't auto-play on start
-        if (fireParticleSystem != null)
-            fireParticleSystem.Stop();
+        if (tankRenderer != null)
+        {
+            tankMaterial = tankRenderer.material;
+            originalColor = tankMaterial.color;
+        }
     }
 
-    // Required by IDamageable interface
     public void TakeDamage(float damageAmount)
     {
+        // Don't take damage if it's already completely burnt out
         if (isDestroyed) return;
 
         currentHealth -= damageAmount;
+        currentHealth = Mathf.Max(currentHealth, 0f);
 
-        // 1. Change Material Color
-        if (tankRenderer != null)
+        // 1. Darken the material color relative to health loss
+        if (tankMaterial != null)
         {
-            tankRenderer.material.color = damageColor;
+            float healthPercent = currentHealth / maxHealth;
+            tankMaterial.color = Color.Lerp(burntColor, originalColor, healthPercent);
         }
 
-        // 2. Play Fire Particle Effect for set duration
-        if (fireParticleSystem != null)
+        // 2. Trigger destruction process when health reaches 0
+        if (currentHealth <= 0 && !isDestroyed)
         {
-            if (fireCoroutine != null)
-                StopCoroutine(fireCoroutine);
-
-            fireCoroutine = StartCoroutine(PlayFireRoutine());
-        }
-
-        // 3. Destroy check
-        if (currentHealth <= 0)
-        {
-            Explode();
+            DestroyTankProcess();
         }
     }
 
-    private IEnumerator PlayFireRoutine()
-    {
-        fireParticleSystem.Play();
-
-        yield return new WaitForSeconds(fireDuration);
-
-        if (fireParticleSystem != null)
-            fireParticleSystem.Stop();
-    }
-
-    private void Explode()
+    private void DestroyTankProcess()
     {
         isDestroyed = true;
 
+        // Spawn optional explosion visual effect
         if (explosionEffectPrefab != null)
         {
             Instantiate(explosionEffectPrefab, transform.position, transform.rotation);
         }
 
-        Destroy(gameObject);
+        // 1. Play One-Shot Explosion Sound
+        if (explosionSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(explosionSound, explosionVolume);
+        }
+
+        // Ensure the material is locked to the final burnt color
+        if (tankMaterial != null)
+        {
+            tankMaterial.color = burntColor;
+        }
+
+        // 2. Play fire VFX & looping fire SFX for 5 seconds
+        if (fireParticleSystem != null)
+        {
+            StartCoroutine(BurnAndExtinguishRoutine());
+        }
+    }
+
+    private IEnumerator BurnAndExtinguishRoutine()
+    {
+        // Start fire particles
+        fireParticleSystem.Play();
+
+        // Start looping fire sound audio
+        if (fireLoopSound != null && audioSource != null)
+        {
+            audioSource.clip = fireLoopSound;
+            audioSource.loop = true;
+            audioSource.volume = fireVolume;
+            audioSource.Play();
+        }
+
+        yield return new WaitForSeconds(fireDuration);
+
+        // Extinguish particles
+        fireParticleSystem.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+
+        // Stop looping fire audio
+        if (fireLoopSound != null && audioSource != null && audioSource.clip == fireLoopSound)
+        {
+            audioSource.Stop();
+            audioSource.loop = false;
+        }
     }
 }

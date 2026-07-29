@@ -1,73 +1,61 @@
+using System;
 using UnityEngine;
-using UnityEngine.Events;
 
-public class Health : MonoBehaviour
+public class Health : MonoBehaviour, IDamageable
 {
     [Header("Health Settings")]
-    public int maxHealth = 100;
+    [SerializeField] private float maxHealth = 100f;
+    private float currentHealth;
 
-    [Header("Death Effect")]
-    public GameObject explosionPrefab;
+    // Public properties that PlayerHealthUI needs
+    public float CurrentHealth => currentHealth;
+    public float MaxHealth => maxHealth;
 
-    public int CurrentHealth { get; private set; }
+    // Event triggered whenever health changes (Action<currentHealth, maxHealth>)
+    public event Action<float, float> OnHealthChanged;
 
-    public UnityEvent<int, int> OnHealthChanged;
-    public UnityEvent OnDeath;
-
-    private bool isDead;
-
-    private void Awake()
+    private void Start()
     {
-        CurrentHealth = maxHealth;
-        OnHealthChanged?.Invoke(CurrentHealth, maxHealth);
+        currentHealth = maxHealth;
+        // Trigger initial update for UI
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
 
-    public void TakeDamage(int damage)
+    // Required by IDamageable interface for Bullet.cs
+    public void TakeDamage(float damageAmount)
     {
-        if (isDead)
-            return;
+        if (currentHealth <= 0) return;
 
-        CurrentHealth -= damage;
-        CurrentHealth = Mathf.Clamp(CurrentHealth, 0, maxHealth);
+        currentHealth -= damageAmount;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
-        OnHealthChanged?.Invoke(CurrentHealth, maxHealth);
+        // Notify UI or other scripts listening to health changes
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
 
-        if (CurrentHealth <= 0)
+        Debug.Log($"{gameObject.name} took {damageAmount} damage. Remaining: {currentHealth}");
+
+        if (currentHealth <= 0)
         {
             Die();
         }
     }
 
-    public void Heal(int amount)
+    /// <summary>
+    /// Optional helper method if you want to heal the player or entity later
+    /// </summary>
+    public void Heal(float healAmount)
     {
-        if (isDead)
-            return;
+        if (currentHealth <= 0) return;
 
-        CurrentHealth += amount;
-        CurrentHealth = Mathf.Clamp(CurrentHealth, 0, maxHealth);
+        currentHealth += healAmount;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
-        OnHealthChanged?.Invoke(CurrentHealth, maxHealth);
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
 
     private void Die()
     {
-        isDead = true;
-
-        OnDeath?.Invoke();
-
-        if (explosionPrefab != null)
-        {
-            Instantiate(explosionPrefab, transform.position, Quaternion.identity);
-        }
-
+        Debug.Log($"{gameObject.name} died!");
         Destroy(gameObject);
-    }
-    private void Update()
-    {
-        // Press H to test taking 20 damage on whatever object this script is attached to
-        if (UnityEngine.InputSystem.Keyboard.current != null && UnityEngine.InputSystem.Keyboard.current.hKey.wasPressedThisFrame)
-        {
-            TakeDamage(10);
-        }
     }
 }
