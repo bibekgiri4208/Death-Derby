@@ -10082,7 +10082,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &3964438874607995573
 Transform:
   m_ObjectHideFlags: 0
@@ -45305,13 +45305,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
   maxHealth: 100
-  explosionPrefab: {fileID: 0}
-  OnHealthChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  OnDeath:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!114 &4824211685490742081
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -45761,7 +45754,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &6125011481699719018
 Transform:
   m_ObjectHideFlags: 0
