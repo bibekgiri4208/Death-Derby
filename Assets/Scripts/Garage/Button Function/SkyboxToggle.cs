@@ -98,7 +98,7 @@ public class SkyboxToggle : MonoBehaviour
                 {
                     rainParticleEffect.Stop();
                 }
-                break;
+                break; 
 
             case TimeOfDayState.Rainy:
                 RenderSettings.skybox = rainySkybox;
