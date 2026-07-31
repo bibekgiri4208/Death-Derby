@@ -28,6 +28,7 @@ public class SkyboxToggle : MonoBehaviour
 
     [Header("Rain Effects")]
     [SerializeField] private ParticleSystem rainParticleEffect;
+    [SerializeField] private AudioSource rainAudioSource;
 
     void Start()
     {
@@ -78,10 +79,7 @@ public class SkyboxToggle : MonoBehaviour
                     sunLight.intensity = defaultSunIntensity;
                 }
 
-                if (rainParticleEffect != null)
-                {
-                    rainParticleEffect.Stop();
-                }
+                StopRainEffects();
                 break;
 
             case TimeOfDayState.Night:
@@ -94,11 +92,8 @@ public class SkyboxToggle : MonoBehaviour
                     sunLight.gameObject.SetActive(false);
                 }
 
-                if (rainParticleEffect != null)
-                {
-                    rainParticleEffect.Stop();
-                }
-                break; 
+                StopRainEffects();
+                break;
 
             case TimeOfDayState.Rainy:
                 RenderSettings.skybox = rainySkybox;
@@ -108,16 +103,42 @@ public class SkyboxToggle : MonoBehaviour
                 if (sunLight != null)
                 {
                     sunLight.gameObject.SetActive(true);
-                    sunLight.intensity = rainyLightIntensity; // Dim the light for overcast look
+                    sunLight.intensity = rainyLightIntensity;
                 }
 
-                if (rainParticleEffect != null)
-                {
-                    rainParticleEffect.Play();
-                }
+                StartRainEffects();
                 break;
         }
 
         DynamicGI.UpdateEnvironment();
+    }
+
+    private void StartRainEffects()
+    {
+        if (rainParticleEffect != null)
+        {
+            rainParticleEffect.Play();
+        }
+
+        if (rainAudioSource != null)
+        {
+            if (!rainAudioSource.isPlaying)
+            {
+                rainAudioSource.Play();
+            }
+        }
+    }
+
+    private void StopRainEffects()
+    {
+        if (rainParticleEffect != null)
+        {
+            rainParticleEffect.Stop();
+        }
+
+        if (rainAudioSource != null && rainAudioSource.isPlaying)
+        {
+            rainAudioSource.Stop();
+        }
     }
 }
