@@ -107,19 +107,18 @@ public class ZombiePhysicsAI : MonoBehaviour
 
     void MoveTowardsTarget(Vector3 targetPosition)
     {
-        // Calculate direction ignoring height (Y axis) so it stays flat on ground
         Vector3 targetDirection = (targetPosition - transform.position);
         targetDirection.y = 0;
 
         if (targetDirection.magnitude > 0.1f)
         {
-            // Smooth Rotation towards target
+            // Smooth Rotation
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection.normalized);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.fixedDeltaTime * rotationSpeed);
 
-            // Move forward using Rigidbody position physics
-            Vector3 newPosition = transform.position + transform.forward * moveSpeed * Time.fixedDeltaTime;
-            rb.MovePosition(newPosition);
+            // Preserve current vertical velocity (so gravity still works) while setting horizontal movement velocity
+            Vector3 moveVelocity = transform.forward * moveSpeed;
+            rb.linearVelocity = new Vector3(moveVelocity.x, rb.linearVelocity.y, moveVelocity.z); // Note: Use rb.velocity if using older Unity version
         }
     }
 
