@@ -1164,7 +1164,7 @@ GameObject:
   - component: {fileID: 351853726}
   - component: {fileID: 351853725}
   m_Layer: 0
-  m_Name: Play
+  m_Name: Start
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1209,7 +1209,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Play
+  m_text: Start
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d607877e7a66bbf4089911a30ddf867f, type: 2}
   m_sharedMaterial: {fileID: 30965821062046865, guid: d607877e7a66bbf4089911a30ddf867f,
@@ -6228,7 +6228,7 @@ GameObject:
   - component: {fileID: 1575320031}
   - component: {fileID: 1575320030}
   m_Layer: 0
-  m_Name: Play Cube
+  m_Name: Start Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7824,7 +7824,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1818417490
 RectTransform:
   m_ObjectHideFlags: 0
