@@ -1,32 +1,39 @@
 using UnityEngine;
-using UnityEngine.AI;
 
 public enum ZombieState { Patrol, Pursue, Attack }
 
-[RequireComponent(typeof(NavMeshAgent))]
-public class ZombieAI : MonoBehaviour
+[RequireComponent(typeof(Rigidbody))]
+public class ZombiePhysicsAI : MonoBehaviour
 {
     [Header("Target & Detection")]
     public Transform playerCar;
     public float detectionRadius = 15f;
     public float attackRadius = 3f;
 
+    [Header("Movement Settings")]
+    public float moveSpeed = 5f;
+    public float rotationSpeed = 8f;
+
     [Header("Patrol Settings")]
     public Transform[] patrolPoints;
-    private int currentPatrolIndex;
+    private int currentPatrolIndex = 0;
+    public float waypointThreshold = 1f;
 
-    [Header("Zombie Stats")]
+    [Header("Attack & Crush Stats")]
     public int attackDamage = 10;
     public float attackRate = 1.5f;
     private float nextAttackTime = 0f;
-    public float minKillSpeed = 5f; // Minimum car speed required to crush the zombie
+    public float minKillSpeed = 5f; // Min car speed to crush zombie
 
-    private NavMeshAgent agent;
+    private Rigidbody rb;
     public ZombieState currentState = ZombieState.Patrol;
 
     void Start()
     {
-        agent = GetComponent<NavMeshAgent>();
+        rb = GetComponent<Rigidbody>();
+
+        // Freeze rotations so physics forces don't knock the cube onto its side while walking
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
 
         // Auto-find player car if not assigned
         if (playerCar == null)
@@ -34,8 +41,6 @@ public class ZombieAI : MonoBehaviour
             GameObject carObj = GameObject.FindWithTag("Player");
             if (carObj != null) playerCar = carObj.transform;
         }
-
-        GoToNextPatrolPoint();
     }
 
     void Update()
@@ -44,7 +49,7 @@ public class ZombieAI : MonoBehaviour
 
         float distanceToPlayer = Vector3.Distance(transform.position, playerCar.position);
 
-        // State Transitions
+        // State Machine logic based on raw distance
         if (distanceToPlayer <= attackRadius)
         {
             currentState = ZombieState.Attack;
@@ -55,14 +60,18 @@ public class ZombieAI : MonoBehaviour
         }
         else
         {
-            if (currentState == ZombieState.Attack || currentState == ZombieState.Pursue)
-            {
-                currentState = ZombieState.Patrol;
-                GoToNextPatrolPoint();
-            }
+            currentState = ZombieState.Patrol;
         }
 
-        // State Behaviors
+        if (currentState == ZombieState.Attack)
+        {
+            AttackBehavior();
+        }
+    }
+
+    void FixedUpdate()
+    {
+        // Physics and Movement work best inside FixedUpdate
         switch (currentState)
         {
             case ZombieState.Patrol:
@@ -71,9 +80,6 @@ public class ZombieAI : MonoBehaviour
             case ZombieState.Pursue:
                 PursueBehavior();
                 break;
-            case ZombieState.Attack:
-                AttackBehavior();
-                break;
         }
     }
 
@@ -81,36 +87,51 @@ public class ZombieAI : MonoBehaviour
     {
         if (patrolPoints.Length == 0) return;
 
-        // Move to next point when reaching current destination
-        if (!agent.pathPending && agent.remainingDistance < 0.5f)
-        {
-            GoToNextPatrolPoint();
-        }
-    }
+        Transform targetWaypoint = patrolPoints[currentPatrolIndex];
+        float distanceToWaypoint = Vector3.Distance(transform.position, targetWaypoint.position);
 
-    void GoToNextPatrolPoint()
-    {
-        if (patrolPoints.Length == 0) return;
-        agent.destination = patrolPoints[currentPatrolIndex].position;
-        currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
+        if (distanceToWaypoint <= waypointThreshold)
+        {
+            currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
+        }
+        else
+        {
+            MoveTowardsTarget(targetWaypoint.position);
+        }
     }
 
     void PursueBehavior()
     {
-        agent.SetDestination(playerCar.position);
+        MoveTowardsTarget(playerCar.position);
+    }
+
+    void MoveTowardsTarget(Vector3 targetPosition)
+    {
+        // Calculate direction ignoring height (Y axis) so it stays flat on ground
+        Vector3 targetDirection = (targetPosition - transform.position);
+        targetDirection.y = 0;
+
+        if (targetDirection.magnitude > 0.1f)
+        {
+            // Smooth Rotation towards target
+            Quaternion targetRotation = Quaternion.LookRotation(targetDirection.normalized);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.fixedDeltaTime * rotationSpeed);
+
+            // Move forward using Rigidbody position physics
+            Vector3 newPosition = transform.position + transform.forward * moveSpeed * Time.fixedDeltaTime;
+            rb.MovePosition(newPosition);
+        }
     }
 
     void AttackBehavior()
     {
-        // Stop moving while attacking
-        agent.SetDestination(transform.position);
-
-        // Face towards the car
+        // Rotate to face the car while attacking
         Vector3 direction = (playerCar.position - transform.position).normalized;
         direction.y = 0;
         if (direction != Vector3.zero)
         {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * 5f);
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
         }
 
         if (Time.time >= nextAttackTime)
@@ -123,17 +144,15 @@ public class ZombieAI : MonoBehaviour
     void PerformAttack()
     {
         Debug.Log("Zombie attacked the vehicle!");
-        // Add damage call here (e.g., playerCar.GetComponent<VehicleHealth>()?.TakeDamage(attackDamage));
     }
 
-    // Handle getting driven over / killed by the car
+    // Run-over logic: checks collision speed with player vehicle
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
             Rigidbody carRb = collision.gameObject.GetComponent<Rigidbody>();
 
-            // Check if car is moving fast enough to crush the zombie
             if (carRb != null && carRb.linearVelocity.magnitude >= minKillSpeed)
             {
                 Die();
@@ -143,14 +162,12 @@ public class ZombieAI : MonoBehaviour
 
     void Die()
     {
-        Debug.Log("Zombie squished!");
-        // Spawn particle effects, blood decals, or squish sound here
+        Debug.Log("Zombie crushed!");
         Destroy(gameObject);
     }
 
     void OnDrawGizmosSelected()
     {
-        // Visualize detection and attack ranges in the editor
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
         Gizmos.color = Color.red;
