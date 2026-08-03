@@ -3,7 +3,7 @@ using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Rigidbody))]
-public class PhysicsZombieAI : MonoBehaviour
+public class ZombieAI : MonoBehaviour
 {
     [Header("Target & Movement")]
     public Transform playerCar;
