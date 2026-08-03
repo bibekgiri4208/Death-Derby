@@ -1,175 +1,112 @@
 using UnityEngine;
+using UnityEngine.AI;
 
-public enum ZombieState { Patrol, Pursue, Attack }
-
+[RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Rigidbody))]
-public class ZombiePhysicsAI : MonoBehaviour
+public class PhysicsZombieAI : MonoBehaviour
 {
-    [Header("Target & Detection")]
+    [Header("Target & Movement")]
     public Transform playerCar;
-    public float detectionRadius = 15f;
-    public float attackRadius = 3f;
+    public string playerTag = "Player";
+    public float moveSpeed = 4f;
 
-    [Header("Movement Settings")]
-    public float moveSpeed = 5f;
-    public float rotationSpeed = 8f;
+    [Header("Ramming Physics")]
+    public float killSpeedThreshold = 6f; // Speed needed to crush
+    public bool isDead = false;
 
-    [Header("Patrol Settings")]
-    public Transform[] patrolPoints;
-    private int currentPatrolIndex = 0;
-    public float waypointThreshold = 1f;
-
-    [Header("Attack & Crush Stats")]
-    public int attackDamage = 10;
-    public float attackRate = 1.5f;
-    private float nextAttackTime = 0f;
-    public float minKillSpeed = 5f; // Min car speed to crush zombie
-
+    private NavMeshAgent agent;
     private Rigidbody rb;
-    public ZombieState currentState = ZombieState.Patrol;
 
     void Start()
     {
+        agent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
 
-        // Freeze rotations so physics forces don't knock the cube onto its side while walking
+        // IMPORTANT: Unlink NavMeshAgent from directly moving the transform
+        agent.updatePosition = false;
+        agent.updateRotation = false;
+
+        // Make sure Rigidbody is physics-enabled
+        rb.isKinematic = false;
+        rb.mass = 70f; // Realistic human weight so car pushes through easily
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
 
-        // Auto-find player car if not assigned
         if (playerCar == null)
         {
-            GameObject carObj = GameObject.FindWithTag("Player");
-            if (carObj != null) playerCar = carObj.transform;
+            GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
+            if (playerObj != null) playerCar = playerObj.transform;
         }
     }
 
     void Update()
     {
-        if (playerCar == null) return;
+        if (isDead || playerCar == null) return;
 
-        float distanceToPlayer = Vector3.Distance(transform.position, playerCar.position);
+        // Update NavMesh destination
+        if (agent.isOnNavMesh)
+        {
+            agent.SetDestination(playerCar.position);
 
-        // State Machine logic based on raw distance
-        if (distanceToPlayer <= attackRadius)
-        {
-            currentState = ZombieState.Attack;
-        }
-        else if (distanceToPlayer <= detectionRadius)
-        {
-            currentState = ZombieState.Pursue;
-        }
-        else
-        {
-            currentState = ZombieState.Patrol;
-        }
-
-        if (currentState == ZombieState.Attack)
-        {
-            AttackBehavior();
+            // Sync NavMeshAgent position with the actual Rigidbody physics position
+            agent.nextPosition = transform.position;
         }
     }
 
     void FixedUpdate()
     {
-        // Physics and Movement work best inside FixedUpdate
-        switch (currentState)
+        if (isDead || playerCar == null) return;
+
+        // Move zombie using physics toward the NavMesh target direction
+        if (agent.hasPath)
         {
-            case ZombieState.Patrol:
-                PatrolBehavior();
-                break;
-            case ZombieState.Pursue:
-                PursueBehavior();
-                break;
-        }
-    }
+            Vector3 direction = (agent.steeringTarget - transform.position).normalized;
+            direction.y = 0; // Keep movement horizontal
 
-    void PatrolBehavior()
-    {
-        if (patrolPoints.Length == 0) return;
-
-        Transform targetWaypoint = patrolPoints[currentPatrolIndex];
-        float distanceToWaypoint = Vector3.Distance(transform.position, targetWaypoint.position);
-
-        if (distanceToWaypoint <= waypointThreshold)
-        {
-            currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
-        }
-        else
-        {
-            MoveTowardsTarget(targetWaypoint.position);
-        }
-    }
-
-    void PursueBehavior()
-    {
-        MoveTowardsTarget(playerCar.position);
-    }
-
-    void MoveTowardsTarget(Vector3 targetPosition)
-    {
-        Vector3 targetDirection = (targetPosition - transform.position);
-        targetDirection.y = 0;
-
-        if (targetDirection.magnitude > 0.1f)
-        {
-            // Smooth Rotation
-            Quaternion targetRotation = Quaternion.LookRotation(targetDirection.normalized);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.fixedDeltaTime * rotationSpeed);
-
-            // Preserve current vertical velocity (so gravity still works) while setting horizontal movement velocity
-            Vector3 moveVelocity = transform.forward * moveSpeed;
-            rb.linearVelocity = new Vector3(moveVelocity.x, rb.linearVelocity.y, moveVelocity.z); // Note: Use rb.velocity if using older Unity version
-        }
-    }
-
-    void AttackBehavior()
-    {
-        // Rotate to face the car while attacking
-        Vector3 direction = (playerCar.position - transform.position).normalized;
-        direction.y = 0;
-        if (direction != Vector3.zero)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
-        }
-
-        if (Time.time >= nextAttackTime)
-        {
-            nextAttackTime = Time.time + attackRate;
-            PerformAttack();
-        }
-    }
-
-    void PerformAttack()
-    {
-        Debug.Log("Zombie attacked the vehicle!");
-    }
-
-    // Run-over logic: checks collision speed with player vehicle
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            Rigidbody carRb = collision.gameObject.GetComponent<Rigidbody>();
-
-            if (carRb != null && carRb.linearVelocity.magnitude >= minKillSpeed)
+            if (direction != Vector3.zero)
             {
-                Die();
+                // Rotate toward movement direction
+                Quaternion targetRotation = Quaternion.LookRotation(direction);
+                rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 10f));
+
+                // Move physics body forward
+                Vector3 moveVelocity = direction * moveSpeed;
+                moveVelocity.y = rb.linearVelocity.y; // Keep gravity working
+                rb.linearVelocity = moveVelocity;
             }
         }
     }
 
-    void Die()
+    private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("Zombie crushed!");
-        Destroy(gameObject);
+        if (isDead) return;
+
+        if (collision.gameObject.CompareTag(playerTag) || collision.transform.root.CompareTag(playerTag))
+        {
+            // Get car speed
+            float impactSpeed = collision.relativeVelocity.magnitude;
+
+            if (impactSpeed >= killSpeedThreshold)
+            {
+                Die(collision);
+            }
+        }
     }
 
-    void OnDrawGizmosSelected()
+    private void Die(Collision collision)
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRadius);
+        isDead = true;
+
+        // Turn off AI steering completely
+        agent.enabled = false;
+
+        // Unfreeze rotation so body rolls/tumbles dynamically
+        rb.constraints = RigidbodyConstraints.None;
+
+        // Launch body with car momentum + upward pop
+        Vector3 impactForce = collision.relativeVelocity * 1.5f + Vector3.up * 3f;
+        rb.AddForce(impactForce, ForceMode.Impulse);
+
+        Debug.Log("ZOMBIE CRUSHED BY CAR!");
+        Destroy(gameObject, 5f);
     }
 }
