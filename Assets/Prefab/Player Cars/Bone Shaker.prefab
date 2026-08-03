@@ -36790,8 +36790,8 @@ MonoBehaviour:
   boostForce: 7000
   boostMaxSpeed: 50
   steerSmoothSpeed: 6
-  minSteerAngleAtHighSpeed: 20
-  steeringSpeedForMinAngle: 30
+  minSteerAngleAtHighSpeed: 15
+  steeringSpeedForMinAngle: 28
   downForce: 80
   centerOfMassOffset: {x: 0, y: -0.5, z: 0}
 --- !u!114 &7128058199594960034
