@@ -11,10 +11,6 @@ public class ZombieAI : MonoBehaviour
     [Header("Status")]
     public bool isDead = false;
 
-    [Header("Pivot Offset Adjustment")]
-    [Tooltip("If the 3D model pivot is at chest level, adjust this (e.g., 0.9) to raise feet above ground.")]
-    public float baseVerticalOffset = 0f;
-
     private NavMeshAgent agent;
     private Rigidbody rb;
     private Collider col;
@@ -25,19 +21,16 @@ public class ZombieAI : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
 
-        // Configure NavMeshAgent to handle movement completely
+        // Let NavMeshAgent fully control position on flat terrain
         agent.updatePosition = true;
         agent.updateRotation = true;
-        agent.baseOffset = baseVerticalOffset;
 
-        // Configure Rigidbody as Kinematic so physics engine NEVER pushes the car
         if (rb != null)
         {
             rb.isKinematic = true;
             rb.useGravity = false;
         }
 
-        // Set collider as a Trigger so it detects car hits without physical pushing
         if (col != null)
         {
             col.isTrigger = true;
@@ -60,25 +53,21 @@ public class ZombieAI : MonoBehaviour
     {
         if (isDead || playerCar == null) return;
 
-        // Drive agent position directly toward player car
         if (agent.enabled && agent.isOnNavMesh)
         {
             agent.SetDestination(playerCar.position);
         }
     }
 
-    /// <summary>
-    /// Call this when the car hits the zombie with sufficient speed.
-    /// </summary>
     public void KillZombie(Vector3 launchForce)
     {
         if (isDead) return;
         isDead = true;
 
-        // Disable AI navigation
         if (agent != null) agent.enabled = false;
 
-        // Turn on ragdoll/physics launch upon death
+        if (col != null) col.isTrigger = false;
+
         if (rb != null)
         {
             rb.isKinematic = false;
