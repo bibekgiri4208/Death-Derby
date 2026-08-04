@@ -152,13 +152,11 @@ MonoBehaviour:
   zombiePrefab: {fileID: 691608703}
   playerCar: {fileID: 1749125454}
   playerTag: Player
-  spawnPoints:
-  - {fileID: 1146833671}
-  spawnInterval: 2
   maxZombiesInScene: 20
-  totalZombiesToSpawn: -1
+  spawnInterval: 2
+  minSpawnRadius: 15
+  maxSpawnRadius: 30
   currentAliveZombies: 0
-  totalSpawnedSoFar: 0
 --- !u!4 &102883678
 Transform:
   m_ObjectHideFlags: 0
@@ -168,7 +166,7 @@ Transform:
   m_GameObject: {fileID: 102883676}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 31.79999, y: -0, z: 51.6}
+  m_LocalPosition: {x: 31.79999, y: 2.06, z: 51.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
