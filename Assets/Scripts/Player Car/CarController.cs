@@ -42,7 +42,6 @@ public class CarController : MonoBehaviour
     private float verticalInput;
     private bool isHandbraking;
 
-    // Public properties so CarEffects can access them
     public bool IsBoosting { get; private set; }
     public Rigidbody CarRigidbody { get; private set; }
 
