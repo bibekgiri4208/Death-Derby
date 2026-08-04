@@ -137,7 +137,7 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 2
-  m_BaseOffset: 1
+  m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!54 &1188096584969521356
@@ -182,6 +182,7 @@ MonoBehaviour:
   playerCar: {fileID: 0}
   playerTag: Player
   isDead: 0
+  baseVerticalOffset: 1
 --- !u!1001 &1906679082321699142
 PrefabInstance:
   m_ObjectHideFlags: 0
