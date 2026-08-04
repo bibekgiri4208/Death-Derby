@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5475404900630596321}
   - component: {fileID: 2176576494311563811}
   - component: {fileID: 1038419271569696253}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Chasi
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -99,7 +99,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2242323564346356147}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Gun_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 7501389438325155461}
   - component: {fileID: 1705858679907108841}
   - component: {fileID: 7619208482487900946}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Front Glass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -223,7 +223,7 @@ GameObject:
   - component: {fileID: 9103030716927761031}
   - component: {fileID: 9176329642187066243}
   - component: {fileID: 2723181778234736570}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Metal chasi
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -313,7 +313,7 @@ GameObject:
   - component: {fileID: 1397269804190742018}
   - component: {fileID: 7910332547944892879}
   - component: {fileID: 1507355241433504802}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Front small bumper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -403,7 +403,7 @@ GameObject:
   - component: {fileID: 3540151258876791980}
   - component: {fileID: 4343117749739848696}
   - component: {fileID: 1895915192690212507}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: FRW
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -493,7 +493,7 @@ GameObject:
   - component: {fileID: 3827668960208006575}
   - component: {fileID: 3950007822654167505}
   - component: {fileID: 606508053053635243}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Flamethrower_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5332,7 +5332,7 @@ GameObject:
   - component: {fileID: 5554056186303638850}
   - component: {fileID: 2764641015077747906}
   - component: {fileID: 5848894520737746825}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Flare
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10166,7 +10166,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3964438874607995573}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Desert Smoke_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10201,7 +10201,7 @@ GameObject:
   - component: {fileID: 7485919147023273537}
   - component: {fileID: 4267262577543291138}
   - component: {fileID: 7802897356130783747}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Exhaust_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10289,7 +10289,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8565245728366993953}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Machine Gun
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10324,7 +10324,7 @@ GameObject:
   - component: {fileID: 4347910712033305930}
   - component: {fileID: 200564283012879593}
   - component: {fileID: 8088315742133086990}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Batteries_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10414,7 +10414,7 @@ GameObject:
   - component: {fileID: 3116163730752451396}
   - component: {fileID: 5266904863068181281}
   - component: {fileID: 694884983709816533}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: smoke_FR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15250,7 +15250,7 @@ GameObject:
   - component: {fileID: 6619952198628846388}
   - component: {fileID: 1577439054758549728}
   - component: {fileID: 6637955066621448010}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Barrel_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15340,7 +15340,7 @@ GameObject:
   - component: {fileID: 5833865218483330354}
   - component: {fileID: 849380733239106520}
   - component: {fileID: 3728309945465784428}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: smoke_FL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20176,7 +20176,7 @@ GameObject:
   - component: {fileID: 6033772827318525386}
   - component: {fileID: 283501597030105807}
   - component: {fileID: 6994877193105067418}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Flames
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25011,7 +25011,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8951643964651566002}
   - component: {fileID: 7018272491865750419}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: Collider RL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25083,7 +25083,7 @@ GameObject:
   - component: {fileID: 6092596893877759111}
   - component: {fileID: 2932301367200858624}
   - component: {fileID: 599363392687724301}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Flares
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29919,7 +29919,7 @@ GameObject:
   - component: {fileID: 2547142615176135151}
   - component: {fileID: 415999865818289709}
   - component: {fileID: 7863301413454078091}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Flames
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34755,7 +34755,7 @@ GameObject:
   - component: {fileID: 2993413792923669153}
   - component: {fileID: 3853490395560634358}
   - component: {fileID: 6943526769673860927}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: back
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34879,7 +34879,7 @@ GameObject:
   - component: {fileID: 5347001597059928838}
   - component: {fileID: 6451989232159791963}
   - component: {fileID: 8006507149088093082}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: smoke_RL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39713,7 +39713,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6431627557881875114}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: MonsterTruck body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39789,7 +39789,7 @@ GameObject:
   - component: {fileID: 8597491510991331501}
   - component: {fileID: 8818483170371848680}
   - component: {fileID: 8000031032946098899}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RLW
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39879,7 +39879,7 @@ GameObject:
   - component: {fileID: 396919282089873617}
   - component: {fileID: 1592647835230657990}
   - component: {fileID: 6337453986624440857}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: BumperTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39935,7 +39935,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CarBumper
   carRigidbody: {fileID: 8108359589478933070}
-  killSpeedThreshold: 5
+  killSpeedThreshold: 1
   launchForceMultiplier: 2.5
   upwardForce: 4
 --- !u!1 &3874856846068187695
@@ -39947,7 +39947,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5629974351319992904}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Gun_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39979,7 +39979,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 507137688590028108}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Parts
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40024,7 +40024,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7937439306153790858}
   - component: {fileID: 7731136497027099866}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: Collider RR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40096,7 +40096,7 @@ GameObject:
   - component: {fileID: 4368319399581872958}
   - component: {fileID: 8236680379436504861}
   - component: {fileID: 3248177517362625326}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Barrel_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40186,7 +40186,7 @@ GameObject:
   - component: {fileID: 7602688303449356241}
   - component: {fileID: 7020956695393326445}
   - component: {fileID: 886866801864033743}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Steal_Mudguard_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40276,7 +40276,7 @@ GameObject:
   - component: {fileID: 4637184289312245296}
   - component: {fileID: 4735931497282998545}
   - component: {fileID: 464449503233863980}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: smoke_RR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45111,7 +45111,7 @@ GameObject:
   m_Component:
   - component: {fileID: 756486562022618353}
   - component: {fileID: 8603917269647807922}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: Collider FR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45183,7 +45183,7 @@ GameObject:
   - component: {fileID: 2605504141471343682}
   - component: {fileID: 1333100880738259282}
   - component: {fileID: 3814579739756007724}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Back Glass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45271,7 +45271,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5203428376565174343}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: NOS Tanks
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45311,9 +45311,9 @@ GameObject:
   - component: {fileID: 4070149389211631650}
   - component: {fileID: 4824211685490742081}
   - component: {fileID: 1208225177235463081}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Goliath
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -45606,7 +45606,7 @@ GameObject:
   - component: {fileID: 1717726923501543389}
   - component: {fileID: 4550128120576246683}
   - component: {fileID: 2755981297530590350}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Mud guard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45694,7 +45694,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6926858987901722616}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45730,7 +45730,7 @@ GameObject:
   - component: {fileID: 2567264259617140192}
   - component: {fileID: 8944941911611617303}
   - component: {fileID: 8730507894388322487}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: NOS
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45820,7 +45820,7 @@ GameObject:
   - component: {fileID: 7703043156631790343}
   - component: {fileID: 6938965346651996916}
   - component: {fileID: 6663633904586182350}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Steal_Mudguard_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45910,7 +45910,7 @@ GameObject:
   - component: {fileID: 4105768324942815071}
   - component: {fileID: 2129183193522151639}
   - component: {fileID: 863693303997689084}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RRW
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45998,7 +45998,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6125011481699719018}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Desert Smoke_F
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46033,7 +46033,7 @@ GameObject:
   - component: {fileID: 3985486258351224886}
   - component: {fileID: 4620624375572205574}
   - component: {fileID: 4434956103850506709}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Spoiler Wing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46123,7 +46123,7 @@ GameObject:
   - component: {fileID: 53524117701513473}
   - component: {fileID: 7902384611920577681}
   - component: {fileID: 7600529577733611158}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Front bumper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46342,7 +46342,7 @@ GameObject:
   - component: {fileID: 1814650451714674394}
   - component: {fileID: 429169843393393541}
   - component: {fileID: 3563085812947567873}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Flamethrower_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -51181,7 +51181,7 @@ GameObject:
   - component: {fileID: 1179839473014597636}
   - component: {fileID: 787290410996883820}
   - component: {fileID: 5707589989668223985}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Exhaust_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -51271,7 +51271,7 @@ GameObject:
   - component: {fileID: 8260608660051478162}
   - component: {fileID: 8508473796480395232}
   - component: {fileID: 7331051750544325706}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Flare
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56107,7 +56107,7 @@ GameObject:
   - component: {fileID: 5089638646675079251}
   - component: {fileID: 8663916901147767280}
   - component: {fileID: 777890130974051863}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Batteries_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56326,7 +56326,7 @@ GameObject:
   - component: {fileID: 1925151892418215170}
   - component: {fileID: 2532205625591489239}
   - component: {fileID: 984820204656610904}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Flares
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -61291,7 +61291,7 @@ GameObject:
   - component: {fileID: 5566766187349992224}
   - component: {fileID: 6950327587582298900}
   - component: {fileID: 1654900172507266285}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Minigun_Barrel.009
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -61381,7 +61381,7 @@ GameObject:
   - component: {fileID: 4218974057472732833}
   - component: {fileID: 1986927504931143868}
   - component: {fileID: 5009133726912409186}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Minigun_Barrel.009
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -61471,7 +61471,7 @@ GameObject:
   - component: {fileID: 6518054998213338340}
   - component: {fileID: 2850630272167200439}
   - component: {fileID: 7695344664122524298}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: FLW
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -61561,7 +61561,7 @@ GameObject:
   - component: {fileID: 2106988201114856342}
   - component: {fileID: 5914402772629674433}
   - component: {fileID: 1212878017668084982}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Hood
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -61651,7 +61651,7 @@ GameObject:
   - component: {fileID: 6621995088052652500}
   - component: {fileID: 2341217962049294280}
   - component: {fileID: 2787692611246137152}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: SM_Gun.A.Minigun.009
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -61742,7 +61742,7 @@ GameObject:
   - component: {fileID: 5107275348204988464}
   - component: {fileID: 8136115848832710564}
   - component: {fileID: 3333978218264369622}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Seat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -61832,7 +61832,7 @@ GameObject:
   - component: {fileID: 8138440291238241712}
   - component: {fileID: 5142644332938160661}
   - component: {fileID: 6970059913458654943}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Exhaust Muffler
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -61921,7 +61921,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8774708039897047500}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Glass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -61955,7 +61955,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4131385921898142594}
   - component: {fileID: 185686306171419839}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: Collider FL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -62027,7 +62027,7 @@ GameObject:
   - component: {fileID: 2432056306278827881}
   - component: {fileID: 6593402697151011595}
   - component: {fileID: 8798288468688001114}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: SM_Gun.A.Minigun.009
   m_TagString: Untagged
   m_Icon: {fileID: 0}

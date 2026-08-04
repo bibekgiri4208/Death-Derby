@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZombieSpawner
   zombiePrefab: {fileID: 691608703}
-  playerCar: {fileID: 0}
+  playerCar: {fileID: 1749125454}
   playerTag: Player
   spawnPoints:
   - {fileID: 1146833671}
@@ -395,7 +395,7 @@ PrefabInstance:
     - target: {fileID: 896840999620234733, guid: 866842c52b04ffc46b000fa9baab7b30,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.44
+      value: 0.71
       objectReference: {fileID: 0}
     - target: {fileID: 896840999620234733, guid: 866842c52b04ffc46b000fa9baab7b30,
         type: 3}
@@ -107669,6 +107669,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Capsule
+      objectReference: {fileID: 0}
+    - target: {fileID: 8797066559577021596, guid: d93f4acb5ef09e440a47918d88291b04,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

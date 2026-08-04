@@ -1,37 +1,26 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class ZombieSpawner : MonoBehaviour
 {
     [Header("Prefabs & References")]
-    [Tooltip("The Zombie Prefab to spawn (must have ZombieAI script attached).")]
     public GameObject zombiePrefab;
-
-    [Tooltip("Drag the Player Car Transform here, or leave empty to auto-find by Tag.")]
     public Transform playerCar;
     public string playerTag = "Player";
 
-    [Header("Spawn Locations")]
-    [Tooltip("Array of transforms where zombies can spawn.")]
-    public Transform[] spawnPoints;
-
-    [Header("Spawner Settings")]
-    [Tooltip("Time in seconds between each zombie spawn.")]
-    public float spawnInterval = 2f;
-
-    [Tooltip("Maximum number of alive zombies allowed in the scene at once.")]
+    [Header("Spawn Settings")]
     public int maxZombiesInScene = 20;
-
-    [Tooltip("Total zombies to spawn for this wave/round (Set to -1 for infinite).")]
-    public int totalZombiesToSpawn = -1;
+    public float spawnInterval = 1.5f;
+    public float minDistanceFromPlayer = 12f;
+    public float maxDistanceFromPlayer = 35f;
 
     [Header("Runtime Info (Read Only)")]
     public int currentAliveZombies = 0;
-    public int totalSpawnedSoFar = 0;
 
     private void Start()
     {
+        // Auto-assign player car by tag if missing
         if (playerCar == null)
         {
             GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
@@ -41,13 +30,8 @@ public class ZombieSpawner : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("ZombieSpawner: No Player Car found with tag '" + playerTag + "'!");
+                Debug.LogWarning($"ZombieSpawner on {gameObject.name}: No GameObject found with tag '{playerTag}'!");
             }
-        }
-
-        if (spawnPoints == null || spawnPoints.Length == 0)
-        {
-            Debug.LogError("ZombieSpawner: No spawn points assigned! Using Spawner's position instead.");
         }
 
         StartCoroutine(SpawnRoutine());
@@ -55,13 +39,15 @@ public class ZombieSpawner : MonoBehaviour
 
     private IEnumerator SpawnRoutine()
     {
-        while (totalZombiesToSpawn == -1 || totalSpawnedSoFar < totalZombiesToSpawn)
+        while (true)
         {
             yield return new WaitForSeconds(spawnInterval);
 
+            // Clean up count of dead/destroyed zombies
             CleanUpDeadCount();
 
-            if (currentAliveZombies < maxZombiesInScene)
+            // Only spawn if below active scene cap
+            if (currentAliveZombies < maxZombiesInScene && playerCar != null)
             {
                 SpawnZombie();
             }
@@ -70,44 +56,54 @@ public class ZombieSpawner : MonoBehaviour
 
     private void SpawnZombie()
     {
-        if (zombiePrefab == null) return;
+        if (zombiePrefab == null || playerCar == null) return;
 
-        Transform chosenSpawnPoint = transform;
-        if (spawnPoints != null && spawnPoints.Length > 0)
+        Vector3 spawnPos = GetRandomNavMeshPositionNearPlayer();
+
+        if (spawnPos != Vector3.zero)
         {
-            int randomIndex = Random.Range(0, spawnPoints.Length);
-            chosenSpawnPoint = spawnPoints[randomIndex];
+            // Instantiate prefab slightly offset upward so pivot doesn't bury model
+            GameObject newZombie = Instantiate(zombiePrefab, spawnPos + Vector3.up * 0.1f, Quaternion.identity);
+
+            // Snap agent cleanly to NavMesh surface feet level
+            NavMeshAgent agent = newZombie.GetComponent<NavMeshAgent>();
+            if (agent != null)
+            {
+                agent.Warp(spawnPos);
+            }
+
+            // Assign target player car
+            ZombieAI zombieScript = newZombie.GetComponent<ZombieAI>();
+            if (zombieScript != null)
+            {
+                zombieScript.playerCar = playerCar;
+                zombieScript.playerTag = playerTag;
+            }
+
+            currentAliveZombies++;
+        }
+    }
+
+    private Vector3 GetRandomNavMeshPositionNearPlayer()
+    {
+        // Try up to 10 random positions around the player car
+        for (int i = 0; i < 10; i++)
+        {
+            Vector2 randomCircle = Random.insideUnitCircle.normalized * Random.Range(minDistanceFromPlayer, maxDistanceFromPlayer);
+            Vector3 randomPos = playerCar.position + new Vector3(randomCircle.x, 0f, randomCircle.y);
+
+            // Sample nearest NavMesh point within 5 units
+            if (NavMesh.SamplePosition(randomPos, out NavMeshHit hit, 5.0f, NavMesh.AllAreas))
+            {
+                return hit.position;
+            }
         }
 
-        // 1. Add a slight random horizontal offset (e.g., 1.5m radius) so they don't stack
-        Vector3 randomOffset = Random.insideUnitSphere * 1.5f;
-        randomOffset.y = 0; // Keep on ground level
-        Vector3 spawnPosition = chosenSpawnPoint.position + randomOffset;
-
-        // 2. Snap spawn position cleanly to the nearest valid NavMesh point
-        UnityEngine.AI.NavMeshHit hit;
-        if (UnityEngine.AI.NavMesh.SamplePosition(spawnPosition, out hit, 3.0f, UnityEngine.AI.NavMesh.AllAreas))
-        {
-            spawnPosition = hit.position;
-        }
-
-        // 3. Instantiate with offset position
-        GameObject newZombie = Instantiate(zombiePrefab, spawnPosition, chosenSpawnPoint.rotation);
-
-        ZombieAI zombieScript = newZombie.GetComponent<ZombieAI>();
-        if (zombieScript != null)
-        {
-            zombieScript.playerCar = playerCar;
-            zombieScript.playerTag = playerTag;
-        }
-
-        currentAliveZombies++;
-        totalSpawnedSoFar++;
+        return Vector3.zero; // Couldn't locate valid point this frame
     }
 
     private void CleanUpDeadCount()
     {
-        // Unity 2023+ / Unity 6 safe method call
         ZombieAI[] allZombies = FindObjectsByType<ZombieAI>(FindObjectsInactive.Exclude);
         int activeCount = 0;
 
@@ -120,20 +116,5 @@ public class ZombieSpawner : MonoBehaviour
         }
 
         currentAliveZombies = activeCount;
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        if (spawnPoints == null) return;
-
-        Gizmos.color = Color.red;
-        foreach (Transform sp in spawnPoints)
-        {
-            if (sp != null)
-            {
-                Gizmos.DrawWireSphere(sp.position, 0.75f);
-                Gizmos.DrawRay(sp.position, sp.forward * 1.5f);
-            }
-        }
     }
 }
