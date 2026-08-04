@@ -79,7 +79,20 @@ public class ZombieSpawner : MonoBehaviour
             chosenSpawnPoint = spawnPoints[randomIndex];
         }
 
-        GameObject newZombie = Instantiate(zombiePrefab, chosenSpawnPoint.position, chosenSpawnPoint.rotation);
+        // 1. Add a slight random horizontal offset (e.g., 1.5m radius) so they don't stack
+        Vector3 randomOffset = Random.insideUnitSphere * 1.5f;
+        randomOffset.y = 0; // Keep on ground level
+        Vector3 spawnPosition = chosenSpawnPoint.position + randomOffset;
+
+        // 2. Snap spawn position cleanly to the nearest valid NavMesh point
+        UnityEngine.AI.NavMeshHit hit;
+        if (UnityEngine.AI.NavMesh.SamplePosition(spawnPosition, out hit, 3.0f, UnityEngine.AI.NavMesh.AllAreas))
+        {
+            spawnPosition = hit.position;
+        }
+
+        // 3. Instantiate with offset position
+        GameObject newZombie = Instantiate(zombiePrefab, spawnPosition, chosenSpawnPoint.rotation);
 
         ZombieAI zombieScript = newZombie.GetComponent<ZombieAI>();
         if (zombieScript != null)
