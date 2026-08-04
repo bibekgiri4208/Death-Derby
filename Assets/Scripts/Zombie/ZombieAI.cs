@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
-[RequireComponent(typeof(Rigidbody))]
 public class ZombieAI : MonoBehaviour
 {
     [Header("Targeting")]
@@ -12,48 +11,48 @@ public class ZombieAI : MonoBehaviour
     [Header("Status")]
     public bool isDead = false;
 
+    [Header("Pivot Offset Adjustment")]
+    [Tooltip("If the 3D model pivot is at chest level, adjust this (e.g., 0.9) to raise feet above ground.")]
+    public float baseVerticalOffset = 0f;
+
     private NavMeshAgent agent;
     private Rigidbody rb;
-    private Collider zombieCollider;
+    private Collider col;
 
-    void Start()
+    void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
-        zombieCollider = GetComponent<Collider>();
+        col = GetComponent<Collider>();
 
-        // 1. Keep solid physics enabled so zombie collides with car body
-        if (zombieCollider != null)
+        // Configure NavMeshAgent to handle movement completely
+        agent.updatePosition = true;
+        agent.updateRotation = true;
+        agent.baseOffset = baseVerticalOffset;
+
+        // Configure Rigidbody as Kinematic so physics engine NEVER pushes the car
+        if (rb != null)
         {
-            zombieCollider.isTrigger = false;
-
-            // Apply slick physics material so zombie slides smoothly off car paint
-            PhysicsMaterial slickMat = new PhysicsMaterial("SlickZombie")
-            {
-                dynamicFriction = 0f,
-                staticFriction = 0f,
-                frictionCombine = PhysicsMaterialCombine.Minimum,
-                bounceCombine = PhysicsMaterialCombine.Minimum
-            };
-            zombieCollider.sharedMaterial = slickMat;
+            rb.isKinematic = true;
+            rb.useGravity = false;
         }
 
-        // 2. Kinematic while navigating so NavMesh drives movement
-        rb.isKinematic = true;
-
-        // 3. Prevent micro-stutter on fast physical contact
-        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
-
-        // 4. Warp onto NavMesh if slightly off-grid
-        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 3.0f, NavMesh.AllAreas))
+        // Set collider as a Trigger so it detects car hits without physical pushing
+        if (col != null)
         {
-            agent.Warp(hit.position);
+            col.isTrigger = true;
         }
+    }
 
+    void Start()
+    {
         if (playerCar == null)
         {
             GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
-            if (playerObj != null) playerCar = playerObj.transform;
+            if (playerObj != null)
+            {
+                playerCar = playerObj.transform;
+            }
         }
     }
 
@@ -61,29 +60,34 @@ public class ZombieAI : MonoBehaviour
     {
         if (isDead || playerCar == null) return;
 
+        // Drive agent position directly toward player car
         if (agent.enabled && agent.isOnNavMesh)
         {
             agent.SetDestination(playerCar.position);
         }
     }
 
-    public void KillZombie(Vector3 impactVelocity, float upwardForce = 4f)
+    /// <summary>
+    /// Call this when the car hits the zombie with sufficient speed.
+    /// </summary>
+    public void KillZombie(Vector3 launchForce)
     {
         if (isDead) return;
         isDead = true;
 
+        // Disable AI navigation
         if (agent != null) agent.enabled = false;
 
+        // Turn on ragdoll/physics launch upon death
         if (rb != null)
         {
             rb.isKinematic = false;
+            rb.useGravity = true;
             rb.constraints = RigidbodyConstraints.None;
-
-            Vector3 launchForce = impactVelocity + (Vector3.up * upwardForce);
             rb.AddForce(launchForce, ForceMode.Impulse);
-            rb.AddTorque(Random.insideUnitSphere * 20f, ForceMode.Impulse);
+            rb.AddTorque(Random.insideUnitSphere * 15f, ForceMode.Impulse);
         }
 
-        Destroy(gameObject, 5f);
+        Destroy(gameObject, 4f);
     }
 }
