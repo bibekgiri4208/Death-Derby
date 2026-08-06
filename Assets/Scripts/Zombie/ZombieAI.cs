@@ -11,10 +11,6 @@ public class ZombieAI : MonoBehaviour
     [Header("Status")]
     public bool isDead = false;
 
-    [Header("Elevation Fix")]
-    [Tooltip("Adjust this until zombie feet rest perfectly on top of the ground plane.")]
-    public float agentBaseOffset = 1.0f;
-
     private NavMeshAgent agent;
     private Rigidbody rb;
     private Collider col;
@@ -25,21 +21,20 @@ public class ZombieAI : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
 
-        // 1. Force NavMeshAgent base offset so model isn't half buried
-        agent.baseOffset = agentBaseOffset;
+        // Set NavMeshAgent offset for Unity primitive capsule centered at (0,0,0)
+        agent.baseOffset = 1.0f;
+        agent.height = 2.0f;
+        agent.radius = 0.5f;
 
-        // 2. Let NavMeshAgent drive movement directly
         agent.updatePosition = true;
         agent.updateRotation = true;
 
-        // 3. Make Rigidbody kinematic so zombies don't push or stop the car
         if (rb != null)
         {
             rb.isKinematic = true;
             rb.useGravity = false;
         }
 
-        // 4. Set collider as trigger while alive
         if (col != null)
         {
             col.isTrigger = true;

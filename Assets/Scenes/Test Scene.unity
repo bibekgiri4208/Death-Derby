@@ -152,10 +152,15 @@ MonoBehaviour:
   zombiePrefab: {fileID: 691608703}
   playerCar: {fileID: 1749125454}
   playerTag: Player
+  spawnPoints:
+  - {fileID: 1904325261}
+  - {fileID: 2023987142}
+  - {fileID: 1760461782}
+  - {fileID: 1093568547}
   maxZombiesInScene: 20
   spawnInterval: 2
-  minSpawnRadius: 15
-  maxSpawnRadius: 30
+  minDistanceFromPlayer: 10
+  maxDistanceFromPlayer: 60
   currentAliveZombies: 0
 --- !u!4 &102883678
 Transform:
@@ -1181,7 +1186,7 @@ Transform:
   m_GameObject: {fileID: 1093568546}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.32, y: 0, z: -1.41}
+  m_LocalPosition: {x: 3.32, y: 1, z: -1.41}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1628,7 +1633,7 @@ Transform:
   m_GameObject: {fileID: 1760461781}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.32, y: 0, z: 3.26}
+  m_LocalPosition: {x: 3.32, y: 1, z: 3.26}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2122,7 +2127,7 @@ Transform:
   m_GameObject: {fileID: 1904325260}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.49, y: 0, z: 0}
+  m_LocalPosition: {x: -3.49, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2153,7 +2158,7 @@ Transform:
   m_GameObject: {fileID: 2023987141}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.49, y: 0, z: 4.92}
+  m_LocalPosition: {x: -3.49, y: 1, z: 4.92}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -107621,7 +107626,7 @@ PrefabInstance:
     - target: {fileID: 4698984225794080176, guid: d93f4acb5ef09e440a47918d88291b04,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.0939999
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4698984225794080176, guid: d93f4acb5ef09e440a47918d88291b04,
         type: 3}
