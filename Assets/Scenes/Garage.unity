@@ -650,7 +650,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CarSelection
   cars:
   - {fileID: 7726000362401331226}
-  - {fileID: 1052735322}
+  - {fileID: 604015834}
   - {fileID: 834604569}
   - {fileID: 1071983102}
   carInfos:
@@ -2317,6 +2317,18 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3bc13cf0ec3f0dd4f8d9dbf02b9781de, type: 3}
+--- !u!4 &604015833 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 240509911597133763, guid: 3bc13cf0ec3f0dd4f8d9dbf02b9781de,
+    type: 3}
+  m_PrefabInstance: {fileID: 604015832}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &604015834 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1868500275101880713, guid: 3bc13cf0ec3f0dd4f8d9dbf02b9781de,
+    type: 3}
+  m_PrefabInstance: {fileID: 604015832}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &614670264
 GameObject:
   m_ObjectHideFlags: 0
@@ -4113,12 +4125,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 128409146}
   m_LocalEulerAnglesHint: {x: -89.98, y: -90, z: 0}
---- !u!4 &1043729028 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 240509911597133763, guid: 3bc13cf0ec3f0dd4f8d9dbf02b9781de,
-    type: 3}
-  m_PrefabInstance: {fileID: 604015832}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1051037853
 GameObject:
   m_ObjectHideFlags: 0
@@ -4248,12 +4254,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!1 &1052735322 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1868500275101880713, guid: 3bc13cf0ec3f0dd4f8d9dbf02b9781de,
-    type: 3}
-  m_PrefabInstance: {fileID: 604015832}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1065682891
 GameObject:
   m_ObjectHideFlags: 0
@@ -6772,7 +6772,7 @@ Transform:
   m_Children:
   - {fileID: 1103604223}
   - {fileID: 2444041765484017151}
-  - {fileID: 1043729028}
+  - {fileID: 604015833}
   - {fileID: 1789163895}
   - {fileID: 634232560}
   m_Father: {fileID: 0}
