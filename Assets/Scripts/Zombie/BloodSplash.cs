@@ -2,12 +2,32 @@ using UnityEngine;
 
 public class BloodSplash : MonoBehaviour
 {
+    private const string PrefabResourcePath = "Effects/SmokyBloodSplash/SmokyBloodSplash";
+    private static GameObject cachedPrefab;
+
     public static BloodSplash Spawn(Vector3 position, Quaternion rotation)
     {
+        GameObject prefab = GetPrefab();
+        if (prefab != null)
+        {
+            GameObject spawned = Object.Instantiate(prefab, position, rotation);
+            Object.Destroy(spawned, 2f);
+            return null;
+        }
+
         GameObject go = new GameObject("BloodSplash");
         go.transform.SetPositionAndRotation(position, rotation);
         BloodSplash splash = go.AddComponent<BloodSplash>();
         return splash;
+    }
+
+    private static GameObject GetPrefab()
+    {
+        if (cachedPrefab == null)
+        {
+            cachedPrefab = Resources.Load<GameObject>(PrefabResourcePath);
+        }
+        return cachedPrefab;
     }
 
     void Awake()
