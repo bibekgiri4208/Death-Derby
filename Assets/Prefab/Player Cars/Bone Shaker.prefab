@@ -36794,6 +36794,12 @@ MonoBehaviour:
   steeringSpeedForMinAngle: 28
   downForce: 80
   centerOfMassOffset: {x: 0, y: -0.5, z: 0}
+  killSpeedKmh: 10
+  boostHapticLow: 0.35
+  boostHapticHigh: 0.45
+  killHapticLow: 0.4
+  killHapticHigh: 0.35
+  killHapticDuration: 0.25
 --- !u!114 &7128058199594960034
 MonoBehaviour:
   m_ObjectHideFlags: 0

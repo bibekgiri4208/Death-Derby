@@ -15,6 +15,7 @@ public class CarEffects : MonoBehaviour
     private CarController carController;
     private ParticleSystem.EmissionModule[] smokeEmissions;
     private ParticleSystem.MainModule[] smokeMains;
+    private bool wasBoosting;
 
     private void Start()
     {
@@ -79,13 +80,16 @@ public class CarEffects : MonoBehaviour
 
     private void UpdateBoostEffects()
     {
-        if (carController.IsBoosting)
+        bool boosting = carController.IsBoosting;
+
+        if (boosting && !wasBoosting)
         {
             foreach (ParticleSystem flame in boostFlames)
             {
-                if (flame != null && !flame.isPlaying)
+                if (flame != null)
                 {
-                    flame.Play();
+                    flame.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                    flame.Play(true);
                 }
             }
 
@@ -94,13 +98,13 @@ public class CarEffects : MonoBehaviour
                 nosAudioSource.Play();
             }
         }
-        else
+        else if (!boosting && wasBoosting)
         {
             foreach (ParticleSystem flame in boostFlames)
             {
-                if (flame != null && flame.isPlaying)
+                if (flame != null)
                 {
-                    flame.Stop();
+                    flame.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
                 }
             }
 
@@ -109,6 +113,8 @@ public class CarEffects : MonoBehaviour
                 nosAudioSource.Stop();
             }
         }
+
+        wasBoosting = boosting;
     }
 
     private void UpdateDesertSmoke()
