@@ -127,7 +127,7 @@ public class ZombieSpawner : MonoBehaviour
             if (NavMesh.SamplePosition(chosenPoint.position, out NavMeshHit hit, 3.0f, NavMesh.AllAreas))
             {
                 // Calculate center height for a single Unity default primitive capsule (+1.0 Y offset)
-                Vector3 targetSpawnPos = hit.position + Vector3.up * 1.0f;
+                Vector3 targetSpawnPos = hit.position;
 
                 // Pick a random zombie prefab
                 GameObject prefabToSpawn = zombiePrefabs[Random.Range(0, zombiePrefabs.Length)];

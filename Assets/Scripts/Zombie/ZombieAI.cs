@@ -32,8 +32,8 @@ public class ZombieAI : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
 
-        agent.baseOffset = 1.0f;
-        agent.height = 2.0f;
+        agent.baseOffset = 0.9f;
+        agent.height = 1.4f;
         agent.radius = 0.5f;
         agent.speed = 5f;
         agent.acceleration = 12f;
