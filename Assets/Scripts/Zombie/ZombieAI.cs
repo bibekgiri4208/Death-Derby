@@ -22,7 +22,9 @@ public class ZombieAI : MonoBehaviour
     private NavMeshAgent agent;
     private Rigidbody rb;
     private Collider col;
+    private Animator anim;
     private float destinationUpdateTimer;
+    private static readonly int SpeedHash = Animator.StringToHash("Speed");
 
     void Awake()
     {
@@ -63,11 +65,19 @@ public class ZombieAI : MonoBehaviour
                 playerCar = playerObj.transform;
             }
         }
+
+        anim = GetComponentInChildren<Animator>();
     }
 
     void Update()
     {
         if (isDead || playerCar == null) return;
+
+        if (anim != null)
+        {
+            float normalizedSpeed = Mathf.Clamp01(agent.velocity.magnitude / Mathf.Max(agent.speed, 0.01f));
+            anim.SetFloat(SpeedHash, normalizedSpeed);
+        }
 
         destinationUpdateTimer -= Time.deltaTime;
         if (destinationUpdateTimer > 0f) return;
