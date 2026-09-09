@@ -38,9 +38,26 @@ public class CarController : MonoBehaviour
     public float downForce = 80f;
     public Vector3 centerOfMassOffset = new Vector3(0f, -0.5f, 0f);
 
+    [Header("Zombie Kill")]
+    [Tooltip("Minimum speed in km/h to kill a zombie on impact.")]
+    public float killSpeedKmh = 10f;
+
+    [Header("Gamepad Haptics")]
+    [Tooltip("Rumble strength (left motor) while boosting with a gamepad.")]
+    public float boostHapticLow = 0.35f;
+    [Tooltip("Rumble strength (right motor) while boosting with a gamepad.")]
+    public float boostHapticHigh = 0.45f;
+    [Tooltip("Rumble strength (left motor) when killing a zombie.")]
+    public float killHapticLow = 0.4f;
+    [Tooltip("Rumble strength (right motor) when killing a zombie.")]
+    public float killHapticHigh = 0.35f;
+    [Tooltip("How long the kill rumble lasts.")]
+    public float killHapticDuration = 0.25f;
+
     private float horizontalInput;
     private float verticalInput;
     private bool isHandbraking;
+    private float remainingKillRumble;
 
     public bool IsBoosting { get; private set; }
     public Rigidbody CarRigidbody { get; private set; }
@@ -60,6 +77,7 @@ public class CarController : MonoBehaviour
     private void Update()
     {
         GetInput();
+        UpdateHaptics();
         UpdateWheelMeshes();
     }
 
@@ -225,5 +243,49 @@ public class CarController : MonoBehaviour
 
         wheelMesh.position = position;
         wheelMesh.rotation = rotation;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        ZombieAI zombie = other.GetComponentInParent<ZombieAI>();
+        if (zombie == null || zombie.isDead) return;
+
+        float currentSpeedKmh = CarRigidbody.linearVelocity.magnitude * 3.6f;
+        if (currentSpeedKmh >= killSpeedKmh)
+        {
+            zombie.KillZombie();
+            remainingKillRumble = killHapticDuration;
+        }
+    }
+
+    private void UpdateHaptics()
+    {
+        if (Gamepad.current == null) return;
+
+        float low = 0f;
+        float high = 0f;
+
+        if (IsBoosting)
+        {
+            low += boostHapticLow;
+            high += boostHapticHigh;
+        }
+
+        if (remainingKillRumble > 0f)
+        {
+            remainingKillRumble = Mathf.Max(0f, remainingKillRumble - Time.deltaTime);
+            low += killHapticLow;
+            high += killHapticHigh;
+        }
+
+        Gamepad.current.SetMotorSpeeds(Mathf.Clamp01(low), Mathf.Clamp01(high));
+    }
+
+    private void OnDisable()
+    {
+        if (Gamepad.current != null)
+        {
+            Gamepad.current.SetMotorSpeeds(0f, 0f);
+        }
     }
 }
