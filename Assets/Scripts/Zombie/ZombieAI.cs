@@ -110,7 +110,7 @@ public class ZombieAI : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
-        BloodSplash.Spawn(transform.position + Vector3.up * 0.5f, Quaternion.identity);
+        BloodSplash.Spawn(transform.position + Vector3.up * 0.15f, Quaternion.identity);
 
         if (agent != null) agent.enabled = false;
 

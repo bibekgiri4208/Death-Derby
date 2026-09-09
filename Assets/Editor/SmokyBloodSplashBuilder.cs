@@ -8,6 +8,7 @@ public static class SmokyBloodSplashBuilder
     private const string PrefabPath = OutputFolder + "/SmokyBloodSplash.prefab";
     private const string PuffMatPath = MaterialsFolder + "/BloodPuff.mat";
     private const string DropletMatPath = MaterialsFolder + "/BloodDroplet.mat";
+    private const string RedTexturePath = MaterialsFolder + "/BloodRed.png";
 
     private const string SphereMeshPath = "Assets/Effects/Blood/Meshes/Sphere.fbx";
     private const string BaseMaterialPath = "Assets/Effects/Blood/Materials/Sphere_Material.mat";
@@ -32,10 +33,12 @@ public static class SmokyBloodSplashBuilder
             return;
         }
 
+        Texture2D redTex = CreateAndImportRedTexture();
+
         Material puffMat = GetOrCreateMaterial(PuffMatPath, baseMat);
         Material dropletMat = GetOrCreateMaterial(DropletMatPath, baseMat);
-        puffMat.SetColor("_Color", new Color(0.9f, 0.08f, 0.09f, 1f));
-        dropletMat.SetColor("_Color", new Color(1f, 0.05f, 0.05f, 1f));
+        MakeRed(puffMat, redTex);
+        MakeRed(dropletMat, redTex);
         EditorUtility.SetDirty(puffMat);
         EditorUtility.SetDirty(dropletMat);
 
@@ -72,8 +75,8 @@ public static class SmokyBloodSplashBuilder
         main.duration = 0.1f;
         main.startLifetime = new ParticleSystem.MinMaxCurve(0.7f, 1.1f);
         main.startSpeed = new ParticleSystem.MinMaxCurve(1.1f, 1.8f);
-        main.startSize = new ParticleSystem.MinMaxCurve(0.2f, 0.3f);
-        main.startColor = Color.white;
+        main.startSize = new ParticleSystem.MinMaxCurve(0.13f, 0.19f);
+        main.startColor = new Color(0.8f, 0.05f, 0.06f, 1f);
         main.gravityModifier = -0.15f;
         main.maxParticles = 120;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
@@ -116,8 +119,8 @@ public static class SmokyBloodSplashBuilder
         main.duration = 0.1f;
         main.startLifetime = new ParticleSystem.MinMaxCurve(0.35f, 0.5f);
         main.startSpeed = new ParticleSystem.MinMaxCurve(3.5f, 9f);
-        main.startSize = new ParticleSystem.MinMaxCurve(0.03f, 0.05f);
-        main.startColor = Color.white;
+        main.startSize = new ParticleSystem.MinMaxCurve(0.04f, 0.06f);
+        main.startColor = new Color(0.85f, 0.03f, 0.04f, 1f);
         main.gravityModifier = 1.8f;
         main.maxParticles = 60;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
@@ -147,6 +150,51 @@ public static class SmokyBloodSplashBuilder
         renderer.sharedMaterial = mat;
         renderer.maxParticleSize = 0.8f;
         renderer.sortMode = ParticleSystemSortMode.None;
+    }
+
+    static void MakeRed(Material mat, Texture2D redTexture)
+    {
+        if (mat.HasProperty("_MainTex")) mat.SetTexture("_MainTex", redTexture);
+        if (mat.HasProperty("_BaseMap")) mat.SetTexture("_BaseMap", redTexture);
+        if (mat.HasProperty("_Color")) mat.SetColor("_Color", Color.white);
+        if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", Color.white);
+        if (mat.HasProperty("_EmissionColor")) mat.SetColor("_EmissionColor", new Color(0.68f, 0.03f, 0.04f, 1f));
+        mat.EnableKeyword("_EMISSION");
+    }
+
+    static Texture2D CreateAndImportRedTexture()
+    {
+        const int size = 8;
+        Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        Color[] pixels = new Color[size * size];
+        for (int i = 0; i < pixels.Length; i++)
+        {
+            pixels[i] = new Color(0.62f, 0.025f, 0.035f, 1f);
+        }
+        tex.SetPixels(pixels);
+        tex.Apply();
+
+        string fullPath = System.IO.Path.Combine(ProjectRoot(), RedTexturePath.Replace("/", "\\"));
+        System.IO.File.WriteAllBytes(fullPath, tex.EncodeToPNG());
+        Object.DestroyImmediate(tex);
+
+        AssetDatabase.ImportAsset(RedTexturePath, ImportAssetOptions.ForceUpdate);
+        TextureImporter importer = AssetImporter.GetAtPath(RedTexturePath) as TextureImporter;
+        if (importer != null)
+        {
+            importer.alphaIsTransparency = true;
+            importer.mipmapEnabled = true;
+            importer.filterMode = FilterMode.Bilinear;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.SaveAndReimport();
+        }
+
+        return AssetDatabase.LoadAssetAtPath<Texture2D>(RedTexturePath);
+    }
+
+    static string ProjectRoot()
+    {
+        return System.IO.Directory.GetParent(Application.dataPath).FullName;
     }
 
     static Material GetOrCreateMaterial(string path, Material baseMat)
