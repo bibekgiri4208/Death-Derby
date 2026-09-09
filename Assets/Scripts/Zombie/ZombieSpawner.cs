@@ -6,7 +6,7 @@ using UnityEngine.AI;
 public class ZombieSpawner : MonoBehaviour
 {
     [Header("Prefabs & Targets")]
-    public GameObject zombiePrefab;
+    public GameObject[] zombiePrefabs;
     public Transform playerCar;
     public string playerTag = "Player";
 
@@ -62,7 +62,7 @@ public class ZombieSpawner : MonoBehaviour
 
     private void SpawnFromSpawnPoint()
     {
-        if (zombiePrefab == null || spawnPoints.Length == 0) return;
+        if (zombiePrefabs == null || zombiePrefabs.Length == 0 || spawnPoints.Length == 0) return;
 
         List<Transform> validSpawnPoints = new List<Transform>();
 
@@ -129,8 +129,11 @@ public class ZombieSpawner : MonoBehaviour
                 // Calculate center height for a single Unity default primitive capsule (+1.0 Y offset)
                 Vector3 targetSpawnPos = hit.position + Vector3.up * 1.0f;
 
+                // Pick a random zombie prefab
+                GameObject prefabToSpawn = zombiePrefabs[Random.Range(0, zombiePrefabs.Length)];
+
                 // Instantiate prefab
-                GameObject newZombie = Instantiate(zombiePrefab, targetSpawnPos, chosenPoint.rotation);
+                GameObject newZombie = Instantiate(prefabToSpawn, targetSpawnPos, chosenPoint.rotation);
 
                 // Fix frame-0 auto-snap race condition
                 NavMeshAgent agent = newZombie.GetComponent<NavMeshAgent>();
