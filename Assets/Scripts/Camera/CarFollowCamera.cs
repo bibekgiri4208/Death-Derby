@@ -15,6 +15,8 @@ public class CarFollowCamera : MonoBehaviour
     public float mouseSensitivity = 0.15f;
     public float minPitch = -10f;
     public float maxPitch = 45f;
+    [Tooltip("Camera stops this many degrees before it would look straight down/up (the view-switch zone).")]
+    public float pitchSafeGap = 15f;
 
     [Header("Boost Camera Effect")]
     public float boostPullBackDistance = 2.5f;
@@ -96,7 +98,13 @@ public class CarFollowCamera : MonoBehaviour
         yaw += lookInput.x;
         pitch -= lookInput.y;
 
-        pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
+        // Hard stop: the camera may never rotate to the angle where it would sit
+        // directly above/below the car and look straight down/up -- that is the
+        // near-vertical zone where the view visibly switches. It stops short of it.
+        float verticalPitch = Mathf.Atan2(-currentOffset.z, currentOffset.y) * Mathf.Rad2Deg;
+        float maxSafePitch = verticalPitch - pitchSafeGap;
+
+        pitch = Mathf.Clamp(pitch, minPitch, Mathf.Min(maxPitch, maxSafePitch));
     }
 
     private void FollowTarget()
