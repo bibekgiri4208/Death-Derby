@@ -16,6 +16,12 @@ public class ZombieAI : MonoBehaviour
     [Tooltip("Seconds between destination recalculations.")]
     public float destinationUpdateInterval = 0.15f;
 
+    [Header("Attack")]
+    [Tooltip("Distance at which the zombie stops chasing and starts attacking.")]
+    public float attackDistance = 3f;
+    [Tooltip("Minimum seconds between consecutive attacks.")]
+    public float attackCooldown = 1f;
+
     [Header("Audio")]
     public AudioClip killSound;
 
@@ -27,7 +33,12 @@ public class ZombieAI : MonoBehaviour
     private Collider col;
     private Animator anim;
     private float destinationUpdateTimer;
+    private bool isAttacking;
+    private float attackCooldownTimer;
+
     private static readonly int SpeedHash = Animator.StringToHash("Speed");
+    private static readonly int Attack1Hash = Animator.StringToHash("Attack1");
+    private static readonly int Attack2Hash = Animator.StringToHash("Attack2");
 
     void Awake()
     {
@@ -76,10 +87,35 @@ public class ZombieAI : MonoBehaviour
     {
         if (isDead || playerCar == null) return;
 
+        if (attackCooldownTimer > 0f)
+            attackCooldownTimer -= Time.deltaTime;
+
+        if (isAttacking)
+        {
+            FaceTarget(playerCar.position);
+
+            if (anim != null)
+            {
+                AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
+                if ((stateInfo.IsName("Attack1") || stateInfo.IsName("Attack2")) && stateInfo.normalizedTime >= 1f)
+                {
+                    EndAttack();
+                }
+            }
+            return;
+        }
+
         if (anim != null)
         {
             float normalizedSpeed = Mathf.Clamp01(agent.velocity.magnitude / Mathf.Max(agent.speed, 0.01f));
             anim.SetFloat(SpeedHash, normalizedSpeed);
+        }
+
+        float distToCar = Vector3.Distance(transform.position, playerCar.position);
+        if (distToCar <= attackDistance && attackCooldownTimer <= 0f && agent.enabled && agent.isOnNavMesh)
+        {
+            StartAttack();
+            return;
         }
 
         destinationUpdateTimer -= Time.deltaTime;
@@ -105,6 +141,42 @@ public class ZombieAI : MonoBehaviour
             {
                 agent.SetDestination(hit.position);
             }
+        }
+    }
+
+    void StartAttack()
+    {
+        isAttacking = true;
+        agent.ResetPath();
+
+        if (Random.value > 0.5f)
+        {
+            anim.SetBool(Attack1Hash, true);
+            anim.SetBool(Attack2Hash, false);
+        }
+        else
+        {
+            anim.SetBool(Attack1Hash, false);
+            anim.SetBool(Attack2Hash, true);
+        }
+    }
+
+    void EndAttack()
+    {
+        isAttacking = false;
+        attackCooldownTimer = attackCooldown;
+        anim.SetBool(Attack1Hash, false);
+        anim.SetBool(Attack2Hash, false);
+    }
+
+    void FaceTarget(Vector3 target)
+    {
+        Vector3 dir = (target - transform.position).normalized;
+        dir.y = 0f;
+        if (dir.sqrMagnitude > 0.001f)
+        {
+            Quaternion targetRot = Quaternion.LookRotation(dir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 8f);
         }
     }
 
