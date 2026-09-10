@@ -104,7 +104,7 @@ public class CarEffects : MonoBehaviour
             {
                 if (flame != null)
                 {
-                    flame.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                    flame.Stop(true, ParticleSystemStopBehavior.StopEmitting);
                 }
             }
 
