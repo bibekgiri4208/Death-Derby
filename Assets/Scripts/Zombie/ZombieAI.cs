@@ -11,10 +11,12 @@ public class ZombieAI : MonoBehaviour
     [Header("Tracking")]
     [Tooltip("How far ahead to predict the car's position based on its velocity.")]
     public float predictionTime = 0.3f;
-    [Tooltip("Random offset range to make zombie paths less uniform.")]
-    public float randomOffsetRange = 2f;
     [Tooltip("Seconds between destination recalculations.")]
     public float destinationUpdateInterval = 0.15f;
+
+    [Header("Surround")]
+    [Tooltip("Angular deviation (degrees) from a direct approach. Higher = more spread around the car.")]
+    public float surroundAngle = 30f;
 
     [Header("Attack")]
     [Tooltip("Distance at which the zombie stops chasing and starts attacking.")]
@@ -24,6 +26,8 @@ public class ZombieAI : MonoBehaviour
 
     [Header("Audio")]
     public AudioClip killSound;
+    [Tooltip("Volume of the kill sound (0-1).")]
+    public float killSoundVolume = 1f;
 
     [Header("Status")]
     public bool isDead = false;
@@ -35,6 +39,9 @@ public class ZombieAI : MonoBehaviour
     private float destinationUpdateTimer;
     private bool isAttacking;
     private float attackCooldownTimer;
+    private int zombieId;
+    private float surroundOffset;
+    private static int nextZombieId = 0;
 
     private static readonly int SpeedHash = Animator.StringToHash("Speed");
     private static readonly int Attack1Hash = Animator.StringToHash("Attack1");
@@ -67,6 +74,9 @@ public class ZombieAI : MonoBehaviour
         {
             col.isTrigger = true;
         }
+
+        zombieId = nextZombieId++;
+        surroundOffset = Random.Range(0f, 360f);
     }
 
     void Start()
@@ -128,16 +138,35 @@ public class ZombieAI : MonoBehaviour
             Vector3 carVelocity = carRb != null ? carRb.linearVelocity : Vector3.zero;
 
             Vector3 predictedPosition = playerCar.position + carVelocity * predictionTime;
+            float distToPredicted = Vector3.Distance(transform.position, predictedPosition);
 
-            Vector3 toTarget = predictedPosition - transform.position;
-            float dist = toTarget.magnitude;
-            if (dist > 0.1f)
+            Vector3 destination;
+
+            if (distToPredicted <= attackDistance * 2f)
             {
-                Vector3 lateral = Vector3.Cross(Vector3.up, toTarget.normalized) * randomOffsetRange * Mathf.PingPong(Time.time * 0.7f, 1f) * 0.5f;
-                predictedPosition += lateral;
+                destination = predictedPosition;
+            }
+            else
+            {
+                Vector3 toZombie = transform.position - predictedPosition;
+                toZombie.y = 0f;
+
+                float targetAngle;
+                if (toZombie.sqrMagnitude > 0.25f)
+                {
+                    float currentAngle = Mathf.Atan2(toZombie.x, toZombie.z) * Mathf.Rad2Deg;
+                    targetAngle = currentAngle + surroundOffset;
+                }
+                else
+                {
+                    targetAngle = surroundOffset;
+                }
+
+                Vector3 approachDir = new Vector3(Mathf.Sin(targetAngle * Mathf.Deg2Rad), 0f, Mathf.Cos(targetAngle * Mathf.Deg2Rad));
+                destination = predictedPosition + approachDir * distToPredicted * Mathf.Tan(surroundAngle * Mathf.Deg2Rad);
             }
 
-            if (NavMesh.SamplePosition(predictedPosition, out NavMeshHit hit, 3f, NavMesh.AllAreas))
+            if (NavMesh.SamplePosition(destination, out NavMeshHit hit, 3f, NavMesh.AllAreas))
             {
                 agent.SetDestination(hit.position);
             }
@@ -189,7 +218,13 @@ public class ZombieAI : MonoBehaviour
 
         if (killSound != null)
         {
-            AudioSource.PlayClipAtPoint(killSound, transform.position);
+            GameObject soundObj = new GameObject("ZombieKillSound");
+            AudioSource src = soundObj.AddComponent<AudioSource>();
+            src.clip = killSound;
+            src.volume = killSoundVolume;
+            src.spatialBlend = 0f;
+            src.Play();
+            Destroy(soundObj, killSound.length + 0.1f);
         }
 
         if (agent != null) agent.enabled = false;

@@ -36630,7 +36630,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 0.712
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -36794,6 +36794,12 @@ MonoBehaviour:
   steeringSpeedForMinAngle: 28
   downForce: 80
   centerOfMassOffset: {x: 0, y: -0.5, z: 0}
+  driftSidewaysFriction: 0.3
+  driftForwardFriction: 0.6
+  driftSteerMultiplier: 1.3
+  driftMotorMultiplier: 0.7
+  driftMinSpeed: 5
+  driftFrictionSmoothing: 8
   killSpeedKmh: 10
   boostHapticLow: 0.35
   boostHapticHigh: 0.45
