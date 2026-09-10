@@ -70688,7 +70688,7 @@ MonoBehaviour:
   rearRightCollider: {fileID: 2126973587090674199}
   frontLeftMesh: {fileID: 5804450862865357785}
   frontRightMesh: {fileID: 381415123765821723}
-  rearLeftMesh: {fileID: 0}
+  rearLeftMesh: {fileID: 4219365472996667078}
   rearRightMesh: {fileID: 3309396357739900130}
   motorForce: 1500
   brakeForce: 3000
@@ -70703,6 +70703,12 @@ MonoBehaviour:
   steeringSpeedForMinAngle: 30
   downForce: 80
   centerOfMassOffset: {x: 0, y: -0.5, z: 0}
+  killSpeedKmh: 10
+  boostHapticLow: 0.35
+  boostHapticHigh: 0.45
+  killHapticLow: 0.4
+  killHapticHigh: 0.35
+  killHapticDuration: 0.25
 --- !u!114 &2765993437376756914
 MonoBehaviour:
   m_ObjectHideFlags: 0

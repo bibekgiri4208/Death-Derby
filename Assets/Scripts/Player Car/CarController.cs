@@ -38,6 +38,22 @@ public class CarController : MonoBehaviour
     public float downForce = 80f;
     public Vector3 centerOfMassOffset = new Vector3(0f, -0.5f, 0f);
 
+    [Header("Drift Settings")]
+    [Tooltip("Sideways friction stiffness on rear wheels during drift (lower = more slide).")]
+    [Range(0.1f, 1f)]
+    public float driftSidewaysFriction = 0.3f;
+    [Tooltip("Forward friction stiffness on rear wheels during drift (lower = more wheel spin).")]
+    [Range(0.1f, 1f)]
+    public float driftForwardFriction = 0.6f;
+    [Tooltip("How much steer angle is multiplied during drift.")]
+    public float driftSteerMultiplier = 1.3f;
+    [Tooltip("Motor torque multiplier during drift (reduces grip-up).")]
+    public float driftMotorMultiplier = 0.7f;
+    [Tooltip("Minimum forward speed to enter a drift.")]
+    public float driftMinSpeed = 5f;
+    [Tooltip("How fast friction transitions in/out.")]
+    public float driftFrictionSmoothing = 8f;
+
     [Header("Zombie Kill")]
     [Tooltip("Minimum speed in km/h to kill a zombie on impact.")]
     public float killSpeedKmh = 10f;
@@ -60,9 +76,15 @@ public class CarController : MonoBehaviour
     private float remainingKillRumble;
 
     public bool IsBoosting { get; private set; }
+    public bool IsDrifting { get; private set; }
     public Rigidbody CarRigidbody { get; private set; }
 
     private float currentSteerAngle;
+
+    private WheelFrictionCurve origRearLeftSideways;
+    private WheelFrictionCurve origRearRightSideways;
+    private WheelFrictionCurve origRearLeftForward;
+    private WheelFrictionCurve origRearRightForward;
 
     private void Start()
     {
@@ -72,6 +94,11 @@ public class CarController : MonoBehaviour
         {
             CarRigidbody.centerOfMass += centerOfMassOffset;
         }
+
+        origRearLeftSideways = rearLeftCollider.sidewaysFriction;
+        origRearRightSideways = rearRightCollider.sidewaysFriction;
+        origRearLeftForward = rearLeftCollider.forwardFriction;
+        origRearRightForward = rearRightCollider.forwardFriction;
     }
 
     private void Update()
@@ -86,6 +113,7 @@ public class CarController : MonoBehaviour
         HandleMotor();
         HandleSteering();
         HandleBraking();
+        HandleDrifting();
         HandleBoost();
         ApplyDownforce();
     }
@@ -129,6 +157,11 @@ public class CarController : MonoBehaviour
             {
                 IsBoosting = true;
             }
+
+            if (Gamepad.current.buttonWest.isPressed)
+            {
+                isHandbraking = true;
+            }
         }
 
         horizontalInput = Mathf.Clamp(horizontalInput, -1f, 1f);
@@ -151,8 +184,43 @@ public class CarController : MonoBehaviour
 
         float torque = verticalInput * motorForce;
 
+        if (IsDrifting)
+        {
+            torque *= driftMotorMultiplier;
+        }
+
         rearLeftCollider.motorTorque = torque;
         rearRightCollider.motorTorque = torque;
+    }
+
+    private void HandleDrifting()
+    {
+        float t = driftFrictionSmoothing * Time.fixedDeltaTime;
+
+        WheelFrictionCurve rearLeftSideways = rearLeftCollider.sidewaysFriction;
+        WheelFrictionCurve rearRightSideways = rearRightCollider.sidewaysFriction;
+        WheelFrictionCurve rearLeftForward = rearLeftCollider.forwardFriction;
+        WheelFrictionCurve rearRightForward = rearRightCollider.forwardFriction;
+
+        if (IsDrifting)
+        {
+            rearLeftSideways.stiffness = Mathf.Lerp(rearLeftSideways.stiffness, driftSidewaysFriction, t);
+            rearRightSideways.stiffness = Mathf.Lerp(rearRightSideways.stiffness, driftSidewaysFriction, t);
+            rearLeftForward.stiffness = Mathf.Lerp(rearLeftForward.stiffness, driftForwardFriction, t);
+            rearRightForward.stiffness = Mathf.Lerp(rearRightForward.stiffness, driftForwardFriction, t);
+        }
+        else
+        {
+            rearLeftSideways.stiffness = Mathf.Lerp(rearLeftSideways.stiffness, origRearLeftSideways.stiffness, t);
+            rearRightSideways.stiffness = Mathf.Lerp(rearRightSideways.stiffness, origRearRightSideways.stiffness, t);
+            rearLeftForward.stiffness = Mathf.Lerp(rearLeftForward.stiffness, origRearLeftForward.stiffness, t);
+            rearRightForward.stiffness = Mathf.Lerp(rearRightForward.stiffness, origRearRightForward.stiffness, t);
+        }
+
+        rearLeftCollider.sidewaysFriction = rearLeftSideways;
+        rearRightCollider.sidewaysFriction = rearRightSideways;
+        rearLeftCollider.forwardFriction = rearLeftForward;
+        rearRightCollider.forwardFriction = rearRightForward;
     }
 
     private void HandleBoost()
@@ -178,6 +246,11 @@ public class CarController : MonoBehaviour
             minSteerAngleAtHighSpeed,
             speedPercent
         );
+
+        if (IsDrifting)
+        {
+            adjustedMaxSteerAngle *= driftSteerMultiplier;
+        }
 
         float targetSteerAngle = horizontalInput * adjustedMaxSteerAngle;
 
@@ -212,6 +285,8 @@ public class CarController : MonoBehaviour
         frontRightCollider.brakeTorque = currentBrakeForce;
         rearLeftCollider.brakeTorque = currentBrakeForce;
         rearRightCollider.brakeTorque = currentBrakeForce;
+
+        IsDrifting = isHandbraking && Mathf.Abs(forwardSpeed) > driftMinSpeed && Mathf.Abs(horizontalInput) > 0.1f;
 
         if (isHandbraking)
         {
