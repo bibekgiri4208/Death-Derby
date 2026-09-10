@@ -849,7 +849,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 1.2
-  m_Speed: 3.5
+  m_Speed: 4
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -903,9 +903,12 @@ MonoBehaviour:
   playerCar: {fileID: 0}
   playerTag: Player
   predictionTime: 0.3
-  randomOffsetRange: 2
   destinationUpdateInterval: 0.15
+  surroundAngle: 30
+  attackDistance: 3
+  attackCooldown: 1
   killSound: {fileID: 8300000, guid: 5ac87f5216f4d19498802a52aa069804, type: 3}
+  killSoundVolume: 1
   isDead: 0
 --- !u!1 &3569550375555745744
 GameObject:
