@@ -16,6 +16,9 @@ public class ZombieAI : MonoBehaviour
     [Tooltip("Seconds between destination recalculations.")]
     public float destinationUpdateInterval = 0.15f;
 
+    [Header("Audio")]
+    public AudioClip killSound;
+
     [Header("Status")]
     public bool isDead = false;
 
@@ -111,6 +114,11 @@ public class ZombieAI : MonoBehaviour
         isDead = true;
 
         BloodSplash.Spawn(transform.position + Vector3.up * 0.15f, Quaternion.identity);
+
+        if (killSound != null)
+        {
+            AudioSource.PlayClipAtPoint(killSound, transform.position);
+        }
 
         if (agent != null) agent.enabled = false;
 

@@ -905,6 +905,7 @@ MonoBehaviour:
   predictionTime: 0.3
   randomOffsetRange: 2
   destinationUpdateInterval: 0.15
+  killSound: {fileID: 8300000, guid: 5ac87f5216f4d19498802a52aa069804, type: 3}
   isDead: 0
 --- !u!1 &3569550375555745744
 GameObject:
