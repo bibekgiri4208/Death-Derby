@@ -23,6 +23,7 @@ public class CarEffects : MonoBehaviour
     private CarController carController;
     private ParticleSystem.EmissionModule[] smokeEmissions;
     private ParticleSystem.MainModule[] smokeMains;
+    private bool[] rearSmokeSystems;
     private bool wasBoosting;
     private float currentSmokeAmount;
 
@@ -76,6 +77,9 @@ public class CarEffects : MonoBehaviour
         {
             smokeEmissions = new ParticleSystem.EmissionModule[desertSmokeEffects.Length];
             smokeMains = new ParticleSystem.MainModule[desertSmokeEffects.Length];
+            rearSmokeSystems = new bool[desertSmokeEffects.Length];
+
+            Vector3 carPos = transform.position;
 
             for (int i = 0; i < desertSmokeEffects.Length; i++)
             {
@@ -83,6 +87,18 @@ public class CarEffects : MonoBehaviour
                 {
                     smokeEmissions[i] = desertSmokeEffects[i].emission;
                     smokeMains[i] = desertSmokeEffects[i].main;
+
+                    // Classify as rear wheel emitter by position relative to the car's forward axis
+                    Vector3 offset = desertSmokeEffects[i].transform.position - carPos;
+                    rearSmokeSystems[i] = Vector3.Dot(transform.forward, offset) < 0f;
+
+                    // Front wheel emitters stay fully off
+                    if (!rearSmokeSystems[i])
+                    {
+                        smokeEmissions[i].rateOverDistance = 0f;
+                        smokeEmissions[i].rateOverTime = 0f;
+                        continue;
+                    }
 
                     // Force simulation space to World so smoke trails behind naturally
                     smokeMains[i].simulationSpace = ParticleSystemSimulationSpace.World;
@@ -147,7 +163,9 @@ public class CarEffects : MonoBehaviour
 
         // Hard dead zone: zero smoke until the car is genuinely driving
         float speedRange = Mathf.Max(absoluteMaxSpeed - minSmokeSpeed, 0.01f);
-        float targetAmount = Mathf.Clamp01((currentSpeed - minSmokeSpeed) / speedRange);
+        float targetAmount = carController.IsBurningOut
+            ? 1f
+            : Mathf.Clamp01((currentSpeed - minSmokeSpeed) / speedRange);
 
         // Frame-rate independent exponential smoothing kills flicker from speed jitter
         float lerpFactor = 1f - Mathf.Exp(-Time.deltaTime * emissionSmoothing);
@@ -163,6 +181,7 @@ public class CarEffects : MonoBehaviour
         for (int i = 0; i < desertSmokeEffects.Length; i++)
         {
             if (desertSmokeEffects[i] == null) continue;
+            if (!rearSmokeSystems[i]) continue;
 
             smokeEmissions[i].rateOverTime = targetRate;
             // Restores the thick trail: only above dead zone to avoid crawl-speed puffs

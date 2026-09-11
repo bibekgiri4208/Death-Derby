@@ -38,6 +38,20 @@ public class CarController : MonoBehaviour
     public float downForce = 80f;
     public Vector3 centerOfMassOffset = new Vector3(0f, -0.5f, 0f);
 
+    [Header("Burnout Settings")]
+    [Tooltip("Brake force applied to the front wheels so the car stays put during a burnout.")]
+    public float burnoutKeepStillBrakeForce = 5000f;
+    [Tooltip("Multiplier on motor torque pushed to the rear wheels during a burnout.")]
+    public float burnoutMotorMultiplier = 1.5f;
+    [Tooltip("Rear wheel forward friction during burnout (low = wheels spin freely).")]
+    [Range(0f, 1f)]
+    public float burnoutForwardFriction = 0.05f;
+    [Tooltip("Rear wheel sideways friction during burnout.")]
+    [Range(0f, 1f)]
+    public float burnoutSidewaysFriction = 0.2f;
+    [Tooltip("How fast the car spins in place while turning during a burnout (radians per second).")]
+    public float burnoutTurnSpeed = 2.5f;
+
     [Header("Drift Settings")]
     [Tooltip("Sideways friction stiffness on rear wheels during drift (lower = more slide).")]
     [Range(0.1f, 1f)]
@@ -72,11 +86,14 @@ public class CarController : MonoBehaviour
 
     private float horizontalInput;
     private float verticalInput;
+    private float rawThrottle;
+    private float rawBrakeControl;
     private bool isHandbraking;
     private float remainingKillRumble;
 
     public bool IsBoosting { get; private set; }
     public bool IsDrifting { get; private set; }
+    public bool IsBurningOut { get; private set; }
     public Rigidbody CarRigidbody { get; private set; }
 
     private float currentSteerAngle;
@@ -85,6 +102,8 @@ public class CarController : MonoBehaviour
     private WheelFrictionCurve origRearRightSideways;
     private WheelFrictionCurve origRearLeftForward;
     private WheelFrictionCurve origRearRightForward;
+    private WheelFrictionCurve origFrontLeftSideways;
+    private WheelFrictionCurve origFrontRightSideways;
 
     private void Start()
     {
@@ -99,6 +118,13 @@ public class CarController : MonoBehaviour
         origRearRightSideways = rearRightCollider.sidewaysFriction;
         origRearLeftForward = rearLeftCollider.forwardFriction;
         origRearRightForward = rearRightCollider.forwardFriction;
+        origFrontLeftSideways = frontLeftCollider.sidewaysFriction;
+        origFrontRightSideways = frontRightCollider.sidewaysFriction;
+
+        // Old serialized data may have saved these as 0, so enforce sensible defaults
+        if (burnoutKeepStillBrakeForce < 100f) burnoutKeepStillBrakeForce = 5000f;
+        if (burnoutMotorMultiplier < 0.1f) burnoutMotorMultiplier = 1.5f;
+        if (burnoutTurnSpeed < 0.1f) burnoutTurnSpeed = 2.5f;
     }
 
     private void Update()
@@ -110,6 +136,8 @@ public class CarController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        IsBurningOut = rawThrottle > 0.1f && rawBrakeControl > 0.1f;
+
         HandleMotor();
         HandleSteering();
         HandleBraking();
@@ -122,6 +150,8 @@ public class CarController : MonoBehaviour
     {
         horizontalInput = 0f;
         verticalInput = 0f;
+        rawThrottle = 0f;
+        rawBrakeControl = 0f;
 
         // Keyboard steering
         if (Keyboard.current != null)
@@ -133,10 +163,16 @@ public class CarController : MonoBehaviour
                 horizontalInput += 1f;
 
             if (Keyboard.current.wKey.isPressed)
+            {
                 verticalInput += 1f;
+                rawThrottle += 1f;
+            }
 
             if (Keyboard.current.sKey.isPressed)
+            {
                 verticalInput -= 1f;
+                rawBrakeControl += 1f;
+            }
 
             isHandbraking = Keyboard.current.spaceKey.isPressed;
             IsBoosting = Keyboard.current.leftShiftKey.isPressed;
@@ -152,6 +188,8 @@ public class CarController : MonoBehaviour
 
             horizontalInput += leftStick.x;
             verticalInput += r2 - l2;
+            rawThrottle += r2;
+            rawBrakeControl += l2;
 
             if (Gamepad.current.buttonSouth.isPressed)
             {
@@ -166,10 +204,21 @@ public class CarController : MonoBehaviour
 
         horizontalInput = Mathf.Clamp(horizontalInput, -1f, 1f);
         verticalInput = Mathf.Clamp(verticalInput, -1f, 1f);
+        rawThrottle = Mathf.Clamp01(rawThrottle);
+        rawBrakeControl = Mathf.Clamp01(rawBrakeControl);
     }
 
     private void HandleMotor()
     {
+        if (IsBurningOut)
+        {
+            // Cut all speed-limit guards and spin the rear wheels at full torque
+            float burnoutTorque = motorForce * burnoutMotorMultiplier;
+            rearLeftCollider.motorTorque = burnoutTorque;
+            rearRightCollider.motorTorque = burnoutTorque;
+            return;
+        }
+
         float forwardSpeed = Vector3.Dot(CarRigidbody.linearVelocity, transform.forward);
 
         bool overForwardSpeed = forwardSpeed >= maxForwardSpeed && verticalInput > 0f && !IsBoosting;
@@ -197,17 +246,35 @@ public class CarController : MonoBehaviour
     {
         float t = driftFrictionSmoothing * Time.fixedDeltaTime;
 
+        // Rear wheels
         WheelFrictionCurve rearLeftSideways = rearLeftCollider.sidewaysFriction;
         WheelFrictionCurve rearRightSideways = rearRightCollider.sidewaysFriction;
         WheelFrictionCurve rearLeftForward = rearLeftCollider.forwardFriction;
         WheelFrictionCurve rearRightForward = rearRightCollider.forwardFriction;
 
-        if (IsDrifting)
+        // Front wheels (only sideways matters for yaw)
+        WheelFrictionCurve frontLeftSideways = frontLeftCollider.sidewaysFriction;
+        WheelFrictionCurve frontRightSideways = frontRightCollider.sidewaysFriction;
+
+        if (IsBurningOut)
+        {
+            rearLeftSideways.stiffness = Mathf.Lerp(rearLeftSideways.stiffness, burnoutSidewaysFriction, t);
+            rearRightSideways.stiffness = Mathf.Lerp(rearRightSideways.stiffness, burnoutSidewaysFriction, t);
+            rearLeftForward.stiffness = Mathf.Lerp(rearLeftForward.stiffness, burnoutForwardFriction, t);
+            rearRightForward.stiffness = Mathf.Lerp(rearRightForward.stiffness, burnoutForwardFriction, t);
+            // Soften front sideways so the yaw torque can actually pivot the car
+            frontLeftSideways.stiffness = Mathf.Lerp(frontLeftSideways.stiffness, burnoutSidewaysFriction, t);
+            frontRightSideways.stiffness = Mathf.Lerp(frontRightSideways.stiffness, burnoutSidewaysFriction, t);
+        }
+        else if (IsDrifting)
         {
             rearLeftSideways.stiffness = Mathf.Lerp(rearLeftSideways.stiffness, driftSidewaysFriction, t);
             rearRightSideways.stiffness = Mathf.Lerp(rearRightSideways.stiffness, driftSidewaysFriction, t);
             rearLeftForward.stiffness = Mathf.Lerp(rearLeftForward.stiffness, driftForwardFriction, t);
             rearRightForward.stiffness = Mathf.Lerp(rearRightForward.stiffness, driftForwardFriction, t);
+            // Restore front friction
+            frontLeftSideways.stiffness = Mathf.Lerp(frontLeftSideways.stiffness, origFrontLeftSideways.stiffness, t);
+            frontRightSideways.stiffness = Mathf.Lerp(frontRightSideways.stiffness, origFrontRightSideways.stiffness, t);
         }
         else
         {
@@ -215,17 +282,21 @@ public class CarController : MonoBehaviour
             rearRightSideways.stiffness = Mathf.Lerp(rearRightSideways.stiffness, origRearRightSideways.stiffness, t);
             rearLeftForward.stiffness = Mathf.Lerp(rearLeftForward.stiffness, origRearLeftForward.stiffness, t);
             rearRightForward.stiffness = Mathf.Lerp(rearRightForward.stiffness, origRearRightForward.stiffness, t);
+            frontLeftSideways.stiffness = Mathf.Lerp(frontLeftSideways.stiffness, origFrontLeftSideways.stiffness, t);
+            frontRightSideways.stiffness = Mathf.Lerp(frontRightSideways.stiffness, origFrontRightSideways.stiffness, t);
         }
 
         rearLeftCollider.sidewaysFriction = rearLeftSideways;
         rearRightCollider.sidewaysFriction = rearRightSideways;
         rearLeftCollider.forwardFriction = rearLeftForward;
         rearRightCollider.forwardFriction = rearRightForward;
+        frontLeftCollider.sidewaysFriction = frontLeftSideways;
+        frontRightCollider.sidewaysFriction = frontRightSideways;
     }
 
     private void HandleBoost()
     {
-        if (!IsBoosting)
+        if (!IsBoosting || IsBurningOut)
             return;
 
         float forwardSpeed = Vector3.Dot(CarRigidbody.linearVelocity, transform.forward);
@@ -262,6 +333,19 @@ public class CarController : MonoBehaviour
 
         frontLeftCollider.steerAngle = currentSteerAngle;
         frontRightCollider.steerAngle = currentSteerAngle;
+
+        // During a burnout, force the yaw angular velocity toward the steering input so
+        // the car spins in place (GTA-style). Directly overriding angular velocity wins
+        // against the WheelCollider friction solver that cancels plain torque.
+        if (IsBurningOut)
+        {
+            float targetSpin = horizontalInput * burnoutTurnSpeed;
+            Vector3 up = transform.up;
+            Vector3 angularVel = CarRigidbody.angularVelocity;
+            float currentSpin = Vector3.Dot(angularVel, up);
+            float newSpin = Mathf.Lerp(currentSpin, targetSpin, Time.fixedDeltaTime * 8f);
+            CarRigidbody.angularVelocity = angularVel + up * (newSpin - currentSpin);
+        }
     }
 
     private void HandleBraking()
@@ -285,6 +369,16 @@ public class CarController : MonoBehaviour
         frontRightCollider.brakeTorque = currentBrakeForce;
         rearLeftCollider.brakeTorque = currentBrakeForce;
         rearRightCollider.brakeTorque = currentBrakeForce;
+
+        if (IsBurningOut)
+        {
+            // Lock the front wheels so the car stays put, let the rear wheels spin free
+            frontLeftCollider.brakeTorque = burnoutKeepStillBrakeForce;
+            frontRightCollider.brakeTorque = burnoutKeepStillBrakeForce;
+            rearLeftCollider.brakeTorque = 0f;
+            rearRightCollider.brakeTorque = 0f;
+            return;
+        }
 
         IsDrifting = isHandbraking && Mathf.Abs(forwardSpeed) > driftMinSpeed && Mathf.Abs(horizontalInput) > 0.1f;
 

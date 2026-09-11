@@ -19,11 +19,19 @@ public class CarAudio : MonoBehaviour
     public float pitchSmoothSpeed = 5f;
     public float volumeSmoothSpeed = 5f;
 
+    [Header("Burnout Audio")]
+    [Tooltip("Engine pitch while burning out (revving up).")]
+    public float burnoutPitch = 2.2f;
+    [Tooltip("Engine volume while burning out.")]
+    public float burnoutVolume = 0.9f;
+
     private AudioSource engineAudio;
+    private CarController carController;
 
     private void Awake()
     {
         engineAudio = GetComponent<AudioSource>();
+        carController = GetComponent<CarController>();
 
         if (carRigidbody == null)
         {
@@ -36,6 +44,10 @@ public class CarAudio : MonoBehaviour
 
     private void Start()
     {
+        // Old serialized data may have saved these as 0, so enforce sensible defaults
+        if (burnoutPitch < maxPitch) burnoutPitch = maxPitch;
+        if (burnoutVolume < 0.05f) burnoutVolume = Mathf.Max(maxVolume, 0.9f);
+
         if (!engineAudio.isPlaying)
         {
             engineAudio.Play();
@@ -58,6 +70,13 @@ public class CarAudio : MonoBehaviour
 
         float targetPitch = Mathf.Lerp(minPitch, maxPitch, speedPercent);
         float targetVolume = Mathf.Lerp(minVolume, maxVolume, speedPercent);
+
+        // Rev the engine while burning out
+        if (carController != null && carController.IsBurningOut)
+        {
+            targetPitch = burnoutPitch;
+            targetVolume = burnoutVolume;
+        }
 
         engineAudio.pitch = Mathf.Lerp(
             engineAudio.pitch,
