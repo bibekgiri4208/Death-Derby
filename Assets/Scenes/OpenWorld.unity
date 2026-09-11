@@ -44851,11 +44851,20 @@ MonoBehaviour:
   mouseSensitivity: 0.1
   minPitch: -25
   maxPitch: 45
+  pitchSafeGap: 15
   boostPullBackDistance: 2.3
   boostHeightIncrease: 0.3
   boostCameraSmoothness: 8
   boostShakeStrength: 0.1
-  boostShakeSpeed: 30
+  boostShakeSpeed: 2
+  fixedDistance: 4
+  fixedHeight: 3
+  fixedLookHeight: 1.5
+  fixedFollowSpeed: 5
+  fixedRotationSpeed: 6
+  fixedDriftTiltAngle: 8
+  fixedDriftTiltMultiplier: 40
+  fixedTiltSmoothing: 4
 --- !u!23 &2483259544697542444
 MeshRenderer:
   m_ObjectHideFlags: 0

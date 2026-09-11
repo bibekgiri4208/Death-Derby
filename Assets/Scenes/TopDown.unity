@@ -15,17 +15,17 @@ RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
   m_Fog: 1
-  m_FogColor: {r: 0.16078432, g: 0.16470589, b: 0.17254902, a: 1}
-  m_FogMode: 3
-  m_FogDensity: 0.038
-  m_LinearFogStart: 0
-  m_LinearFogEnd: 300
+  m_FogColor: {r: 0.15686275, g: 0.1764706, b: 0.19607845, a: 1}
+  m_FogMode: 2
+  m_FogDensity: 0.032
+  m_LinearFogStart: 1
+  m_LinearFogEnd: 100.01
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
   m_AmbientMode: 0
-  m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
+  m_SubtractiveShadowColor: {r: 1, g: 1, b: 1, a: 1}
   m_SkyboxMaterial: {fileID: 2100000, guid: 7a8675eb396637d43b4ba0a69cc715a5, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
@@ -436,7 +436,15 @@ MonoBehaviour:
   boostHeightIncrease: 0.3
   boostCameraSmoothness: 10
   boostShakeStrength: 0.05
-  boostShakeSpeed: 30
+  boostShakeSpeed: 2
+  fixedDistance: -10
+  fixedHeight: 7
+  fixedLookHeight: 3
+  fixedFollowSpeed: 5
+  fixedRotationSpeed: 6
+  fixedDriftTiltAngle: 5
+  fixedDriftTiltMultiplier: 20
+  fixedTiltSmoothing: 5
 --- !u!1001 &606805257
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -499,6 +507,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: NavMesh
+      objectReference: {fileID: 0}
+    - target: {fileID: 7547151734641372643, guid: 07172d9c7ad2b5e4faf809973911a26a,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8876341827398638063, guid: 07172d9c7ad2b5e4faf809973911a26a,
         type: 3}
@@ -644,7 +657,7 @@ Terrain:
   m_StaticShadowCaster: 0
   m_IgnoreQualitySettings: 0
   m_ReflectionProbeUsage: 1
-  m_MaterialTemplate: {fileID: 2100000, guid: 27eb693623b74ae409ad01480c04d7d2, type: 2}
+  m_MaterialTemplate: {fileID: 2100000, guid: 0933253977cd0454b989b8bc25bbdc83, type: 2}
   m_BakeLightProbesForTrees: 1
   m_PreserveTreePrototypeLayers: 0
   m_DeringLightProbesForTrees: 1

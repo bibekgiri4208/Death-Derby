@@ -27,11 +27,25 @@ public class CarFollowCamera : MonoBehaviour
     public float boostShakeStrength = 0.08f;
     public float boostShakeSpeed = 35f;
 
+    [Header("Fixed Cam")]
+    public float fixedDistance = 8f;
+    public float fixedHeight = 3.5f;
+    public float fixedLookHeight = 1.5f;
+    public float fixedFollowSpeed = 5f;
+    public float fixedRotationSpeed = 6f;
+    [Tooltip("Maximum roll angle (degrees) applied during drifts.")]
+    public float fixedDriftTiltAngle = 8f;
+    [Tooltip("Multiplier on the car's yaw angular velocity to produce the target tilt.")]
+    public float fixedDriftTiltMultiplier = 40f;
+    public float fixedTiltSmoothing = 4f;
+
     private float yaw;
     private float pitch = 15f;
-
     private Vector3 currentOffset;
     private float shakeTimer;
+    private bool isFixedCam;
+    private float currentTilt;
+    private CarController cachedCarController;
 
     private void Start()
     {
@@ -42,7 +56,18 @@ public class CarFollowCamera : MonoBehaviour
         if (target != null)
         {
             yaw = target.eulerAngles.y;
+            cachedCarController = target.GetComponent<CarController>();
         }
+
+        // New serialized fields default to 0 when added to an existing scene
+        if (fixedDistance < 0.1f) fixedDistance = 8f;
+        if (fixedHeight < 0.1f) fixedHeight = 3.5f;
+        if (fixedLookHeight < 0.1f) fixedLookHeight = 1.5f;
+        if (fixedFollowSpeed < 0.1f) fixedFollowSpeed = 5f;
+        if (fixedRotationSpeed < 0.1f) fixedRotationSpeed = 6f;
+        if (fixedDriftTiltAngle < 0.1f) fixedDriftTiltAngle = 8f;
+        if (fixedDriftTiltMultiplier < 0.1f) fixedDriftTiltMultiplier = 40f;
+        if (fixedTiltSmoothing < 0.1f) fixedTiltSmoothing = 4f;
     }
 
     private bool isUIMode;
@@ -60,6 +85,12 @@ public class CarFollowCamera : MonoBehaviour
         {
             LockCursor();
         }
+
+        if (Keyboard.current != null && Keyboard.current.vKey.wasPressedThisFrame)
+            isFixedCam = !isFixedCam;
+
+        if (Gamepad.current != null && Gamepad.current.buttonNorth.wasPressedThisFrame)
+            isFixedCam = !isFixedCam;
     }
 
     private void LateUpdate()
@@ -67,13 +98,19 @@ public class CarFollowCamera : MonoBehaviour
         if (target == null)
             return;
 
-        HandleMouseLook();
-        FollowTarget();
+        if (isFixedCam)
+        {
+            FixedCamFollow();
+        }
+        else
+        {
+            HandleMouseLook();
+            FreeCamFollow();
+        }
     }
 
     private void HandleMouseLook()
     {
-        // Don't rotate camera while holding Left Alt
         if (Keyboard.current != null &&
             Keyboard.current.leftAltKey.isPressed)
         {
@@ -98,18 +135,15 @@ public class CarFollowCamera : MonoBehaviour
         yaw += lookInput.x;
         pitch -= lookInput.y;
 
-        // Hard stop: the camera may never rotate to the angle where it would sit
-        // directly above/below the car and look straight down/up -- that is the
-        // near-vertical zone where the view visibly switches. It stops short of it.
         float verticalPitch = Mathf.Atan2(-currentOffset.z, currentOffset.y) * Mathf.Rad2Deg;
         float maxSafePitch = verticalPitch - pitchSafeGap;
 
         pitch = Mathf.Clamp(pitch, minPitch, Mathf.Min(maxPitch, maxSafePitch));
     }
 
-    private void FollowTarget()
+    private void FreeCamFollow()
     {
-        bool isBoosting = Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed;
+        bool isBoosting = IsBoostActive();
 
         Vector3 targetOffset = offset;
 
@@ -147,6 +181,62 @@ public class CarFollowCamera : MonoBehaviour
         transform.rotation = Quaternion.LookRotation(lookPoint - transform.position);
     }
 
+    private void FixedCamFollow()
+    {
+        Rigidbody rb = cachedCarController != null ? cachedCarController.CarRigidbody : null;
+        bool isBoosting = IsBoostActive();
+
+        Vector3 desiredPos = target.position
+                            - target.forward * fixedDistance
+                            + Vector3.up * fixedHeight;
+
+        if (isBoosting)
+        {
+            desiredPos -= target.forward * boostPullBackDistance;
+            desiredPos += Vector3.up * boostHeightIncrease;
+        }
+
+        transform.position = Vector3.Lerp(
+            transform.position,
+            desiredPos,
+            fixedFollowSpeed * Time.deltaTime
+        );
+
+        Vector3 lookPoint = target.position + Vector3.up * fixedLookHeight;
+        Quaternion desiredRot = Quaternion.LookRotation(lookPoint - transform.position);
+
+        // --- slight drift tilt ---
+        float targetTilt = 0f;
+
+        if (cachedCarController != null && cachedCarController.IsDrifting && rb != null)
+        {
+            float yawAngVel = Vector3.Dot(rb.angularVelocity, target.up);
+            targetTilt = Mathf.Clamp(
+                -yawAngVel * fixedDriftTiltMultiplier,
+                -fixedDriftTiltAngle,
+                fixedDriftTiltAngle
+            );
+        }
+
+        currentTilt = Mathf.Lerp(currentTilt, targetTilt, fixedTiltSmoothing * Time.deltaTime);
+        desiredRot *= Quaternion.Euler(0f, 0f, currentTilt);
+
+        // --- boost shake ---
+        if (isBoosting)
+        {
+            shakeTimer += Time.deltaTime * boostShakeSpeed;
+            float sx = Mathf.Sin(shakeTimer) * boostShakeStrength * Mathf.Rad2Deg;
+            float sy = Mathf.Cos(shakeTimer * 1.4f) * boostShakeStrength * Mathf.Rad2Deg;
+            desiredRot *= Quaternion.Euler(sx, sy, 0f);
+        }
+
+        transform.rotation = Quaternion.Slerp(
+            transform.rotation,
+            desiredRot,
+            fixedRotationSpeed * Time.deltaTime
+        );
+    }
+
     private Vector3 GetBoostShake(Quaternion cameraRotation)
     {
         shakeTimer += Time.deltaTime * boostShakeSpeed;
@@ -157,6 +247,17 @@ public class CarFollowCamera : MonoBehaviour
         Vector3 localShake = new Vector3(shakeX, shakeY, 0f);
 
         return cameraRotation * localShake;
+    }
+
+    private bool IsBoostActive()
+    {
+        if (Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed)
+            return true;
+
+        if (Gamepad.current != null && Gamepad.current.buttonSouth.isPressed)
+            return true;
+
+        return false;
     }
 
     private void LockCursor()
