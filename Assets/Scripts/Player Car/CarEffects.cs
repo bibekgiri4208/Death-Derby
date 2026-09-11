@@ -11,11 +11,20 @@ public class CarEffects : MonoBehaviour
     public ParticleSystem[] desertSmokeEffects;
     public float maxSmokeEmissionRate = 120f;
     public float maxSmokeParticleSpeed = 4f;
+    [Tooltip("Minimum car speed before smoke starts appearing.")]
+    public float minSmokeSpeed = 8f;
+    [Tooltip("How smoothly the emission rate transitions (lower = smoother).")]
+    public float emissionSmoothing = 5f;
+    [Tooltip("Smoke emitted per meter driven (this is what makes the trail thick).")]
+    public float maxSmokeDistanceRate = 10f;
+
+    private const float MinActiveSmokeRate = 20f;
 
     private CarController carController;
     private ParticleSystem.EmissionModule[] smokeEmissions;
     private ParticleSystem.MainModule[] smokeMains;
     private bool wasBoosting;
+    private float currentSmokeAmount;
 
     private void Start()
     {
@@ -28,6 +37,11 @@ public class CarEffects : MonoBehaviour
             enabled = false;
             return;
         }
+
+        // Old serialized data may have saved these as 0, so enforce sensible defaults
+        if (minSmokeSpeed < 2f) minSmokeSpeed = 8f;
+        if (emissionSmoothing < 0.5f) emissionSmoothing = 5f;
+        if (maxSmokeDistanceRate < 0.5f) maxSmokeDistanceRate = 10f;
 
         InitializeBoostEffects();
         InitializeSmokeEffects();
@@ -72,6 +86,8 @@ public class CarEffects : MonoBehaviour
 
                     // Force simulation space to World so smoke trails behind naturally
                     smokeMains[i].simulationSpace = ParticleSystemSimulationSpace.World;
+                    // Start with zero emission; UpdateDesertSmoke drives both rateOverTime and rateOverDistance per frame
+                    smokeEmissions[i].rateOverDistance = 0f;
                     smokeEmissions[i].rateOverTime = 0f;
                 }
             }
@@ -122,20 +138,36 @@ public class CarEffects : MonoBehaviour
         if (desertSmokeEffects == null || desertSmokeEffects.Length == 0 || carController.CarRigidbody == null)
             return;
 
-        // Pull data from our CarController
-        float currentSpeed = carController.CarRigidbody.linearVelocity.magnitude;
         float absoluteMaxSpeed = carController.IsBoosting ? carController.boostMaxSpeed : carController.maxForwardSpeed;
 
-        // Establish relative performance ratio (0.0 to 1.0)
-        float speedRatio = Mathf.Clamp01(currentSpeed / absoluteMaxSpeed);
+        // Ignore vertical velocity so the module only reacts to horizontal driving speed
+        Vector3 flatVelocity = carController.CarRigidbody.linearVelocity;
+        flatVelocity.y = 0f;
+        float currentSpeed = flatVelocity.magnitude;
 
-        // Apply dynamic calculation adjustments
+        // Hard dead zone: zero smoke until the car is genuinely driving
+        float speedRange = Mathf.Max(absoluteMaxSpeed - minSmokeSpeed, 0.01f);
+        float targetAmount = Mathf.Clamp01((currentSpeed - minSmokeSpeed) / speedRange);
+
+        // Frame-rate independent exponential smoothing kills flicker from speed jitter
+        float lerpFactor = 1f - Mathf.Exp(-Time.deltaTime * emissionSmoothing);
+        float smokeAmount = Mathf.Lerp(currentSmokeAmount, targetAmount, lerpFactor);
+        currentSmokeAmount = smokeAmount;
+
+        // Once active, keep a minimum spawn rate so the trail is continuous (no sputtering puffs)
+        float targetRate = smokeAmount > 0.001f
+            ? Mathf.Max(smokeAmount * maxSmokeEmissionRate, MinActiveSmokeRate)
+            : 0f;
+        float smoothedParticleSpeed = Mathf.Lerp(1.0f, maxSmokeParticleSpeed, smokeAmount);
+
         for (int i = 0; i < desertSmokeEffects.Length; i++)
         {
             if (desertSmokeEffects[i] == null) continue;
 
-            smokeEmissions[i].rateOverTime = speedRatio * maxSmokeEmissionRate;
-            smokeMains[i].startSpeed = Mathf.Lerp(1.0f, maxSmokeParticleSpeed, speedRatio);
+            smokeEmissions[i].rateOverTime = targetRate;
+            // Restores the thick trail: only above dead zone to avoid crawl-speed puffs
+            smokeEmissions[i].rateOverDistance = smokeAmount > 0.001f ? maxSmokeDistanceRate : 0f;
+            smokeMains[i].startSpeed = smoothedParticleSpeed;
         }
     }
 }
