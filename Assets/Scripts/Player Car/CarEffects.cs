@@ -6,6 +6,10 @@ public class CarEffects : MonoBehaviour
     public ParticleSystem[] boostFlames;
     public AudioSource nosAudioSource;
 
+    [Header("Brake Lights")]
+    [Tooltip("Assign the rear Brake Lights here so they turn on when braking or using the handbrake.")]
+    public Light[] brakeLights;
+
     [Header("Desert Smoke / Dust Effect")]
     [Tooltip("Assign the smoke particle systems for all 4 wheels here.")]
     public ParticleSystem[] desertSmokeEffects;
@@ -25,6 +29,7 @@ public class CarEffects : MonoBehaviour
     private ParticleSystem.MainModule[] smokeMains;
     private bool[] rearSmokeSystems;
     private bool wasBoosting;
+    private bool brakeLightsOn;
     private float currentSmokeAmount;
 
     private void Start()
@@ -45,12 +50,14 @@ public class CarEffects : MonoBehaviour
         if (maxSmokeDistanceRate < 0.5f) maxSmokeDistanceRate = 10f;
 
         InitializeBoostEffects();
+        InitializeBrakeLights();
         InitializeSmokeEffects();
     }
 
     private void Update()
     {
         UpdateBoostEffects();
+        UpdateBrakeLights();
         UpdateDesertSmoke();
     }
 
@@ -147,6 +154,43 @@ public class CarEffects : MonoBehaviour
         }
 
         wasBoosting = boosting;
+    }
+
+    private void InitializeBrakeLights()
+    {
+        if (brakeLights == null || brakeLights.Length == 0)
+            return;
+
+        brakeLightsOn = false;
+
+        foreach (Light brakeLight in brakeLights)
+        {
+            if (brakeLight != null)
+            {
+                brakeLight.enabled = false;
+            }
+        }
+    }
+
+    private void UpdateBrakeLights()
+    {
+        if (brakeLights == null || brakeLights.Length == 0)
+            return;
+
+        bool braking = carController.IsBraking;
+
+        if (braking == brakeLightsOn)
+            return;
+
+        brakeLightsOn = braking;
+
+        foreach (Light brakeLight in brakeLights)
+        {
+            if (brakeLight != null)
+            {
+                brakeLight.enabled = braking;
+            }
+        }
     }
 
     private void UpdateDesertSmoke()

@@ -94,6 +94,7 @@ public class CarController : MonoBehaviour
     public bool IsBoosting { get; private set; }
     public bool IsDrifting { get; private set; }
     public bool IsBurningOut { get; private set; }
+    public bool IsBraking => isHandbraking || rawBrakeControl > 0.1f;
     public Rigidbody CarRigidbody { get; private set; }
 
     private float currentSteerAngle;
