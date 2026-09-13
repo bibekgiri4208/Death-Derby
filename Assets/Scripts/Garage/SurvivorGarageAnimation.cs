@@ -6,25 +6,22 @@ public class SurvivorGarageAnimation : MonoBehaviour
     [Header("Animator")]
     [SerializeField] private Animator animator;
 
-    [Header("Ambient Animations")]
-    [SerializeField] private string lookAroundState = "LookAround";
+    [Header("Ambient Waving")]
     [SerializeField] private string wavingState = "Waving";
     [Min(0f)]
-    [SerializeField] private float idleGapSeconds = 0.5f;
+    [SerializeField] private float wavingGapSeconds = 0.5f;
     [Min(0.5f)]
     [SerializeField] private float fallbackStateDuration = 3f;
 
-    [Header("Dance")]
+    [Header("Click Interactions")]
+    [SerializeField] private string lookAroundState = "LookAround";
     [SerializeField] private string danceState = "Dance";
 
-    [Header("Click To Dance")]
-    [Tooltip("Clicking the Survivor itself triggers the dance. If false, call PlayDance() from a button instead.")]
-    [SerializeField] private bool clickableToDance = true;
+    [Header("Click To Interact")]
+    [SerializeField] private bool clickableToInteract = true;
 
     private Coroutine ambientRoutine;
-    private Coroutine danceRoutine;
-    private string lastPlayedState;
-    private bool isDancing;
+    private Coroutine interactionRoutine;
 
     private void Awake()
     {
@@ -44,28 +41,19 @@ public class SurvivorGarageAnimation : MonoBehaviour
             StopCoroutine(ambientRoutine);
             ambientRoutine = null;
         }
-        if (danceRoutine != null)
+        if (interactionRoutine != null)
         {
-            StopCoroutine(danceRoutine);
-            danceRoutine = null;
+            StopCoroutine(interactionRoutine);
+            interactionRoutine = null;
         }
-        isDancing = false;
     }
 
     private IEnumerator AmbientLoop()
     {
         while (enabled)
         {
-            if (!isDancing)
-            {
-                string nextState = lastPlayedState == lookAroundState ? wavingState : lookAroundState;
-                yield return PlayState(nextState);
-                yield return new WaitForSeconds(idleGapSeconds);
-            }
-            else
-            {
-                yield return null;
-            }
+            yield return PlayState(wavingState);
+            yield return new WaitForSeconds(wavingGapSeconds);
         }
     }
 
@@ -73,7 +61,6 @@ public class SurvivorGarageAnimation : MonoBehaviour
     {
         if (animator == null) yield break;
 
-        lastPlayedState = state;
         animator.Play(state, 0, 0f);
         yield return null;
         yield return new WaitForSeconds(GetStateDuration(state));
@@ -90,27 +77,29 @@ public class SurvivorGarageAnimation : MonoBehaviour
         return fallbackStateDuration;
     }
 
-    public void PlayDance()
+    public void PlayRandomInteraction()
     {
         if (animator == null) return;
 
-        if (danceRoutine != null)
-            StopCoroutine(danceRoutine);
-        isDancing = true;
-        danceRoutine = StartCoroutine(PlayDanceRoutine());
+        if (interactionRoutine != null)
+            StopCoroutine(interactionRoutine);
+        if (ambientRoutine != null)
+            StopCoroutine(ambientRoutine);
+
+        string state = Random.value < 0.5f ? lookAroundState : danceState;
+        interactionRoutine = StartCoroutine(PlayInteractionRoutine(state));
     }
 
-    private IEnumerator PlayDanceRoutine()
+    private IEnumerator PlayInteractionRoutine(string state)
     {
-        yield return PlayState(danceState);
-        yield return new WaitForSeconds(idleGapSeconds);
-        isDancing = false;
-        danceRoutine = null;
+        yield return PlayState(state);
+        interactionRoutine = null;
+        ambientRoutine = StartCoroutine(AmbientLoop());
     }
 
     private void OnMouseDown()
     {
-        if (clickableToDance)
-            PlayDance();
+        if (clickableToInteract)
+            PlayRandomInteraction();
     }
 }
