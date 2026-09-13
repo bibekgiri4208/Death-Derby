@@ -99,14 +99,6 @@ public class CarEffects : MonoBehaviour
                     Vector3 offset = desertSmokeEffects[i].transform.position - carPos;
                     rearSmokeSystems[i] = Vector3.Dot(transform.forward, offset) < 0f;
 
-                    // Front wheel emitters stay fully off
-                    if (!rearSmokeSystems[i])
-                    {
-                        smokeEmissions[i].rateOverDistance = 0f;
-                        smokeEmissions[i].rateOverTime = 0f;
-                        continue;
-                    }
-
                     // Force simulation space to World so smoke trails behind naturally
                     smokeMains[i].simulationSpace = ParticleSystemSimulationSpace.World;
                     // Start with zero emission; UpdateDesertSmoke drives both rateOverTime and rateOverDistance per frame
@@ -225,11 +217,13 @@ public class CarEffects : MonoBehaviour
         for (int i = 0; i < desertSmokeEffects.Length; i++)
         {
             if (desertSmokeEffects[i] == null) continue;
-            if (!rearSmokeSystems[i]) continue;
 
-            smokeEmissions[i].rateOverTime = targetRate;
+            // During burnout only the rear wheels smoke; otherwise all four wheels emit
+            bool emitsSmoke = !carController.IsBurningOut || rearSmokeSystems[i];
+
+            smokeEmissions[i].rateOverTime = emitsSmoke ? targetRate : 0f;
             // Restores the thick trail: only above dead zone to avoid crawl-speed puffs
-            smokeEmissions[i].rateOverDistance = smokeAmount > 0.001f ? maxSmokeDistanceRate : 0f;
+            smokeEmissions[i].rateOverDistance = emitsSmoke && smokeAmount > 0.001f ? maxSmokeDistanceRate : 0f;
             smokeMains[i].startSpeed = smoothedParticleSpeed;
         }
     }
