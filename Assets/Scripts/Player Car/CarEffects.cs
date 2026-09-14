@@ -21,6 +21,8 @@ public class CarEffects : MonoBehaviour
     public float emissionSmoothing = 5f;
     [Tooltip("Smoke emitted per meter driven (this is what makes the trail thick).")]
     public float maxSmokeDistanceRate = 10f;
+    [Tooltip("How smoothly smoke fades out while the car is airborne and no wheel touches the ground.")]
+    public float airborneFadeSmoothing = 8f;
 
     private const float MinActiveSmokeRate = 20f;
 
@@ -203,8 +205,22 @@ public class CarEffects : MonoBehaviour
             ? 1f
             : Mathf.Clamp01((currentSpeed - minSmokeSpeed) / speedRange);
 
-        // Frame-rate independent exponential smoothing kills flicker from speed jitter
-        float lerpFactor = 1f - Mathf.Exp(-Time.deltaTime * emissionSmoothing);
+        // All four wheels must touch ground for the desert smoke; in the air it fades out
+        bool grounded = carController.frontLeftCollider != null
+            && carController.frontLeftCollider.isGrounded
+            && carController.frontRightCollider != null
+            && carController.frontRightCollider.isGrounded
+            && carController.rearLeftCollider != null
+            && carController.rearLeftCollider.isGrounded
+            && carController.rearRightCollider != null
+            && carController.rearRightCollider.isGrounded;
+
+        if (!grounded) targetAmount = 0f;
+
+        // Frame-rate independent exponential smoothing kills flicker from speed jitter.
+        // While airborne use a dedicated (slower) setting so the smoke fades out gradually.
+        float smoothing = grounded ? emissionSmoothing : airborneFadeSmoothing;
+        float lerpFactor = 1f - Mathf.Exp(-Time.deltaTime * smoothing);
         float smokeAmount = Mathf.Lerp(currentSmokeAmount, targetAmount, lerpFactor);
         currentSmokeAmount = smokeAmount;
 
