@@ -48416,12 +48416,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SurvivorGarageAnimation
   animator: {fileID: 5861749850196219325}
-  lookAroundState: LookAround
   wavingState: Waving
-  idleGapSeconds: 0.5
+  wavingGapSeconds: 3
   fallbackStateDuration: 3
+  lookAroundState: LookAround
   danceState: Dance
-  clickableToDance: 1
+  clickableToInteract: 1
 --- !u!1 &8333891371706105545
 GameObject:
   m_ObjectHideFlags: 0
