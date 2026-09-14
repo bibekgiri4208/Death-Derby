@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -22,6 +23,22 @@ public class PauseMenu : MonoBehaviour
         KeyCode.JoystickButton9
     };
 
+    [Header("Panel Transition")]
+    [Tooltip("Duration of the fade/slide when switching between menus.")]
+    [Min(0.05f)]
+    [SerializeField] private float panelTransitionDuration = 0.35f;
+    [Tooltip("How far (in units) the incoming panel slides in from below.")]
+    [SerializeField] private float panelSlideDistance = 60f;
+    [Tooltip("Scale multiplier the incoming panel starts at (e.g. 0.95 = slightly smaller).")]
+    [Range(0.8f, 1f)]
+    [SerializeField] private float panelStartScale = 0.95f;
+    [Tooltip("Fade/slide easing over time. Should start at 0 and end at 1.")]
+    [SerializeField] private AnimationCurve panelTransitionCurve = new AnimationCurve(
+        new Keyframe(0f, 0f, 0f, 0f),
+        new Keyframe(0.4f, 0.08f, 0.55f, 0.55f),
+        new Keyframe(0.6f, 0.92f, 0.55f, 0.55f),
+        new Keyframe(1f, 1f, 0f, 0f));
+
     public static bool IsPaused { get; private set; }
 
     private float lastEscPressTime = -Mathf.Infinity;
@@ -29,6 +46,9 @@ public class PauseMenu : MonoBehaviour
     private bool cursorWasVisible;
     private CursorLockMode previousLockMode;
     private List<MonoBehaviour> frozenBehaviours;
+    private CanvasGroup mainMenuGroup;
+    private CanvasGroup optionsGroup;
+    private Coroutine panelTransition;
 
     private void Awake()
     {
@@ -36,6 +56,21 @@ public class PauseMenu : MonoBehaviour
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.ignoreListenerPause = true;
+
+        mainMenuGroup = GetOrAddCanvasGroup(mainPauseMenu);
+        optionsGroup = GetOrAddCanvasGroup(optionsMenu);
+    }
+
+    private CanvasGroup GetOrAddCanvasGroup(GameObject panel)
+    {
+        if (panel == null)
+            return null;
+
+        CanvasGroup group = panel.GetComponent<CanvasGroup>();
+        if (group == null)
+            group = panel.AddComponent<CanvasGroup>();
+
+        return group;
     }
 
     private void Start()
@@ -87,6 +122,26 @@ public class PauseMenu : MonoBehaviour
         IsPaused = pause;
         Time.timeScale = pause ? 0f : 1f;
         AudioListener.pause = pause;
+
+        if (!pause && panelTransition != null)
+        {
+            StopCoroutine(panelTransition);
+            panelTransition = null;
+        }
+
+        if (mainMenuGroup != null)
+        {
+            mainMenuGroup.alpha = 1f;
+            mainMenuGroup.blocksRaycasts = true;
+            mainMenuGroup.interactable = true;
+        }
+
+        if (optionsGroup != null)
+        {
+            optionsGroup.alpha = 1f;
+            optionsGroup.blocksRaycasts = false;
+            optionsGroup.interactable = false;
+        }
 
         mainPauseMenu.SetActive(pause);
         optionsMenu.SetActive(false);
@@ -147,15 +202,25 @@ public class PauseMenu : MonoBehaviour
                 if (!behaviour.isActiveAndEnabled)
                     continue;
 
-                // Keep all UI (buttons, EventSystem, input modules, etc.) interactive
-                if (behaviour is UIBehaviour)
-                    continue;
-
                 // Keep the pause menu and its helper scripts alive
                 if (behaviour == this)
                     continue;
 
                 if (IsPartOfPauseUI(behaviour.transform))
+                    continue;
+
+                // Keep all camera-attached scripts (post-processing layer, camera data, etc.)
+                if (behaviour.GetComponent<Camera>() != null)
+                    continue;
+
+                // Keep all rendering / post-processing scripts alive (URP Volume,
+                // Post Processing Stack v2, custom render features, etc.)
+                string ns = behaviour.GetType().Namespace;
+                if (!string.IsNullOrEmpty(ns) && ns.StartsWith("UnityEngine.Rendering"))
+                    continue;
+
+                // Keep all UI (buttons, EventSystem, input modules, etc.) interactive
+                if (behaviour is UIBehaviour)
                     continue;
 
                 frozenBehaviours.Add(behaviour);
@@ -212,28 +277,92 @@ public class PauseMenu : MonoBehaviour
 
     public void OpenOptions()
     {
-        PlayButtonSound();
-        mainPauseMenu.SetActive(false);
-        optionsMenu.SetActive(true);
+        if (panelTransition != null)
+            return;
 
-        if (optionsMenuFirstButton != null)
-        {
-            EventSystem.current.SetSelectedGameObject(null);
-            EventSystem.current.SetSelectedGameObject(optionsMenuFirstButton);
-        }
+        PlayButtonSound();
+        panelTransition = StartCoroutine(SwitchPanels(
+            mainPauseMenu, mainMenuGroup,
+            optionsMenu, optionsGroup,
+            optionsMenuFirstButton));
     }
 
     public void CloseOptions()
     {
-        PlayButtonSound();
-        optionsMenu.SetActive(false);
-        mainPauseMenu.SetActive(true);
+        if (panelTransition != null)
+            return;
 
-        if (mainMenuFirstButton != null)
+        PlayButtonSound();
+        panelTransition = StartCoroutine(SwitchPanels(
+            optionsMenu, optionsGroup,
+            mainPauseMenu, mainMenuGroup,
+            mainMenuFirstButton));
+    }
+
+    private IEnumerator SwitchPanels(GameObject hidePanel, CanvasGroup hideGroup,
+                                     GameObject showPanel, CanvasGroup showGroup,
+                                     GameObject firstButton)
+    {
+        if (hideGroup != null)
+        {
+            hideGroup.interactable = false;
+            hideGroup.blocksRaycasts = false;
+        }
+
+        if (showGroup != null)
+        {
+            showGroup.interactable = false;
+            showGroup.blocksRaycasts = false;
+        }
+
+        showPanel.SetActive(true);
+
+        Vector3 showBasePos = showPanel.transform.localPosition;
+        Vector3 showBaseScale = showPanel.transform.localScale;
+
+        float t = 0f;
+
+        while (t < panelTransitionDuration)
+        {
+            t += Time.unscaledDeltaTime;
+            float progress = panelTransitionCurve.Evaluate(Mathf.Clamp01(t / panelTransitionDuration));
+
+            if (hideGroup != null)
+                hideGroup.alpha = 1f - progress;
+
+            if (showGroup != null)
+                showGroup.alpha = progress;
+
+            showPanel.transform.localPosition = showBasePos + Vector3.down * (panelSlideDistance * (1f - progress));
+            showPanel.transform.localScale = showBaseScale * Mathf.Lerp(panelStartScale, 1f, progress);
+
+            yield return null;
+        }
+
+        if (hideGroup != null)
+            hideGroup.alpha = 0f;
+        if (showGroup != null)
+            showGroup.alpha = 1f;
+
+        if (hidePanel != null)
+            hidePanel.SetActive(false);
+
+        showPanel.transform.localPosition = showBasePos;
+        showPanel.transform.localScale = showBaseScale;
+
+        if (showGroup != null)
+        {
+            showGroup.interactable = true;
+            showGroup.blocksRaycasts = true;
+        }
+
+        if (firstButton != null)
         {
             EventSystem.current.SetSelectedGameObject(null);
-            EventSystem.current.SetSelectedGameObject(mainMenuFirstButton);
+            EventSystem.current.SetSelectedGameObject(firstButton);
         }
+
+        panelTransition = null;
     }
 
     public void ExitGame()
