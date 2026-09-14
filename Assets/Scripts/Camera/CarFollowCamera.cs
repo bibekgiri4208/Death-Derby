@@ -74,8 +74,9 @@ public class CarFollowCamera : MonoBehaviour
 
     private void Update()
     {
-        isUIMode = Keyboard.current != null &&
-                   Keyboard.current.leftAltKey.isPressed;
+        isUIMode = PauseMenu.IsPaused ||
+                   (Keyboard.current != null &&
+                    Keyboard.current.leftAltKey.isPressed);
 
         if (isUIMode)
         {
