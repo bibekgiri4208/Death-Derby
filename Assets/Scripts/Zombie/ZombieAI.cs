@@ -218,6 +218,7 @@ public class ZombieAI : MonoBehaviour
 
         OnZombieKilled?.Invoke();
 
+        BloodDecal.Spawn(transform.position);
         BloodSplash.Spawn(transform.position + Vector3.up * 0.15f, Quaternion.identity);
 
         if (killSound != null)
