@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
@@ -16,12 +17,6 @@ public class PauseMenu : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private float doublePressWindow = 0.4f;
-    [Tooltip("Gamepad button that toggles the pause menu (e.g. PlayStation Options / Xbox Menu).")]
-    [SerializeField] private KeyCode[] gamepadPauseButtons = new KeyCode[]
-    {
-        KeyCode.JoystickButton7,
-        KeyCode.JoystickButton9
-    };
 
     [Header("Panel Transition")]
     [Tooltip("Duration of the fade/slide when switching between menus.")]
@@ -103,17 +98,13 @@ public class PauseMenu : MonoBehaviour
             }
         }
 
-        // Gamepad: Options/Menu button (single press)
-        for (int i = 0; i < gamepadPauseButtons.Length; i++)
+        // Gamepad: Start/Options button (single press)
+        if (Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame)
         {
-            if (Input.GetKeyDown(gamepadPauseButtons[i]))
-            {
-                if (!IsPaused)
-                    PauseGame(true);
-                else
-                    PauseGame(false);
-                break;
-            }
+            if (!IsPaused)
+                PauseGame(true);
+            else
+                PauseGame(false);
         }
     }
 
