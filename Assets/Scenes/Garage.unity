@@ -40161,7 +40161,6 @@ GameObject:
   - component: {fileID: 2323148188004792114}
   - component: {fileID: 4732160219778805872}
   - component: {fileID: 8321411236313764760}
-  - component: {fileID: 8321411236313764761}
   m_Layer: 7
   m_Name: Survivor
   m_TagString: Untagged
@@ -48403,25 +48402,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 1
---- !u!114 &8321411236313764761
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3866167688337509469}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1cac0ff855c6a3e418047e4c54f0ed54, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SurvivorGarageAnimation
-  animator: {fileID: 5861749850196219325}
-  wavingState: Waving
-  wavingGapSeconds: 3
-  fallbackStateDuration: 3
-  lookAroundState: LookAround
-  danceState: Dance
-  clickableToInteract: 1
 --- !u!1 &8333891371706105545
 GameObject:
   m_ObjectHideFlags: 0
