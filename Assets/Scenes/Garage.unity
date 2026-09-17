@@ -3666,6 +3666,7 @@ MonoBehaviour:
   slideDistance: 10
   slideDuration: 0.35
   slideStagger: 0.06
+  enableHorizontalOptions: 1
 --- !u!1 &852666545
 GameObject:
   m_ObjectHideFlags: 0
@@ -4385,6 +4386,7 @@ GameObject:
   - component: {fileID: 1030451834}
   - component: {fileID: 1030451833}
   - component: {fileID: 1030451832}
+  - component: {fileID: 1030451836}
   m_Layer: 0
   m_Name: FPS Cube
   m_TagString: Untagged
@@ -4511,6 +4513,28 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1030451830}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1030451836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1030451830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 196955e49437408b81e6692f4cc0f097, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  frameRates: 1e0000003c00000078000000b4000000ffffffff
+  defaultFrameRate: 180
+  textPrefix: 'FPS '
+  noLimitText: No Limit
+  label: {fileID: 1669846147}
+  slideDuration: 0.15
+  slideDistanceScale: 1
+  applyOnStart: 1
+  disableVSync: 1
+  playerPrefsKey: FpsLimit
 --- !u!1 &1051037853
 GameObject:
   m_ObjectHideFlags: 0
@@ -7548,7 +7572,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: FPS
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d607877e7a66bbf4089911a30ddf867f, type: 2}
   m_sharedMaterial: {fileID: 30965821062046865, guid: d607877e7a66bbf4089911a30ddf867f,
@@ -7576,8 +7600,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 7.5
-  m_fontSizeBase: 7.5
+  m_fontSize: 7
+  m_fontSizeBase: 7
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

@@ -28,6 +28,9 @@ public class Menu3DController : MonoBehaviour
     [SerializeField] private float slideDuration = 0.35f;
     [SerializeField] private float slideStagger = 0.06f;
 
+    [Header("Horizontal Options")]
+    [SerializeField] private bool enableHorizontalOptions = true;
+
     private readonly List<Interactable3DButton> buttons = new List<Interactable3DButton>();
     private readonly List<Interactable3DButton> mainMenuButtons = new List<Interactable3DButton>();
     private readonly List<Vector3> mainMenuHomePositions = new List<Vector3>();
@@ -36,6 +39,8 @@ public class Menu3DController : MonoBehaviour
     private int selectedIndex = -1;
     private int lastDirection;
     private float nextRepeatTime;
+    private int lastHorizontalDirection;
+    private float nextHorizontalRepeatTime;
     private bool wired;
     private Coroutine slideRoutine;
 
@@ -68,6 +73,7 @@ public class Menu3DController : MonoBehaviour
         if (EventSystem.current != null && EventSystem.current.currentSelectedGameObject != null) return;
 
         HandleNavigation();
+        HandleOptionSelection();
         HandleSubmit();
         HandleCancel();
     }
@@ -377,6 +383,61 @@ public class Menu3DController : MonoBehaviour
         return 0;
     }
 
+    private void HandleOptionSelection()
+    {
+        if (!enableHorizontalOptions) return;
+
+        int direction = ReadHorizontalDirection();
+        if (direction == 0)
+        {
+            lastHorizontalDirection = 0;
+            return;
+        }
+
+        if (selectedIndex < 0 || selectedIndex >= buttons.Count || buttons[selectedIndex] == null) return;
+
+        if (!buttons[selectedIndex].TryGetComponent(out FpsOptionSelector selector))
+        {
+            lastHorizontalDirection = 0;
+            return;
+        }
+
+        bool directionChanged = lastHorizontalDirection != direction;
+        if (directionChanged || Time.unscaledTime >= nextHorizontalRepeatTime)
+        {
+            if (direction > 0) selector.Next();
+            else selector.Previous();
+
+            nextHorizontalRepeatTime = Time.unscaledTime + (directionChanged ? repeatDelay : repeatRate);
+        }
+
+        lastHorizontalDirection = direction;
+    }
+
+    private int ReadHorizontalDirection()
+    {
+        Gamepad gamepad = Gamepad.current;
+        Keyboard keyboard = Keyboard.current;
+
+        if (gamepad != null)
+        {
+            if (gamepad.dpad.right.wasPressedThisFrame) return 1;
+            if (gamepad.dpad.left.wasPressedThisFrame) return -1;
+
+            float x = gamepad.leftStick.ReadValue().x;
+            if (x <= -stickDeadzone) return -1;
+            if (x >= stickDeadzone) return 1;
+        }
+
+        if (keyboard != null)
+        {
+            if (keyboard.rightArrowKey.wasPressedThisFrame || keyboard.dKey.wasPressedThisFrame) return 1;
+            if (keyboard.leftArrowKey.wasPressedThisFrame || keyboard.aKey.wasPressedThisFrame) return -1;
+        }
+
+        return 0;
+    }
+
     private void HandleSubmit()
     {
         bool submit = false;
@@ -397,7 +458,11 @@ public class Menu3DController : MonoBehaviour
         if (selectedIndex < 0 || selectedIndex >= buttons.Count) return;
 
         Interactable3DButton button = buttons[selectedIndex];
-        if (button != null) button.Press();
+        if (button == null) return;
+
+        if (button.TryGetComponent(out FpsOptionSelector selector)) selector.Apply();
+
+        button.Press();
     }
 
     private void HandleCancel()
