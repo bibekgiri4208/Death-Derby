@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -12,6 +14,7 @@ public class Interactable3DButton : MonoBehaviour
     [SerializeField] private bool useClickTint = true;
     [SerializeField] private Color defaultColor = Color.white;
     [SerializeField] private Color clickColor = new Color(0.6f, 0.6f, 0.6f, 1f); // Tint applied only while clicked
+    [SerializeField] private Color selectionColor = new Color(0.75f, 0.85f, 1f, 1f); // Tint applied while selected via gamepad
     [SerializeField] private float colorSpeed = 15f;
 
     [Header("Audio Settings (Optional)")]
@@ -23,24 +26,37 @@ public class Interactable3DButton : MonoBehaviour
     [Tooltip("Drag components or manager scripts here to call their functions when clicked.")]
     public UnityEvent onClick;
 
+    public event Action<Interactable3DButton> OnHovered;
+
     private Vector3 originalScale;
     private Vector3 targetScale;
 
     private Material targetMaterial;
     private Color targetColor;
 
-    void Start()
+    private bool initialized;
+    private bool highlighted;
+    private Coroutine clickRoutine;
+
+    public bool IsHighlighted => highlighted;
+
+    void Awake()
     {
-        // Save initial scale
+        EnsureInitialized();
+    }
+
+    public void EnsureInitialized()
+    {
+        if (initialized) return;
+        initialized = true;
+
         originalScale = transform.localScale;
         targetScale = originalScale;
 
-        // Fetch Material for click tinting
         if (TryGetComponent<Renderer>(out Renderer objectRenderer))
         {
             targetMaterial = objectRenderer.material;
 
-            // Auto-detect current color if not customized
             if (defaultColor == Color.white && targetMaterial.HasProperty("_Color"))
             {
                 defaultColor = targetMaterial.color;
@@ -48,7 +64,6 @@ public class Interactable3DButton : MonoBehaviour
             targetColor = defaultColor;
         }
 
-        // Auto-fetch or create AudioSource if missing
         if (audioSource == null)
         {
             if (!TryGetComponent<AudioSource>(out audioSource))
@@ -62,58 +77,92 @@ public class Interactable3DButton : MonoBehaviour
 
     void Update()
     {
-        // Smooth scaling interpolation on hover
         if (transform.localScale != targetScale)
         {
             transform.localScale = Vector3.Lerp(transform.localScale, targetScale, Time.deltaTime * scaleSpeed);
         }
 
-        // Smooth color tint interpolation on click
         if (useClickTint && targetMaterial != null && targetMaterial.color != targetColor)
         {
             targetMaterial.color = Color.Lerp(targetMaterial.color, targetColor, Time.deltaTime * colorSpeed);
         }
     }
 
-    private void OnMouseEnter()
+    public void SetHighlighted(bool value, bool playHoverSound = true)
     {
-        targetScale = Vector3.Scale(originalScale, hoverScaleMultiplier);
+        EnsureInitialized();
 
-        if (audioSource != null && hoverSound != null)
+        if (highlighted == value) return;
+
+        highlighted = value;
+        targetScale = value ? Vector3.Scale(originalScale, hoverScaleMultiplier) : originalScale;
+
+        if (value && playHoverSound && audioSource != null && hoverSound != null)
         {
             audioSource.PlayOneShot(hoverSound);
         }
+
+        if (useClickTint)
+        {
+            targetColor = value ? selectionColor : defaultColor;
+        }
     }
 
-    private void OnMouseExit()
+    public void Press()
     {
-        targetScale = originalScale;
-        if (useClickTint) targetColor = defaultColor; // Reset color if mouse leaves while pressing
-    }
-
-    private void OnMouseDown()
-    {
-        // Change color ONLY on click
-        if (useClickTint) targetColor = clickColor;
+        EnsureInitialized();
 
         if (audioSource != null && clickSound != null)
         {
             audioSource.PlayOneShot(clickSound);
         }
 
-        // Trigger UnityEvent assigned in Inspector
+        if (useClickTint)
+        {
+            targetColor = clickColor;
+
+            if (clickRoutine != null) StopCoroutine(clickRoutine);
+            if (isActiveAndEnabled) clickRoutine = StartCoroutine(RestoreColorAfterClick());
+        }
+
         onClick?.Invoke();
     }
 
-    private void OnMouseUp()
+    private IEnumerator RestoreColorAfterClick()
     {
-        // Return to default color when mouse click is released
-        if (useClickTint) targetColor = defaultColor;
+        yield return new WaitForSeconds(0.12f);
+        targetColor = highlighted ? selectionColor : defaultColor;
+        clickRoutine = null;
+    }
+
+    private void OnMouseEnter()
+    {
+        SetHighlighted(true);
+        OnHovered?.Invoke(this);
+    }
+
+    private void OnMouseExit()
+    {
+        SetHighlighted(false);
+    }
+
+    private void OnMouseDown()
+    {
+        Press();
     }
 
     private void OnDisable()
     {
-        // Reset scale and color if object gets disabled
+        highlighted = false;
+
+        if (clickRoutine != null)
+        {
+            StopCoroutine(clickRoutine);
+            clickRoutine = null;
+        }
+
+        if (!initialized) return;
+
         transform.localScale = originalScale;
         targetScale = originalScale;
 

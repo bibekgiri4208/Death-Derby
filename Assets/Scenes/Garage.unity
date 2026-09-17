@@ -363,19 +363,7 @@ MonoBehaviour:
   clickSound: {fileID: 8300000, guid: c0c945abf5e1c2b408daab67511299cc, type: 3}
   onClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 852666546}
-        m_TargetAssemblyTypeName: SkyboxToggle, Assembly-CSharp
-        m_MethodName: ToggleDayNight
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!65 &107718015
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -915,7 +903,7 @@ GameObject:
   - component: {fileID: 272865969}
   - component: {fileID: 272865973}
   m_Layer: 0
-  m_Name: Options Cube
+  m_Name: Graphics Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2071,7 +2059,7 @@ GameObject:
   - component: {fileID: 560001967}
   - component: {fileID: 560001966}
   m_Layer: 0
-  m_Name: Options
+  m_Name: Graphics
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2629,6 +2617,7 @@ Transform:
   - {fileID: 27348444972919626}
   - {fileID: 543450653120932605}
   - {fileID: 543450653534127033}
+  - {fileID: 1790574530}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &669588595
@@ -3072,7 +3061,7 @@ GameObject:
   - component: {fileID: 761230524}
   - component: {fileID: 761230523}
   m_Layer: 0
-  m_Name: Maps
+  m_Name: Quality
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3117,7 +3106,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Maps
+  m_text: Quality
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d607877e7a66bbf4089911a30ddf867f, type: 2}
   m_sharedMaterial: {fileID: 30965821062046865, guid: d607877e7a66bbf4089911a30ddf867f,
@@ -3145,8 +3134,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 7
-  m_fontSizeBase: 7
+  m_fontSize: 6.6
+  m_fontSizeBase: 6.6
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -3593,7 +3582,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &844389554
 Transform:
   m_ObjectHideFlags: 0
@@ -3623,6 +3612,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 847935972}
+  - component: {fileID: 847935973}
   m_Layer: 0
   m_Name: 3D Menu Buttons
   m_TagString: Untagged
@@ -3647,6 +3637,28 @@ Transform:
   - {fileID: 1415626685}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 16.972, z: 0}
+--- !u!114 &847935973
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 847935971}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb33b4f0866f4d0d9fe6653503e8c310, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainMenuPanel: {fileID: 844389553}
+  graphicsMenuPanel: {fileID: 1415626684}
+  showMainMenuOnStart: 1
+  graphicsButtonName: Graphics Cube
+  returnButtonName: Return Cube
+  enableNavigation: 1
+  wrapNavigation: 1
+  stickDeadzone: 0.5
+  repeatDelay: 0.4
+  repeatRate: 0.15
 --- !u!1 &852666545
 GameObject:
   m_ObjectHideFlags: 0
@@ -4228,7 +4240,7 @@ GameObject:
   - component: {fileID: 1024158525}
   - component: {fileID: 1024158524}
   m_Layer: 0
-  m_Name: Skybox Cube_1
+  m_Name: Effects Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4273,19 +4285,7 @@ MonoBehaviour:
   clickSound: {fileID: 8300000, guid: c0c945abf5e1c2b408daab67511299cc, type: 3}
   onClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 852666546}
-        m_TargetAssemblyTypeName: SkyboxToggle, Assembly-CSharp
-        m_MethodName: ToggleDayNight
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!65 &1024158525
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4378,7 +4378,7 @@ GameObject:
   - component: {fileID: 1030451833}
   - component: {fileID: 1030451832}
   m_Layer: 0
-  m_Name: Options Cube_1
+  m_Name: FPS Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5508,19 +5508,7 @@ MonoBehaviour:
   clickSound: {fileID: 8300000, guid: c0c945abf5e1c2b408daab67511299cc, type: 3}
   onClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 852666548}
-        m_TargetAssemblyTypeName: QuitToggle, Assembly-CSharp
-        m_MethodName: QuitGame
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!65 &1295147042
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5998,12 +5986,12 @@ GameObject:
   m_Component:
   - component: {fileID: 1415626685}
   m_Layer: 0
-  m_Name: Options Menu
+  m_Name: Graphics Menu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1415626685
 Transform:
   m_ObjectHideFlags: 0
@@ -7515,7 +7503,7 @@ GameObject:
   - component: {fileID: 1669846148}
   - component: {fileID: 1669846147}
   m_Layer: 0
-  m_Name: Options
+  m_Name: FPS
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7560,7 +7548,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Options
+  m_text: FPS
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d607877e7a66bbf4089911a30ddf867f, type: 2}
   m_sharedMaterial: {fileID: 30965821062046865, guid: d607877e7a66bbf4089911a30ddf867f,
@@ -7588,8 +7576,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 6.5
-  m_fontSizeBase: 6.5
+  m_fontSize: 7.5
+  m_fontSizeBase: 7.5
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -8451,13 +8439,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1790574529}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 175712048}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 646619563}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1808212958
 GameObject:
@@ -8471,7 +8459,7 @@ GameObject:
   - component: {fileID: 1808212961}
   - component: {fileID: 1808212960}
   m_Layer: 0
-  m_Name: Skybox
+  m_Name: Effects
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8516,7 +8504,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: SkyBox
+  m_text: Effects
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d607877e7a66bbf4089911a30ddf867f, type: 2}
   m_sharedMaterial: {fileID: 30965821062046865, guid: d607877e7a66bbf4089911a30ddf867f,
@@ -9167,7 +9155,7 @@ GameObject:
   - component: {fileID: 1889851350}
   - component: {fileID: 1889851349}
   m_Layer: 0
-  m_Name: Maps Cube_1
+  m_Name: Quality Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -53621,17 +53609,16 @@ SceneRoots:
   - {fileID: 1663275869}
   - {fileID: 614670266}
   - {fileID: 2124773684}
-  - {fileID: 250357259}
-  - {fileID: 1302257853}
   - {fileID: 1632111691}
   - {fileID: 1367924743}
   - {fileID: 808598866}
   - {fileID: 646619563}
-  - {fileID: 1790574530}
+  - {fileID: 6329376091267629241}
   - {fileID: 13746142}
+  - {fileID: 1051037854}
+  - {fileID: 250357259}
+  - {fileID: 1302257853}
   - {fileID: 1553509054}
   - {fileID: 1289266277}
   - {fileID: 852666547}
   - {fileID: 847935972}
-  - {fileID: 1051037854}
-  - {fileID: 6329376091267629241}
