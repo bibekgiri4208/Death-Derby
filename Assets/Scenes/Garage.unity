@@ -357,6 +357,7 @@ MonoBehaviour:
   useClickTint: 1
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
   clickColor: {r: 0, g: 0.68235296, b: 1, a: 1}
+  selectionColor: {r: 0.75, g: 0.85, b: 1, a: 1}
   colorSpeed: 15
   audioSource: {fileID: 1051037855}
   hoverSound: {fileID: 8300000, guid: d31bca4c3bcea574399d3f8c6fdb7425, type: 3}
@@ -1020,6 +1021,7 @@ MonoBehaviour:
   useClickTint: 1
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
   clickColor: {r: 0, g: 0.68235296, b: 1, a: 1}
+  selectionColor: {r: 0.75, g: 0.85, b: 1, a: 1}
   colorSpeed: 15
   audioSource: {fileID: 1051037855}
   hoverSound: {fileID: 8300000, guid: d31bca4c3bcea574399d3f8c6fdb7425, type: 3}
@@ -1465,6 +1467,7 @@ MonoBehaviour:
   useClickTint: 1
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
   clickColor: {r: 0, g: 0.68235296, b: 1, a: 1}
+  selectionColor: {r: 0.75, g: 0.85, b: 1, a: 1}
   colorSpeed: 15
   audioSource: {fileID: 1051037855}
   hoverSound: {fileID: 8300000, guid: d31bca4c3bcea574399d3f8c6fdb7425, type: 3}
@@ -2104,7 +2107,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Options
+  m_text: Graphic
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d607877e7a66bbf4089911a30ddf867f, type: 2}
   m_sharedMaterial: {fileID: 30965821062046865, guid: d607877e7a66bbf4089911a30ddf867f,
@@ -3659,6 +3662,10 @@ MonoBehaviour:
   stickDeadzone: 0.5
   repeatDelay: 0.4
   repeatRate: 0.15
+  useSlideAnimation: 1
+  slideDistance: 10
+  slideDuration: 0.35
+  slideStagger: 0.06
 --- !u!1 &852666545
 GameObject:
   m_ObjectHideFlags: 0
@@ -4279,6 +4286,7 @@ MonoBehaviour:
   useClickTint: 1
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
   clickColor: {r: 0, g: 0.68235296, b: 1, a: 1}
+  selectionColor: {r: 0.75, g: 0.85, b: 1, a: 1}
   colorSpeed: 15
   audioSource: {fileID: 1051037855}
   hoverSound: {fileID: 8300000, guid: d31bca4c3bcea574399d3f8c6fdb7425, type: 3}
@@ -4417,6 +4425,7 @@ MonoBehaviour:
   useClickTint: 1
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
   clickColor: {r: 0, g: 0.68235296, b: 1, a: 1}
+  selectionColor: {r: 0.75, g: 0.85, b: 1, a: 1}
   colorSpeed: 15
   audioSource: {fileID: 1051037855}
   hoverSound: {fileID: 8300000, guid: d31bca4c3bcea574399d3f8c6fdb7425, type: 3}
@@ -5128,6 +5137,7 @@ MonoBehaviour:
   useClickTint: 1
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
   clickColor: {r: 0, g: 0.68235296, b: 1, a: 1}
+  selectionColor: {r: 0.75, g: 0.85, b: 1, a: 1}
   colorSpeed: 15
   audioSource: {fileID: 1051037855}
   hoverSound: {fileID: 8300000, guid: d31bca4c3bcea574399d3f8c6fdb7425, type: 3}
@@ -5502,6 +5512,7 @@ MonoBehaviour:
   useClickTint: 1
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
   clickColor: {r: 0, g: 0.68235296, b: 1, a: 1}
+  selectionColor: {r: 0.75, g: 0.85, b: 1, a: 1}
   colorSpeed: 15
   audioSource: {fileID: 1051037855}
   hoverSound: {fileID: 8300000, guid: d31bca4c3bcea574399d3f8c6fdb7425, type: 3}
@@ -6541,25 +6552,14 @@ MonoBehaviour:
   useClickTint: 1
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
   clickColor: {r: 0, g: 0.68235296, b: 1, a: 1}
+  selectionColor: {r: 0.75, g: 0.85, b: 1, a: 1}
   colorSpeed: 15
   audioSource: {fileID: 1051037855}
   hoverSound: {fileID: 8300000, guid: d31bca4c3bcea574399d3f8c6fdb7425, type: 3}
   clickSound: {fileID: 8300000, guid: c0c945abf5e1c2b408daab67511299cc, type: 3}
   onClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 852666546}
-        m_TargetAssemblyTypeName: SkyboxToggle, Assembly-CSharp
-        m_MethodName: ToggleDayNight
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!65 &1575320031
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9194,6 +9194,7 @@ MonoBehaviour:
   useClickTint: 1
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
   clickColor: {r: 0, g: 0.68235296, b: 1, a: 1}
+  selectionColor: {r: 0.75, g: 0.85, b: 1, a: 1}
   colorSpeed: 15
   audioSource: {fileID: 1051037855}
   hoverSound: {fileID: 8300000, guid: d31bca4c3bcea574399d3f8c6fdb7425, type: 3}
@@ -9410,6 +9411,7 @@ MonoBehaviour:
   useClickTint: 1
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
   clickColor: {r: 0, g: 0.68235296, b: 1, a: 1}
+  selectionColor: {r: 0.75, g: 0.85, b: 1, a: 1}
   colorSpeed: 15
   audioSource: {fileID: 1051037855}
   hoverSound: {fileID: 8300000, guid: d31bca4c3bcea574399d3f8c6fdb7425, type: 3}

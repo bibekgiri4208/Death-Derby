@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -21,11 +22,22 @@ public class Menu3DController : MonoBehaviour
     [SerializeField] private float repeatDelay = 0.4f;
     [SerializeField] private float repeatRate = 0.15f;
 
+    [Header("Slide Animation")]
+    [SerializeField] private bool useSlideAnimation = true;
+    [SerializeField] private float slideDistance = 10f;
+    [SerializeField] private float slideDuration = 0.35f;
+    [SerializeField] private float slideStagger = 0.06f;
+
     private readonly List<Interactable3DButton> buttons = new List<Interactable3DButton>();
+    private readonly List<Interactable3DButton> mainMenuButtons = new List<Interactable3DButton>();
+    private readonly List<Vector3> mainMenuHomePositions = new List<Vector3>();
+    private readonly List<Interactable3DButton> graphicsButtons = new List<Interactable3DButton>();
+    private readonly List<Vector3> graphicsHomePositions = new List<Vector3>();
     private int selectedIndex = -1;
     private int lastDirection;
     private float nextRepeatTime;
     private bool wired;
+    private Coroutine slideRoutine;
 
     public GameObject MainMenuPanel => mainMenuPanel;
     public GameObject GraphicsMenuPanel => graphicsMenuPanel;
@@ -33,6 +45,8 @@ public class Menu3DController : MonoBehaviour
     void Awake()
     {
         ResolvePanels();
+        CachePanelButtons(mainMenuPanel, mainMenuButtons, mainMenuHomePositions);
+        CachePanelButtons(graphicsMenuPanel, graphicsButtons, graphicsHomePositions);
         WirePanelButtons();
     }
 
@@ -65,16 +79,113 @@ public class Menu3DController : MonoBehaviour
 
     public void ShowMainMenu()
     {
+        StopSlide();
         SetPanelActive(graphicsMenuPanel, false);
         SetPanelActive(mainMenuPanel, true);
         RefreshButtons();
+
+        StartSlideIn(mainMenuButtons, mainMenuHomePositions);
     }
 
     public void ShowGraphicsMenu()
     {
+        StopSlide();
         SetPanelActive(mainMenuPanel, false);
         SetPanelActive(graphicsMenuPanel, true);
         RefreshButtons();
+
+        StartSlideIn(graphicsButtons, graphicsHomePositions);
+    }
+
+    private void StartSlideIn(List<Interactable3DButton> list, List<Vector3> homePositions)
+    {
+        if (!useSlideAnimation || list.Count == 0) return;
+
+        slideRoutine = StartCoroutine(PlaySlideIn(list, homePositions));
+    }
+
+    private void CachePanelButtons(GameObject panel, List<Interactable3DButton> list, List<Vector3> homePositions)
+    {
+        list.Clear();
+        homePositions.Clear();
+
+        if (panel == null) return;
+
+        Interactable3DButton[] found = panel.GetComponentsInChildren<Interactable3DButton>(true);
+        System.Array.Sort(found, (a, b) => a.transform.GetSiblingIndex().CompareTo(b.transform.GetSiblingIndex()));
+
+        for (int i = 0; i < found.Length; i++)
+        {
+            if (found[i] == null) continue;
+
+            list.Add(found[i]);
+            homePositions.Add(found[i].transform.localPosition);
+        }
+    }
+
+    private void StopSlide()
+    {
+        if (slideRoutine != null)
+        {
+            StopCoroutine(slideRoutine);
+            slideRoutine = null;
+        }
+
+        ResetPositions(mainMenuButtons, mainMenuHomePositions);
+        ResetPositions(graphicsButtons, graphicsHomePositions);
+    }
+
+    private void ResetPositions(List<Interactable3DButton> list, List<Vector3> homePositions)
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (list[i] != null)
+            {
+                list[i].transform.localPosition = homePositions[i];
+            }
+        }
+    }
+
+    private IEnumerator PlaySlideIn(List<Interactable3DButton> list, List<Vector3> homePositions)
+    {
+        if (list.Count == 0)
+        {
+            slideRoutine = null;
+            yield break;
+        }
+
+        Vector3 offset = new Vector3(slideDistance, 0f, 0f);
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (list[i] != null)
+            {
+                list[i].transform.localPosition = homePositions[i] + offset;
+            }
+        }
+
+        float total = slideDuration + slideStagger * (list.Count - 1);
+        float elapsed = 0f;
+
+        while (elapsed < total)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i] == null) continue;
+
+                float t = Mathf.Clamp01((elapsed - slideStagger * i) / slideDuration);
+                float eased = t * t * (3f - 2f * t);
+                list[i].transform.localPosition = Vector3.Lerp(
+                    homePositions[i] + offset,
+                    homePositions[i], eased);
+            }
+
+            yield return null;
+        }
+
+        ResetPositions(list, homePositions);
+        slideRoutine = null;
     }
 
     private void SetPanelActive(GameObject panel, bool active)
