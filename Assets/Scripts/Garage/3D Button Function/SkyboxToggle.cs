@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class SkyboxToggle : MonoBehaviour
@@ -6,6 +7,10 @@ public class SkyboxToggle : MonoBehaviour
 
     [Header("Current State")]
     [SerializeField] private TimeOfDayState currentState = TimeOfDayState.Day;
+
+    [Header("Button Label")]
+    [Tooltip("Text on the 3D button that shows the current skybox name.")]
+    [SerializeField] private TMP_Text stateLabel;
 
     [Header("Skybox Materials")]
     [SerializeField] private Material daySkybox;
@@ -66,6 +71,10 @@ public class SkyboxToggle : MonoBehaviour
 
     private void ApplyState(TimeOfDayState state)
     {
+        if (stateLabel != null)
+        {
+            stateLabel.text = state.ToString();
+        }
         switch (state)
         {
             case TimeOfDayState.Day:
