@@ -2,7 +2,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 
-public class FpsOptionSelector : MonoBehaviour
+public class FpsOptionSelector : MonoBehaviour, IOptionSelector
 {
     public const string DefaultPlayerPrefsKey = "FpsLimit";
 
