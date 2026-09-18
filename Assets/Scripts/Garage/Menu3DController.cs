@@ -396,7 +396,7 @@ public class Menu3DController : MonoBehaviour
 
         if (selectedIndex < 0 || selectedIndex >= buttons.Count || buttons[selectedIndex] == null) return;
 
-        if (!buttons[selectedIndex].TryGetComponent(out FpsOptionSelector selector))
+        if (!buttons[selectedIndex].TryGetComponent(out IOptionSelector selector))
         {
             lastHorizontalDirection = 0;
             return;
@@ -460,7 +460,7 @@ public class Menu3DController : MonoBehaviour
         Interactable3DButton button = buttons[selectedIndex];
         if (button == null) return;
 
-        if (button.TryGetComponent(out FpsOptionSelector selector)) selector.Apply();
+        if (button.TryGetComponent(out IOptionSelector selector)) selector.Apply();
 
         button.Press();
     }
