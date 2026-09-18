@@ -108,9 +108,9 @@ public class Menu3DController : MonoBehaviour
     {
         StopSlide();
         SetPanelActive(startMenuPanel, false);
-        SetPanelActive(mainMenuPanel, false);
         SetPanelActive(graphicsMenuPanel, true);
-        SetButtonsInteractable(mainMenuButtons, true);
+        SetPanelActive(mainMenuPanel, true);
+        SetButtonsInteractable(mainMenuButtons, false);
         currentPanel = graphicsMenuPanel;
         RefreshButtons();
 
@@ -130,11 +130,56 @@ public class Menu3DController : MonoBehaviour
         StartSlideIn(startMenuButtons, startMenuHomePositions);
     }
 
+    public void CloseStartMenu()
+    {
+        if (currentPanel != startMenuPanel) return;
+
+        StopSlide();
+        SetPanelActive(graphicsMenuPanel, false);
+        SetPanelActive(mainMenuPanel, true);
+        SetButtonsInteractable(mainMenuButtons, true);
+        currentPanel = mainMenuPanel;
+        RefreshButtons();
+
+        StartSlideOut(startMenuButtons, startMenuHomePositions, startMenuPanel);
+    }
+
+    public void CloseGraphicsMenu()
+    {
+        if (currentPanel != graphicsMenuPanel) return;
+
+        StopSlide();
+        SetPanelActive(startMenuPanel, false);
+        SetPanelActive(mainMenuPanel, true);
+        SetButtonsInteractable(mainMenuButtons, true);
+        currentPanel = mainMenuPanel;
+        RefreshButtons();
+
+        StartSlideOut(graphicsButtons, graphicsHomePositions, graphicsMenuPanel);
+    }
+
     private void StartSlideIn(List<Interactable3DButton> list, List<Vector3> homePositions)
     {
         if (!useSlideAnimation || list.Count == 0) return;
 
         slideRoutine = StartCoroutine(PlaySlideIn(list, homePositions));
+    }
+
+    private void StartSlideOut(List<Interactable3DButton> list, List<Vector3> homePositions, GameObject panel)
+    {
+        if (list.Count == 0)
+        {
+            SetPanelActive(panel, false);
+            return;
+        }
+
+        if (!useSlideAnimation)
+        {
+            SetPanelActive(panel, false);
+            return;
+        }
+
+        slideRoutine = StartCoroutine(PlaySlideOut(list, homePositions, panel));
     }
 
     private void CachePanelButtons(GameObject panel, List<Interactable3DButton> list, List<Vector3> homePositions)
@@ -219,6 +264,35 @@ public class Menu3DController : MonoBehaviour
         }
 
         ResetPositions(list, homePositions);
+        slideRoutine = null;
+    }
+
+    private IEnumerator PlaySlideOut(List<Interactable3DButton> list, List<Vector3> homePositions, GameObject panel)
+    {
+        Vector3 offset = new Vector3(slideDistance, 0f, 0f);
+
+        float total = slideDuration + slideStagger * (list.Count - 1);
+        float elapsed = 0f;
+
+        while (elapsed < total)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i] == null) continue;
+
+                float t = Mathf.Clamp01((elapsed - slideStagger * i) / slideDuration);
+                float eased = t * t * (3f - 2f * t);
+                list[i].transform.localPosition = Vector3.Lerp(
+                    homePositions[i],
+                    homePositions[i] + offset, eased);
+            }
+
+            yield return null;
+        }
+
+        SetPanelActive(panel, false);
         slideRoutine = null;
     }
 
@@ -526,11 +600,11 @@ public class Menu3DController : MonoBehaviour
 
         if (currentPanel == startMenuPanel)
         {
-            ShowMainMenu();
+            CloseStartMenu();
         }
         else if (currentPanel == graphicsMenuPanel)
         {
-            ShowMainMenu();
+            CloseGraphicsMenu();
         }
     }
 
