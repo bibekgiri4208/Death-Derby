@@ -9,10 +9,12 @@ public class Menu3DController : MonoBehaviour
     [Header("Panels")]
     [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private GameObject graphicsMenuPanel;
+    [SerializeField] private GameObject startMenuPanel;
     [SerializeField] private bool showMainMenuOnStart = true;
 
     [Header("Auto Wiring")]
     [SerializeField] private string graphicsButtonName = "Graphics Cube";
+    [SerializeField] private string startButtonName = "Start Cube";
     [SerializeField] private string returnButtonName = "Return Cube";
 
     [Header("Gamepad / Keyboard")]
@@ -36,6 +38,9 @@ public class Menu3DController : MonoBehaviour
     private readonly List<Vector3> mainMenuHomePositions = new List<Vector3>();
     private readonly List<Interactable3DButton> graphicsButtons = new List<Interactable3DButton>();
     private readonly List<Vector3> graphicsHomePositions = new List<Vector3>();
+    private readonly List<Interactable3DButton> startMenuButtons = new List<Interactable3DButton>();
+    private readonly List<Vector3> startMenuHomePositions = new List<Vector3>();
+    private GameObject currentPanel;
     private int selectedIndex = -1;
     private int lastDirection;
     private float nextRepeatTime;
@@ -52,6 +57,7 @@ public class Menu3DController : MonoBehaviour
         ResolvePanels();
         CachePanelButtons(mainMenuPanel, mainMenuButtons, mainMenuHomePositions);
         CachePanelButtons(graphicsMenuPanel, graphicsButtons, graphicsHomePositions);
+        CachePanelButtons(startMenuPanel, startMenuButtons, startMenuHomePositions);
         WirePanelButtons();
     }
 
@@ -87,7 +93,10 @@ public class Menu3DController : MonoBehaviour
     {
         StopSlide();
         SetPanelActive(graphicsMenuPanel, false);
+        SetPanelActive(startMenuPanel, false);
         SetPanelActive(mainMenuPanel, true);
+        SetButtonsInteractable(mainMenuButtons, true);
+        currentPanel = mainMenuPanel;
         RefreshButtons();
 
         StartSlideIn(mainMenuButtons, mainMenuHomePositions);
@@ -96,11 +105,27 @@ public class Menu3DController : MonoBehaviour
     public void ShowGraphicsMenu()
     {
         StopSlide();
+        SetPanelActive(startMenuPanel, false);
         SetPanelActive(mainMenuPanel, false);
         SetPanelActive(graphicsMenuPanel, true);
+        SetButtonsInteractable(mainMenuButtons, true);
+        currentPanel = graphicsMenuPanel;
         RefreshButtons();
 
         StartSlideIn(graphicsButtons, graphicsHomePositions);
+    }
+
+    public void ShowStartMenu()
+    {
+        StopSlide();
+        SetPanelActive(graphicsMenuPanel, false);
+        SetPanelActive(startMenuPanel, true);
+        SetPanelActive(mainMenuPanel, true);
+        SetButtonsInteractable(mainMenuButtons, false);
+        currentPanel = startMenuPanel;
+        RefreshButtons();
+
+        StartSlideIn(startMenuButtons, startMenuHomePositions);
     }
 
     private void StartSlideIn(List<Interactable3DButton> list, List<Vector3> homePositions)
@@ -139,6 +164,7 @@ public class Menu3DController : MonoBehaviour
 
         ResetPositions(mainMenuButtons, mainMenuHomePositions);
         ResetPositions(graphicsButtons, graphicsHomePositions);
+        ResetPositions(startMenuButtons, startMenuHomePositions);
     }
 
     private void ResetPositions(List<Interactable3DButton> list, List<Vector3> homePositions)
@@ -199,6 +225,18 @@ public class Menu3DController : MonoBehaviour
         if (panel != null) panel.SetActive(active);
     }
 
+    private void SetButtonsInteractable(List<Interactable3DButton> list, bool interactable)
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (list[i] != null)
+            {
+                list[i].EnsureInitialized();
+                list[i].SetInteractable(interactable);
+            }
+        }
+    }
+
     private void ResolvePanels()
     {
         if (mainMenuPanel == null)
@@ -213,9 +251,15 @@ public class Menu3DController : MonoBehaviour
             if (graphics != null) graphicsMenuPanel = graphics.gameObject;
         }
 
-        if (mainMenuPanel == null || graphicsMenuPanel == null)
+        if (startMenuPanel == null)
         {
-            Debug.LogWarning("Menu3DController: could not resolve Main Menu / Graphics Menu panels.", this);
+            Transform start = FindDeepChild(transform, "Start Menu");
+            if (start != null) startMenuPanel = start.gameObject;
+        }
+
+        if (mainMenuPanel == null || graphicsMenuPanel == null || startMenuPanel == null)
+        {
+            Debug.LogWarning("Menu3DController: could not resolve Main Menu / Graphics Menu / Start Menu panels.", this);
         }
     }
 
@@ -230,6 +274,12 @@ public class Menu3DController : MonoBehaviour
             if (graphicsButton != null && graphicsButton.TryGetComponent(out Interactable3DButton graphics))
             {
                 graphics.onClick.AddListener(ShowGraphicsMenu);
+            }
+
+            Transform startButton = FindDeepChild(mainMenuPanel.transform, startButtonName);
+            if (startButton != null && startButton.TryGetComponent(out Interactable3DButton start))
+            {
+                start.onClick.AddListener(ShowStartMenu);
             }
         }
 
@@ -248,13 +298,9 @@ public class Menu3DController : MonoBehaviour
         UnsubscribeButtons();
         buttons.Clear();
 
-        GameObject activePanel = null;
-        if (mainMenuPanel != null && mainMenuPanel.activeInHierarchy) activePanel = mainMenuPanel;
-        else if (graphicsMenuPanel != null && graphicsMenuPanel.activeInHierarchy) activePanel = graphicsMenuPanel;
-
-        if (activePanel != null)
+        if (currentPanel != null)
         {
-            Interactable3DButton[] found = activePanel.GetComponentsInChildren<Interactable3DButton>(true);
+            Interactable3DButton[] found = currentPanel.GetComponentsInChildren<Interactable3DButton>(true);
             for (int i = 0; i < found.Length; i++)
             {
                 Interactable3DButton button = found[i];
@@ -476,7 +522,11 @@ public class Menu3DController : MonoBehaviour
 
         if (!cancel) return;
 
-        if (graphicsMenuPanel != null && graphicsMenuPanel.activeInHierarchy)
+        if (currentPanel == startMenuPanel)
+        {
+            ShowMainMenu();
+        }
+        else if (currentPanel == graphicsMenuPanel)
         {
             ShowMainMenu();
         }
