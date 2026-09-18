@@ -41,6 +41,8 @@ public class Menu3DController : MonoBehaviour
     private readonly List<Interactable3DButton> startMenuButtons = new List<Interactable3DButton>();
     private readonly List<Vector3> startMenuHomePositions = new List<Vector3>();
     private GameObject currentPanel;
+    private Interactable3DButton graphicsMainButton;
+    private Interactable3DButton startMainButton;
     private int selectedIndex = -1;
     private int lastDirection;
     private float nextRepeatTime;
@@ -140,6 +142,7 @@ public class Menu3DController : MonoBehaviour
         SetButtonsInteractable(mainMenuButtons, true);
         currentPanel = mainMenuPanel;
         RefreshButtons();
+        SetSelected(GetButtonIndex(startMainButton));
 
         StartSlideOut(startMenuButtons, startMenuHomePositions, startMenuPanel);
     }
@@ -154,8 +157,21 @@ public class Menu3DController : MonoBehaviour
         SetButtonsInteractable(mainMenuButtons, true);
         currentPanel = mainMenuPanel;
         RefreshButtons();
+        SetSelected(GetButtonIndex(graphicsMainButton));
 
         StartSlideOut(graphicsButtons, graphicsHomePositions, graphicsMenuPanel);
+    }
+
+    private int GetButtonIndex(Interactable3DButton target)
+    {
+        if (target == null) return 0;
+
+        for (int i = 0; i < buttons.Count; i++)
+        {
+            if (buttons[i] == target) return i;
+        }
+
+        return 0;
     }
 
     private void StartSlideIn(List<Interactable3DButton> list, List<Vector3> homePositions)
@@ -349,12 +365,14 @@ public class Menu3DController : MonoBehaviour
             Transform graphicsButton = FindDeepChild(mainMenuPanel.transform, graphicsButtonName);
             if (graphicsButton != null && graphicsButton.TryGetComponent(out Interactable3DButton graphics))
             {
+                graphicsMainButton = graphics;
                 graphics.onClick.AddListener(ShowGraphicsMenu);
             }
 
             Transform startButton = FindDeepChild(mainMenuPanel.transform, startButtonName);
             if (startButton != null && startButton.TryGetComponent(out Interactable3DButton start))
             {
+                startMainButton = start;
                 start.onClick.AddListener(ShowStartMenu);
             }
         }
