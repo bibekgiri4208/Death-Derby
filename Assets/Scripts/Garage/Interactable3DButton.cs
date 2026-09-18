@@ -36,9 +36,11 @@ public class Interactable3DButton : MonoBehaviour
 
     private bool initialized;
     private bool highlighted;
+    private bool interactable = true;
     private Coroutine clickRoutine;
 
     public bool IsHighlighted => highlighted;
+    public bool IsInteractable => interactable;
 
     void Awake()
     {
@@ -137,18 +139,37 @@ public class Interactable3DButton : MonoBehaviour
 
     private void OnMouseEnter()
     {
+        if (!interactable) return;
         SetHighlighted(true);
         OnHovered?.Invoke(this);
     }
 
     private void OnMouseExit()
     {
+        if (!interactable) return;
         SetHighlighted(false);
     }
 
     private void OnMouseDown()
     {
+        if (!interactable) return;
         Press();
+    }
+
+    public void SetInteractable(bool value)
+    {
+        if (interactable == value) return;
+        interactable = value;
+
+        if (!value)
+        {
+            highlighted = false;
+            targetScale = originalScale;
+        }
+
+        if (!useClickTint || targetMaterial == null) return;
+
+        targetColor = value ? (highlighted ? selectionColor : defaultColor) : clickColor;
     }
 
     private void OnDisable()
