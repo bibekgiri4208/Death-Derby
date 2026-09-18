@@ -317,6 +317,7 @@ GameObject:
   - component: {fileID: 107718016}
   - component: {fileID: 107718015}
   - component: {fileID: 107718014}
+  - component: {fileID: 107718018}
   m_Layer: 0
   m_Name: Quality Cube
   m_TagString: Untagged
@@ -365,6 +366,31 @@ MonoBehaviour:
   onClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &107718018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 107718012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8d3f1e4c29a4b7d9e5f6a1c3d4e2000, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QualityOptionSelector
+  presetNames:
+  - Low
+  - Medium
+  - High
+  defaultPresetIndex: 2
+  mainLight: {fileID: 614670265}
+  mediumShadowDistance: 40
+  mediumAmbientScale: 0.6
+  mediumReflectionScale: 0.7
+  label: {fileID: 1618318280}
+  slideDuration: 0.15
+  slideDistanceScale: 1
+  playerPrefsKey: GraphicsQuality
 --- !u!65 &107718015
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1239,8 +1265,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 7
-  m_fontSizeBase: 7
+  m_fontSize: 6.2
+  m_fontSizeBase: 6.2
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1572,8 +1598,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 7
-  m_fontSizeBase: 7
+  m_fontSize: 6.2
+  m_fontSizeBase: 6.2
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2135,8 +2161,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 6.5
-  m_fontSizeBase: 6.5
+  m_fontSize: 6.2
+  m_fontSizeBase: 6.2
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -3064,7 +3090,7 @@ GameObject:
   - component: {fileID: 761230524}
   - component: {fileID: 761230523}
   m_Layer: 0
-  m_Name: Quality
+  m_Name: Display
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3109,7 +3135,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Quality
+  m_text: Display
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d607877e7a66bbf4089911a30ddf867f, type: 2}
   m_sharedMaterial: {fileID: 30965821062046865, guid: d607877e7a66bbf4089911a30ddf867f,
@@ -3137,8 +3163,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 6.6
-  m_fontSizeBase: 6.6
+  m_fontSize: 6.2
+  m_fontSizeBase: 6.2
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -3922,8 +3948,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 7
-  m_fontSizeBase: 7
+  m_fontSize: 6.2
+  m_fontSizeBase: 6.2
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -7065,8 +7091,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 6.85
-  m_fontSizeBase: 6.85
+  m_fontSize: 6.2
+  m_fontSizeBase: 6.2
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -8068,8 +8094,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 7
-  m_fontSizeBase: 7
+  m_fontSize: 6.2
+  m_fontSizeBase: 6.2
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -8557,8 +8583,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 7
-  m_fontSizeBase: 7
+  m_fontSize: 6.2
+  m_fontSizeBase: 6.2
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -8739,8 +8765,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 7
-  m_fontSizeBase: 7
+  m_fontSize: 6.2
+  m_fontSizeBase: 6.2
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -9180,7 +9206,7 @@ GameObject:
   - component: {fileID: 1889851350}
   - component: {fileID: 1889851349}
   m_Layer: 0
-  m_Name: Quality Cube
+  m_Name: Display Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
