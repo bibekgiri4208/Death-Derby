@@ -51,6 +51,8 @@ public class Menu3DController : MonoBehaviour
 
     public GameObject MainMenuPanel => mainMenuPanel;
     public GameObject GraphicsMenuPanel => graphicsMenuPanel;
+    public GameObject StartMenuPanel => startMenuPanel;
+    public GameObject CurrentPanel => currentPanel;
 
     void Awake()
     {

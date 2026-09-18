@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using TMPro;
 
@@ -24,6 +25,7 @@ public class CarSelection : MonoBehaviour
     [SerializeField] private GameObject stageSelectionPanel;
 
     int currentCarIndex;
+    Menu3DController menuController;
 
     void Awake()
     {
@@ -35,11 +37,50 @@ public class CarSelection : MonoBehaviour
 
         currentCarIndex = PlayerPrefs.GetInt("CarIndexValue", 0);
         currentCarIndex = Mathf.Clamp(currentCarIndex, 0, cars.Length - 1);
+
+        menuController = FindAnyObjectByType<Menu3DController>();
     }
 
     void Start()
     {
         ShowCar(currentCarIndex);
+    }
+
+    void Update()
+    {
+        if (cars == null || cars.Length == 0) return;
+        if (!CanSwitchCars()) return;
+
+        Gamepad gamepad = Gamepad.current;
+        Keyboard keyboard = Keyboard.current;
+
+        bool next = false;
+        bool previous = false;
+
+        if (gamepad != null)
+        {
+            if (gamepad.leftShoulder.wasPressedThisFrame) previous = true;
+            if (gamepad.rightShoulder.wasPressedThisFrame) next = true;
+        }
+
+        if (keyboard != null)
+        {
+            if (keyboard.aKey.wasPressedThisFrame) previous = true;
+            if (keyboard.dKey.wasPressedThisFrame) next = true;
+        }
+
+        if (previous) PreviousCar();
+        else if (next) NextCar();
+    }
+
+    private bool CanSwitchCars()
+    {
+        if (menuController == null || !menuController.enabled) return true;
+
+        // Only switch cars while the main menu is the active panel,
+        // so A/D doesn't fight the FPS/Quality horizontal controls.
+        GameObject current = menuController.CurrentPanel;
+        return current == null || current == menuController.MainMenuPanel;
     }
 
     public void NextCar()
