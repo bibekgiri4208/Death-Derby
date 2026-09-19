@@ -4540,9 +4540,11 @@ MonoBehaviour:
   mainMenuPanel: {fileID: 844389553}
   graphicsMenuPanel: {fileID: 1415626684}
   startMenuPanel: {fileID: 1174021991}
+  musicMenuPanel: {fileID: 0}
   showMainMenuOnStart: 1
   graphicsButtonName: Graphics Cube
   startButtonName: Start Cube
+  musicButtonName: Music Cube
   returnButtonName: Return Cube
   enableNavigation: 1
   wrapNavigation: 1
@@ -47747,8 +47749,8 @@ MonoBehaviour:
   - {fileID: 1948627811724862573}
   - {fileID: 8620033657946165080}
   - {fileID: 7077099991207346258}
-  pulseSpeed: 10
-  pulseAmount: 0.1
+  pulseSpeed: 8
+  pulseAmount: 0.4
 --- !u!33 &7606442907965150984
 MeshFilter:
   m_ObjectHideFlags: 0
