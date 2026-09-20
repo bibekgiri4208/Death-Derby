@@ -17,18 +17,28 @@ public class KillStreakPopup : MonoBehaviour
 
     [Header("Popup UI")]
     [SerializeField] private TextMeshProUGUI popupText;
+    [Min(1f)]
+    [SerializeField] private float fontSize = 84f;
 
-    [Header("Animation")]
+    [Header("Timing")]
     [Min(0.1f)]
     [SerializeField] private float displayDuration = 1.4f;
     [Min(0f)]
-    [SerializeField] private float fadeInDuration = 0.2f;
+    [SerializeField] private float fadeInDuration = 0.25f;
     [Min(0f)]
-    [SerializeField] private float fadeOutDuration = 0.5f;
-    [Range(0.1f, 1f)]
-    [SerializeField] private float startScale = 0.65f;
-    [Range(0f, 50f)]
-    [SerializeField] private float riseDistance = 8f;
+    [SerializeField] private float fadeOutDuration = 0.45f;
+
+    [Header("Scale")]
+    [Range(0.1f, 0.9f)]
+    [SerializeField] private float startScale = 0.3f;
+    [Range(0.1f, 0.9f)]
+    [SerializeField] private float endScale = 0.5f;
+
+    [Header("Float")]
+    [Range(0f, 60f)]
+    [SerializeField] private float floatDistance = 6f;
+    [Range(0.5f, 8f)]
+    [SerializeField] private float floatSpeed = 2.5f;
 
     private int killCount;
     private int nextMilestoneIndex;
@@ -36,6 +46,7 @@ public class KillStreakPopup : MonoBehaviour
     private Vector3 baseScale;
     private Vector2 basePosition;
     private Color baseColor;
+    private Color baseColorSolid;
 
     private void Reset()
     {
@@ -66,6 +77,7 @@ public class KillStreakPopup : MonoBehaviour
             StopCoroutine(popupRoutine);
             popupRoutine = null;
         }
+        ResetTransforms();
     }
 
     private void Start()
@@ -75,10 +87,14 @@ public class KillStreakPopup : MonoBehaviour
 
         if (popupText != null)
         {
-            baseScale = popupText.transform.localScale;
+            popupText.fontSize = fontSize;
             RectTransform rt = popupText.rectTransform;
+            rt.sizeDelta = new Vector2(Mathf.Max(rt.sizeDelta.x, 900f), Mathf.Max(rt.sizeDelta.y, 140f));
+
+            baseScale = popupText.transform.localScale;
             basePosition = rt != null ? rt.anchoredPosition : Vector2.zero;
-            baseColor = popupText.color;
+            baseColorSolid = popupText.color;
+            baseColor = baseColorSolid;
             baseColor.a = 0f;
             popupText.color = baseColor;
         }
@@ -106,49 +122,63 @@ public class KillStreakPopup : MonoBehaviour
     {
         if (popupText == null) yield break;
 
-        float duration = fadeInDuration + displayDuration + fadeOutDuration;
         RectTransform rt = popupText.rectTransform;
-
         popupText.text = label;
-        popupText.color = baseColor;
 
-        float t = 0f;
-        while (t < duration)
+        float p = 0f;
+        while (p < 1f)
         {
-            t += Time.unscaledDeltaTime;
-
-            float normalized = Mathf.Clamp01(t / duration);
-
-            float grow = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / fadeInDuration));
-            popupText.transform.localScale = baseScale * Mathf.Lerp(startScale, 1f, grow);
-
-            float rise = riseDistance * normalized * normalized;
-            if (rt != null)
-                rt.anchoredPosition = basePosition + Vector2.up * rise;
-
-            Color c = baseColor;
-            if (t < fadeInDuration)
+            p += Time.unscaledDeltaTime / fadeInDuration;
+            if (p < 1f)
             {
-                c.a = Mathf.Clamp01(t / fadeInDuration);
+                float ease = p * p * (3f - 2f * p);
+                popupText.transform.localScale = baseScale * Mathf.Lerp(startScale, 1f, ease);
+                Color c1 = baseColorSolid;
+                c1.a = Mathf.Clamp01(p);
+                popupText.color = c1;
             }
-            else if (t > duration - fadeOutDuration)
-            {
-                c.a = Mathf.Clamp01((duration - t) / fadeOutDuration);
-            }
-            else
-            {
-                c.a = 1f;
-            }
-            popupText.color = c;
-
             yield return null;
         }
 
         popupText.transform.localScale = baseScale;
+        popupText.color = baseColorSolid;
+
+        float t = 0f;
+        while (t < displayDuration)
+        {
+            t += Time.unscaledDeltaTime;
+            if (rt != null)
+                rt.anchoredPosition = basePosition + Vector2.up * (floatDistance * Mathf.Sin(Time.unscaledTime * floatSpeed));
+            yield return null;
+        }
+
+        float end = 0f;
+        while (end < 1f)
+        {
+            end += Time.unscaledDeltaTime / fadeOutDuration;
+            if (end < 1f)
+            {
+                float ease = end * end * (3f - 2f * end);
+                popupText.transform.localScale = baseScale * Mathf.Lerp(1f, endScale, ease);
+                Color c2 = baseColorSolid;
+                c2.a = Mathf.Clamp01(1f - end);
+                popupText.color = c2;
+            }
+            yield return null;
+        }
+
+        ResetTransforms();
+        popupRoutine = null;
+    }
+
+    private void ResetTransforms()
+    {
+        if (popupText == null) return;
+        popupText.transform.localScale = baseScale;
+        RectTransform rt = popupText.rectTransform;
         if (rt != null)
             rt.anchoredPosition = basePosition;
         popupText.color = baseColor;
-        popupRoutine = null;
     }
 
     private TextMeshProUGUI CreateRuntimePopupText()
@@ -164,11 +194,11 @@ public class KillStreakPopup : MonoBehaviour
         rt.anchorMax = new Vector2(0.5f, 1f);
         rt.pivot = new Vector2(0.5f, 0.5f);
         rt.anchoredPosition = new Vector2(0f, -70f);
-        rt.sizeDelta = new Vector2(600f, 100f);
+        rt.sizeDelta = new Vector2(900f, 140f);
 
         TextMeshProUGUI text = holder.AddComponent<TextMeshProUGUI>();
         text.alignment = TextAlignmentOptions.Center;
-        text.fontSize = 56f;
+        text.fontSize = fontSize;
         text.fontStyle = FontStyles.Bold;
         text.raycastTarget = false;
 
