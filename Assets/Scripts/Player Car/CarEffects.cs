@@ -9,6 +9,8 @@ public class CarEffects : MonoBehaviour
     [Header("Brake Lights")]
     [Tooltip("Assign the rear Brake Lights here so they turn on when braking or using the handbrake.")]
     public Light[] brakeLights;
+    [Tooltip("How smoothly brake lights fade in/out (lower = smoother).")]
+    public float brakeLightSmoothing = 8f;
 
     [Header("Desert Smoke / Dust Effect")]
     [Tooltip("Assign the smoke particle systems for all 4 wheels here.")]
@@ -30,9 +32,10 @@ public class CarEffects : MonoBehaviour
     private ParticleSystem.EmissionModule[] smokeEmissions;
     private ParticleSystem.MainModule[] smokeMains;
     private bool[] rearSmokeSystems;
+    private float[] brakeLightIntensities;
     private bool wasBoosting;
-    private bool brakeLightsOn;
     private float currentSmokeAmount;
+    private float brakeLightAmount;
 
     private void Start()
     {
@@ -50,6 +53,7 @@ public class CarEffects : MonoBehaviour
         if (minSmokeSpeed < 2f) minSmokeSpeed = 8f;
         if (emissionSmoothing < 0.5f) emissionSmoothing = 5f;
         if (maxSmokeDistanceRate < 0.5f) maxSmokeDistanceRate = 10f;
+        if (brakeLightSmoothing < 0.5f) brakeLightSmoothing = 8f;
 
         InitializeBoostEffects();
         InitializeBrakeLights();
@@ -155,14 +159,16 @@ public class CarEffects : MonoBehaviour
         if (brakeLights == null || brakeLights.Length == 0)
             return;
 
-        brakeLightsOn = false;
+        brakeLightAmount = 0f;
+        brakeLightIntensities = new float[brakeLights.Length];
 
-        foreach (Light brakeLight in brakeLights)
+        for (int i = 0; i < brakeLights.Length; i++)
         {
-            if (brakeLight != null)
-            {
-                brakeLight.enabled = false;
-            }
+            if (brakeLights[i] == null) continue;
+
+            brakeLights[i].enabled = true;
+            brakeLightIntensities[i] = brakeLights[i].intensity;
+            brakeLights[i].intensity = 0f;
         }
     }
 
@@ -171,19 +177,17 @@ public class CarEffects : MonoBehaviour
         if (brakeLights == null || brakeLights.Length == 0)
             return;
 
-        bool braking = carController.IsBraking;
+        float target = carController.IsBraking ? 1f : 0f;
+        float lerpFactor = 1f - Mathf.Exp(-Time.deltaTime * brakeLightSmoothing);
+        brakeLightAmount = Mathf.Lerp(brakeLightAmount, target, lerpFactor);
 
-        if (braking == brakeLightsOn)
-            return;
-
-        brakeLightsOn = braking;
-
-        foreach (Light brakeLight in brakeLights)
+        for (int i = 0; i < brakeLights.Length; i++)
         {
-            if (brakeLight != null)
-            {
-                brakeLight.enabled = braking;
-            }
+            Light brakeLight = brakeLights[i];
+            if (brakeLight == null) continue;
+
+            float baseIntensity = i < brakeLightIntensities.Length ? brakeLightIntensities[i] : brakeLight.intensity;
+            brakeLight.intensity = baseIntensity * brakeLightAmount;
         }
     }
 
