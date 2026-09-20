@@ -77,6 +77,8 @@ public class CarController : MonoBehaviour
     public float boostHapticLow = 0.35f;
     [Tooltip("Rumble strength (right motor) while boosting with a gamepad.")]
     public float boostHapticHigh = 0.45f;
+    [Tooltip("How long the boost rumble lasts when boost starts.")]
+    public float boostHapticDuration = 0.3f;
     [Tooltip("Rumble strength (left motor) when killing a zombie.")]
     public float killHapticLow = 0.4f;
     [Tooltip("Rumble strength (right motor) when killing a zombie.")]
@@ -89,7 +91,9 @@ public class CarController : MonoBehaviour
     private float rawThrottle;
     private float rawBrakeControl;
     private bool isHandbraking;
+    private bool wasBoosting;
     private float remainingKillRumble;
+    private float remainingBoostRumble;
 
     public bool IsBoosting { get; private set; }
     public bool IsDrifting { get; private set; }
@@ -432,11 +436,17 @@ public class CarController : MonoBehaviour
     {
         if (Gamepad.current == null) return;
 
+        if (IsBoosting && !wasBoosting)
+            remainingBoostRumble = boostHapticDuration;
+
+        wasBoosting = IsBoosting;
+
         float low = 0f;
         float high = 0f;
 
-        if (IsBoosting)
+        if (remainingBoostRumble > 0f)
         {
+            remainingBoostRumble = Mathf.Max(0f, remainingBoostRumble - Time.deltaTime);
             low += boostHapticLow;
             high += boostHapticHigh;
         }
