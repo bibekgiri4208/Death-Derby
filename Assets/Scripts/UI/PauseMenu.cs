@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -34,6 +35,10 @@ public class PauseMenu : MonoBehaviour
         new Keyframe(0.6f, 0.92f, 0.55f, 0.55f),
         new Keyframe(1f, 1f, 0f, 0f));
 
+    [Header("FPS Meter Toggle")]
+    [Tooltip("Player preference key used to remember the FPS meter on/off state.")]
+    [SerializeField] private string fpsMeterPrefsKey = "FpsMeterEnabled";
+
     public static bool IsPaused { get; private set; }
 
     private float lastEscPressTime = -Mathf.Infinity;
@@ -44,6 +49,8 @@ public class PauseMenu : MonoBehaviour
     private CanvasGroup mainMenuGroup;
     private CanvasGroup optionsGroup;
     private Coroutine panelTransition;
+    private FpsCounter cachedFpsCounter;
+    private TMP_Text cachedFpsMeterLabel;
 
     private void Awake()
     {
@@ -71,6 +78,7 @@ public class PauseMenu : MonoBehaviour
     private void Start()
     {
         PauseGame(false);
+        ApplySavedFpsMeterState();
     }
 
     private void Update()
@@ -80,6 +88,17 @@ public class PauseMenu : MonoBehaviour
 
     private void HandleInput()
     {
+        bool optionsOpen = optionsMenu != null && optionsMenu.activeSelf;
+
+        // Escape / B (gamepad) closes the Options menu back to the main pause menu
+        if (optionsOpen && (Input.GetKeyDown(KeyCode.Escape) ||
+            (Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame)))
+        {
+            lastEscPressTime = -Mathf.Infinity;
+            CloseOptions();
+            return;
+        }
+
         // Keyboard: Escape (double press)
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -373,5 +392,89 @@ public class PauseMenu : MonoBehaviour
     {
         if (audioSource != null && audioSource.clip != null)
             audioSource.PlayOneShot(audioSource.clip);
+    }
+
+    public void ToggleFpsMeter()
+    {
+        FpsCounter counter = GetFpsCounter();
+        if (counter == null) return;
+
+        bool enabled = !counter.gameObject.activeSelf;
+        counter.gameObject.SetActive(enabled);
+        PlayerPrefs.SetInt(fpsMeterPrefsKey, enabled ? 1 : 0);
+        PlayerPrefs.Save();
+        UpdateFpsMeterLabel(enabled);
+    }
+
+    private void ApplySavedFpsMeterState()
+    {
+        FpsCounter counter = GetFpsCounter();
+        if (counter == null) return;
+
+        bool enabled;
+        if (PlayerPrefs.HasKey(fpsMeterPrefsKey))
+        {
+            enabled = PlayerPrefs.GetInt(fpsMeterPrefsKey) == 1;
+        }
+        else
+        {
+            enabled = counter.gameObject.activeSelf;
+            PlayerPrefs.SetInt(fpsMeterPrefsKey, enabled ? 1 : 0);
+            PlayerPrefs.Save();
+        }
+
+        if (counter.gameObject.activeSelf != enabled)
+            counter.gameObject.SetActive(enabled);
+
+        UpdateFpsMeterLabel(enabled);
+    }
+
+    private FpsCounter GetFpsCounter()
+    {
+        if (cachedFpsCounter != null) return cachedFpsCounter;
+
+        FpsCounter[] all = Resources.FindObjectsOfTypeAll<FpsCounter>();
+        foreach (FpsCounter candidate in all)
+        {
+            if (candidate.gameObject.scene.IsValid() && candidate.gameObject.scene.isLoaded)
+            {
+                cachedFpsCounter = candidate;
+                return cachedFpsCounter;
+            }
+        }
+        return null;
+    }
+
+    private TMP_Text GetFpsMeterLabel()
+    {
+        if (cachedFpsMeterLabel != null) return cachedFpsMeterLabel;
+        if (optionsMenu == null) return null;
+
+        Transform labelTransform = FindChildByName(optionsMenu.transform, "Fps Text");
+        if (labelTransform != null)
+            cachedFpsMeterLabel = labelTransform.GetComponentInChildren<TMP_Text>(true);
+
+        return cachedFpsMeterLabel;
+    }
+
+    private static Transform FindChildByName(Transform parent, string name)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.name == name)
+                return child;
+
+            Transform nested = FindChildByName(child, name);
+            if (nested != null)
+                return nested;
+        }
+        return null;
+    }
+
+    private void UpdateFpsMeterLabel(bool enabled)
+    {
+        TMP_Text label = GetFpsMeterLabel();
+        if (label != null)
+            label.text = enabled ? "Fps: ON" : "Fps: OFF";
     }
 }
