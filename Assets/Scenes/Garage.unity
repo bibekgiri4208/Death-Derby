@@ -839,6 +839,7 @@ GameObject:
   - component: {fileID: 252511066}
   - component: {fileID: 252511065}
   - component: {fileID: 252511064}
+  - component: {fileID: 252511068}
   m_Layer: 0
   m_Name: Music Cube
   m_TagString: Untagged
@@ -886,7 +887,19 @@ MonoBehaviour:
   clickSound: {fileID: 8300000, guid: c0c945abf5e1c2b408daab67511299cc, type: 3}
   onClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 252511068}
+        m_TargetAssemblyTypeName: MusicMenuToggle, Assembly-CSharp
+        m_MethodName: ToggleMusic
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!65 &252511065
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -965,6 +978,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 252511062}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &252511068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 252511062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64c1f7a2b3e84d9f9e0a2b5c6d7e8f9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MusicMenuToggle
+  musicAudioSource: {fileID: 7601293725626915562}
+  statusLabel: {fileID: 493228676}
 --- !u!1 &263558139
 GameObject:
   m_ObjectHideFlags: 0
@@ -2170,7 +2197,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Music
+  m_text: On
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d607877e7a66bbf4089911a30ddf867f, type: 2}
   m_sharedMaterial: {fileID: 30965821062046865, guid: d607877e7a66bbf4089911a30ddf867f,
