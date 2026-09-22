@@ -5269,6 +5269,7 @@ GameObject:
   - component: {fileID: 1024158526}
   - component: {fileID: 1024158525}
   - component: {fileID: 1024158524}
+  - component: {fileID: 1024158528}
   m_Layer: 0
   m_Name: Shadow Cube
   m_TagString: Untagged
@@ -5316,7 +5317,19 @@ MonoBehaviour:
   clickSound: {fileID: 8300000, guid: c0c945abf5e1c2b408daab67511299cc, type: 3}
   onClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1024158528}
+        m_TargetAssemblyTypeName: ShadowToggle, Assembly-CSharp
+        m_MethodName: ToggleShadows
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!65 &1024158525
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5395,6 +5408,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1024158522}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1024158528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1024158522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e49181acd9bb4e4b9b4a994a1ba10e8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShadowToggle
+  mainLight: {fileID: 614670265}
+  shadowsEnabled: 1
+  playerPrefsKey: ShadowsEnabled
 --- !u!1 &1030451830
 GameObject:
   m_ObjectHideFlags: 0
