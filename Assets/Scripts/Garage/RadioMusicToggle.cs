@@ -17,6 +17,7 @@ public class RadioMusicToggle : MonoBehaviour
     public float pulseAmount = 0.05f; // How much they expand (0.05 = 5% bigger)
 
     private Vector3[] originalScales;
+    private bool particlesPlayState;
 
     void Start()
     {
@@ -74,6 +75,9 @@ public class RadioMusicToggle : MonoBehaviour
                 }
             }
         }
+
+        // Keep particle effects in sync with the music state (handles toggles from the 3D menu too)
+        SyncParticles(isMusicPlaying);
     }
 
     private void ResetSpeakerScale(Transform speaker, Vector3 originalScale)
@@ -104,8 +108,16 @@ public class RadioMusicToggle : MonoBehaviour
 
     private void UpdateParticles()
     {
-        // If music is NOT muted (playing), play particles; otherwise stop them
         bool shouldPlay = !radioAudioSource.mute && radioAudioSource.isPlaying;
+
+        SyncParticles(shouldPlay);
+    }
+
+    private void SyncParticles(bool shouldPlay)
+    {
+        if (particlesPlayState == shouldPlay) return;
+
+        particlesPlayState = shouldPlay;
 
         SetParticleState(particleEffect1, shouldPlay);
         SetParticleState(particleEffect2, shouldPlay);
