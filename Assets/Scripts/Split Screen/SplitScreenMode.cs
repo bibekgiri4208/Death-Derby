@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -33,7 +34,16 @@ public class SplitScreenMode : MonoBehaviour
     [Tooltip("Second camera for the right-hand split. Leave empty to duplicate Player 1's camera.")]
     public Camera player2Camera;
 
+    [Header("Screen Divider")]
+    [Tooltip("Draws a vertical line between the two split-screen halves.")]
+    public bool showDivider = true;
+    [Tooltip("Color of the divider line.")]
+    public Color dividerColor = new Color(0f, 0f, 0f, 1f);
+    [Tooltip("Width (in screen pixels) of the divider line.")]
+    public float dividerWidth = 4f;
+
     private static readonly List<Transform> players = new List<Transform>();
+    private GameObject dividerObject;
 
     public static Gamepad GetPad(int playerIndex)
     {
@@ -146,6 +156,12 @@ public class SplitScreenMode : MonoBehaviour
             players.Add(player2.transform);
 
         SetupCameras(player1, player2);
+
+        SetupKillCounters();
+        SetupKillStreakPopups();
+
+        if (showDivider)
+            CreateScreenDivider();
     }
 
     private GameObject ResolvePlayer2Car(CarController player1, out bool createdObject)
@@ -240,6 +256,164 @@ public class SplitScreenMode : MonoBehaviour
             Debug.LogError("SplitScreenMode: no camera found to split.", this);
     }
 
+    private void SetupKillCounters()
+    {
+        KillCounter[] counters = FindObjectsByType<KillCounter>();
+        if (counters.Length == 0)
+            return;
+
+        KillCounter p1 = null;
+        KillCounter p2 = null;
+        foreach (KillCounter counter in counters)
+        {
+            if (counter.PlayerIndex == 1)
+                p2 = counter;
+            else if (p1 == null)
+                p1 = counter;
+        }
+
+        if (p1 == null)
+            return;
+
+        if (p2 == null && p1.KillCountText != null)
+        {
+            Transform parent = p1.transform.parent;
+
+            GameObject p2CounterGo = Instantiate(p1.gameObject, parent);
+            p2CounterGo.name = p1.gameObject.name + " (Player 2)";
+            p2CounterGo.transform.SetAsLastSibling();
+
+            KillCounter clone = p2CounterGo.GetComponent<KillCounter>();
+            TextMeshProUGUI cloneText = p2CounterGo.GetComponent<TextMeshProUGUI>();
+            if (clone != null && cloneText != null)
+                clone.Configure(cloneText, 1);
+
+            p2 = clone;
+        }
+
+        AnchorCounterOnScreenHalf(p1.GetComponent<RectTransform>(), leftHalf: true);
+        if (p2 != null)
+            AnchorCounterOnScreenHalf(p2.GetComponent<RectTransform>(), leftHalf: false);
+    }
+
+    private static void AnchorCounterOnScreenHalf(RectTransform rt, bool leftHalf)
+    {
+        if (rt == null)
+            return;
+
+        rt.anchorMin = new Vector2(0.5f, rt.anchorMin.y);
+        rt.anchorMax = new Vector2(0.5f, rt.anchorMax.y);
+        rt.pivot = new Vector2(leftHalf ? 1f : 0f, rt.pivot.y);
+
+        Vector2 position = rt.anchoredPosition;
+        position.x = leftHalf ? -60f : 60f;
+        rt.anchoredPosition = position;
+    }
+
+    private void SetupKillStreakPopups()
+    {
+        KillStreakPopup[] popups = FindObjectsByType<KillStreakPopup>();
+        if (popups.Length == 0)
+            return;
+
+        KillStreakPopup p1 = null;
+        KillStreakPopup p2 = null;
+        foreach (KillStreakPopup popup in popups)
+        {
+            if (popup.PlayerIndex == 1)
+                p2 = popup;
+            else if (p1 == null)
+                p1 = popup;
+        }
+
+        if (p1 == null)
+            return;
+
+        if (p2 == null)
+        {
+            GameObject p2PopupGo = Instantiate(p1.gameObject, p1.transform.parent);
+            p2PopupGo.name = p1.gameObject.name + " (Player 2)";
+            p2PopupGo.transform.SetAsLastSibling();
+
+            KillStreakPopup clone = p2PopupGo.GetComponent<KillStreakPopup>();
+            if (clone != null)
+                clone.Configure(1);
+
+            p2 = clone;
+        }
+
+        AnchorPopupOnScreenHalf(p1.GetComponent<RectTransform>(), leftHalf: true);
+        if (p2 != null)
+            AnchorPopupOnScreenHalf(p2.GetComponent<RectTransform>(), leftHalf: false);
+    }
+
+    private static void AnchorPopupOnScreenHalf(RectTransform rt, bool leftHalf)
+    {
+        if (rt == null)
+            return;
+
+        Vector2 anchor = new Vector2(leftHalf ? 0.25f : 0.75f, rt.anchorMin.y);
+        rt.anchorMin = anchor;
+        rt.anchorMax = anchor;
+
+        Vector2 position = rt.anchoredPosition;
+        position.x = 0f;
+        position.y = -180f;
+        rt.anchoredPosition = position;
+    }
+
+    private void CreateScreenDivider()
+    {
+        if (dividerObject == null)
+        {
+            foreach (UnityEngine.UI.Image existing in FindObjectsByType<UnityEngine.UI.Image>())
+            {
+                if (existing.gameObject.name == "Split Screen Divider")
+                {
+                    dividerObject = existing.gameObject;
+                    break;
+                }
+            }
+        }
+
+        if (dividerObject != null)
+        {
+            dividerObject.GetComponent<UnityEngine.UI.Image>().color = dividerColor;
+            return;
+        }
+
+        Canvas canvas = FindAnyObjectByType<Canvas>();
+        if (canvas == null)
+        {
+            GameObject canvasGo = new GameObject(
+                "Split Screen Divider Canvas",
+                typeof(Canvas),
+                typeof(UnityEngine.UI.CanvasScaler));
+            canvas = canvasGo.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        }
+
+        GameObject dividerGo = new GameObject(
+            "Split Screen Divider",
+            typeof(RectTransform),
+            typeof(UnityEngine.UI.Image));
+
+        RectTransform rect = dividerGo.GetComponent<RectTransform>();
+        rect.SetParent(canvas.transform, false);
+        rect.anchorMin = new Vector2(0.5f, 0f);
+        rect.anchorMax = new Vector2(0.5f, 1f);
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.offsetMin = new Vector2(-dividerWidth * 0.5f, 0f);
+        rect.offsetMax = new Vector2(dividerWidth * 0.5f, 0f);
+
+        UnityEngine.UI.Image image = dividerGo.GetComponent<UnityEngine.UI.Image>();
+        image.color = dividerColor;
+        image.raycastTarget = false;
+
+        dividerGo.transform.SetAsLastSibling();
+        dividerObject = dividerGo;
+    }
+
     private void OnDestroy()
     {
         if (!Active)
@@ -247,6 +421,9 @@ public class SplitScreenMode : MonoBehaviour
 
         Active = false;
         players.Clear();
+
+        if (dividerObject != null)
+            Destroy(dividerObject);
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

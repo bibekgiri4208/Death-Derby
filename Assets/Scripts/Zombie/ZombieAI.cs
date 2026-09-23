@@ -4,7 +4,7 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class ZombieAI : MonoBehaviour
 {
-    public static event System.Action OnZombieKilled;
+    public static event System.Action<int> OnZombieKilled;
 
     [Header("Targeting")]
     public Transform playerCar;
@@ -221,12 +221,12 @@ public class ZombieAI : MonoBehaviour
         }
     }
 
-    public void KillZombie()
+    public void KillZombie(int killerPlayerIndex = -1)
     {
         if (isDead) return;
         isDead = true;
 
-        OnZombieKilled?.Invoke();
+        OnZombieKilled?.Invoke(killerPlayerIndex);
 
         BloodDecal.Spawn(transform.position);
         BloodSplash.Spawn(transform.position + Vector3.up * 0.15f, Quaternion.identity);
