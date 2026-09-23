@@ -85,10 +85,17 @@ public class ZombieAI : MonoBehaviour
     {
         if (playerCar == null)
         {
-            GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
-            if (playerObj != null)
+            if (SplitScreenMode.Active)
             {
-                playerCar = playerObj.transform;
+                playerCar = SplitScreenMode.GetNearestPlayer(transform.position);
+            }
+            else
+            {
+                GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
+                if (playerObj != null)
+                {
+                    playerCar = playerObj.transform;
+                }
             }
         }
 
@@ -97,6 +104,9 @@ public class ZombieAI : MonoBehaviour
 
     void Update()
     {
+        if (playerCar == null && SplitScreenMode.Active)
+            playerCar = SplitScreenMode.GetNearestPlayer(transform.position);
+
         if (isDead || playerCar == null) return;
 
         if (attackCooldownTimer > 0f)
