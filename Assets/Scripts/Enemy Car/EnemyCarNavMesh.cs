@@ -19,7 +19,11 @@ public class EnemyCarNavMesh : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
 
         // Auto-find player by tag if not assigned
-        if (playerTarget == null)
+        if (SplitScreenMode.Active)
+        {
+            playerTarget = SplitScreenMode.GetNearestPlayer(transform.position);
+        }
+        else if (playerTarget == null)
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             if (player != null)
@@ -31,6 +35,13 @@ public class EnemyCarNavMesh : MonoBehaviour
 
     void Update()
     {
+        if (SplitScreenMode.Active)
+        {
+            Transform nearest = SplitScreenMode.GetNearestPlayer(transform.position);
+            if (nearest != null && nearest != playerTarget)
+                playerTarget = nearest;
+        }
+
         if (playerTarget == null) return;
 
         // Only recalculate the path occasionally to save performance
