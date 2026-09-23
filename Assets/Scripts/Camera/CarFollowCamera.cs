@@ -6,6 +6,10 @@ public class CarFollowCamera : MonoBehaviour
     [Header("Target")]
     public Transform target;
 
+    [Header("Split Screen")]
+    [Tooltip("Gamepad index used when SplitScreenMode is active (0 = first gamepad, 1 = second).")]
+    public int playerIndex = 0;
+
     [Header("Camera Position")]
     public Vector3 offset = new Vector3(0f, 3f, -7f);
     public float followSmoothness = 12f;
@@ -87,11 +91,20 @@ public class CarFollowCamera : MonoBehaviour
             LockCursor();
         }
 
-        if (Keyboard.current != null && Keyboard.current.vKey.wasPressedThisFrame)
-            isFixedCam = !isFixedCam;
+        if (SplitScreenMode.Active)
+        {
+            Gamepad pad = SplitScreenMode.GetPad(playerIndex);
+            if (pad != null && pad.buttonNorth.wasPressedThisFrame)
+                isFixedCam = !isFixedCam;
+        }
+        else
+        {
+            if (Keyboard.current != null && Keyboard.current.vKey.wasPressedThisFrame)
+                isFixedCam = !isFixedCam;
 
-        if (Gamepad.current != null && Gamepad.current.buttonNorth.wasPressedThisFrame)
-            isFixedCam = !isFixedCam;
+            if (Gamepad.current != null && Gamepad.current.buttonNorth.wasPressedThisFrame)
+                isFixedCam = !isFixedCam;
+        }
     }
 
     private void LateUpdate()
@@ -112,6 +125,25 @@ public class CarFollowCamera : MonoBehaviour
 
     private void HandleMouseLook()
     {
+        if (SplitScreenMode.Active)
+        {
+            Vector2 padLook = Vector2.zero;
+
+            Gamepad pad = SplitScreenMode.GetPad(playerIndex);
+            if (pad != null)
+            {
+                Vector2 rightStick = pad.rightStick.ReadValue();
+
+                padLook.x += rightStick.x * 120f * Time.deltaTime;
+                padLook.y += rightStick.y * 120f * Time.deltaTime;
+            }
+
+            yaw += padLook.x;
+            pitch -= padLook.y;
+            ClampPitch();
+            return;
+        }
+
         if (Keyboard.current != null &&
             Keyboard.current.leftAltKey.isPressed)
         {
@@ -136,6 +168,11 @@ public class CarFollowCamera : MonoBehaviour
         yaw += lookInput.x;
         pitch -= lookInput.y;
 
+        ClampPitch();
+    }
+
+    private void ClampPitch()
+    {
         float verticalPitch = Mathf.Atan2(-currentOffset.z, currentOffset.y) * Mathf.Rad2Deg;
         float maxSafePitch = verticalPitch - pitchSafeGap;
 
@@ -252,6 +289,12 @@ public class CarFollowCamera : MonoBehaviour
 
     private bool IsBoostActive()
     {
+        if (SplitScreenMode.Active)
+        {
+            Gamepad pad = SplitScreenMode.GetPad(playerIndex);
+            return pad != null && pad.buttonSouth.isPressed;
+        }
+
         if (Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed)
             return true;
 
