@@ -91,8 +91,7 @@ public class PauseMenu : MonoBehaviour
         bool optionsOpen = optionsMenu != null && optionsMenu.activeSelf;
 
         // Escape / B (gamepad) closes the Options menu back to the main pause menu
-        if (optionsOpen && (Input.GetKeyDown(KeyCode.Escape) ||
-            (Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame)))
+        if (optionsOpen && (Input.GetKeyDown(KeyCode.Escape) || AnyGamepadEastPressed()))
         {
             lastEscPressTime = -Mathf.Infinity;
             CloseOptions();
@@ -118,13 +117,44 @@ public class PauseMenu : MonoBehaviour
         }
 
         // Gamepad: Start/Options button (single press)
-        if (Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame)
+        if (AnyGamepadStartPressed())
         {
             if (!IsPaused)
                 PauseGame(true);
             else
                 PauseGame(false);
         }
+    }
+
+    // In split screen either player can pause/unpause with their gamepad.
+    private static bool AnyGamepadStartPressed()
+    {
+        if (SplitScreenMode.Active)
+        {
+            foreach (Gamepad pad in Gamepad.all)
+            {
+                if (pad.startButton.wasPressedThisFrame)
+                    return true;
+            }
+            return false;
+        }
+
+        return Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame;
+    }
+
+    private static bool AnyGamepadEastPressed()
+    {
+        if (SplitScreenMode.Active)
+        {
+            foreach (Gamepad pad in Gamepad.all)
+            {
+                if (pad.buttonEast.wasPressedThisFrame)
+                    return true;
+            }
+            return false;
+        }
+
+        return Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame;
     }
 
     public void PauseGame(bool pause)
