@@ -72,6 +72,10 @@ public class CarController : MonoBehaviour
     [Tooltip("Minimum speed in km/h to kill a zombie on impact.")]
     public float killSpeedKmh = 10f;
 
+    [Header("Split Screen")]
+    [Tooltip("Gamepad index used when SplitScreenMode is active (0 = first gamepad, 1 = second).")]
+    public int playerIndex = 0;
+
     [Header("Gamepad Haptics")]
     [Tooltip("Rumble strength (left motor) while boosting with a gamepad.")]
     public float boostHapticLow = 0.35f;
@@ -157,6 +161,43 @@ public class CarController : MonoBehaviour
         verticalInput = 0f;
         rawThrottle = 0f;
         rawBrakeControl = 0f;
+
+        // Split screen: each player uses their own gamepad only
+        if (SplitScreenMode.Active)
+        {
+            isHandbraking = false;
+            IsBoosting = false;
+
+            Gamepad gamepad = SplitScreenMode.GetPad(playerIndex);
+            if (gamepad != null)
+            {
+                Vector2 leftStick = gamepad.leftStick.ReadValue();
+
+                float r2 = gamepad.rightTrigger.ReadValue();
+                float l2 = gamepad.leftTrigger.ReadValue();
+
+                horizontalInput += leftStick.x;
+                verticalInput += r2 - l2;
+                rawThrottle += r2;
+                rawBrakeControl += l2;
+
+                if (gamepad.buttonSouth.isPressed)
+                {
+                    IsBoosting = true;
+                }
+
+                if (gamepad.buttonWest.isPressed)
+                {
+                    isHandbraking = true;
+                }
+            }
+
+            horizontalInput = Mathf.Clamp(horizontalInput, -1f, 1f);
+            verticalInput = Mathf.Clamp(verticalInput, -1f, 1f);
+            rawThrottle = Mathf.Clamp01(rawThrottle);
+            rawBrakeControl = Mathf.Clamp01(rawBrakeControl);
+            return;
+        }
 
         // Keyboard steering
         if (Keyboard.current != null)
@@ -434,7 +475,8 @@ public class CarController : MonoBehaviour
 
     private void UpdateHaptics()
     {
-        if (Gamepad.current == null) return;
+        Gamepad gamepad = SplitScreenMode.Active ? SplitScreenMode.GetPad(playerIndex) : Gamepad.current;
+        if (gamepad == null) return;
 
         if (IsBoosting && !wasBoosting)
             remainingBoostRumble = boostHapticDuration;
@@ -458,14 +500,15 @@ public class CarController : MonoBehaviour
             high += killHapticHigh;
         }
 
-        Gamepad.current.SetMotorSpeeds(Mathf.Clamp01(low), Mathf.Clamp01(high));
+        gamepad.SetMotorSpeeds(Mathf.Clamp01(low), Mathf.Clamp01(high));
     }
 
     private void OnDisable()
     {
-        if (Gamepad.current != null)
+        Gamepad gamepad = SplitScreenMode.Active ? SplitScreenMode.GetPad(playerIndex) : Gamepad.current;
+        if (gamepad != null)
         {
-            Gamepad.current.SetMotorSpeeds(0f, 0f);
+            gamepad.SetMotorSpeeds(0f, 0f);
         }
     }
 }
