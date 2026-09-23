@@ -15,6 +15,10 @@ public class KillStreakPopup : MonoBehaviour
     [Header("Milestones")]
     [SerializeField] private Milestone[] milestones;
 
+    [Header("Split Screen")]
+    [Tooltip("Which player this popup belongs to (-1 = all kills, 0/1 = specific player).")]
+    [SerializeField] private int playerIndex = 0;
+
     [Header("Popup UI")]
     [SerializeField] private TextMeshProUGUI popupText;
     [Min(1f)]
@@ -47,6 +51,13 @@ public class KillStreakPopup : MonoBehaviour
     private Vector2 basePosition;
     private Color baseColor;
     private Color baseColorSolid;
+
+    public int PlayerIndex => playerIndex;
+
+    public void Configure(int player)
+    {
+        playerIndex = player;
+    }
 
     private void Reset()
     {
@@ -100,8 +111,11 @@ public class KillStreakPopup : MonoBehaviour
         }
     }
 
-    private void OnZombieKilled()
+    private void OnZombieKilled(int killerPlayerIndex)
     {
+        if (playerIndex >= 0 && killerPlayerIndex != playerIndex)
+            return;
+
         killCount++;
         if (milestones == null || nextMilestoneIndex >= milestones.Length) return;
         if (killCount >= milestones[nextMilestoneIndex].killCount)
@@ -193,7 +207,7 @@ public class KillStreakPopup : MonoBehaviour
         rt.anchorMin = new Vector2(0.5f, 1f);
         rt.anchorMax = new Vector2(0.5f, 1f);
         rt.pivot = new Vector2(0.5f, 0.5f);
-        rt.anchoredPosition = new Vector2(0f, -70f);
+        rt.anchoredPosition = new Vector2(0f, -180f);
         rt.sizeDelta = new Vector2(900f, 140f);
 
         TextMeshProUGUI text = holder.AddComponent<TextMeshProUGUI>();

@@ -8,6 +8,10 @@ public class KillCounter : MonoBehaviour
     [SerializeField] private TextMeshProUGUI killCountText;
     [SerializeField] private string textPrefix = "";
 
+    [Header("Split Screen")]
+    [Tooltip("Which player this counter belongs to (-1 = count environment kills, 0/1 = specific player).")]
+    [SerializeField] private int playerIndex = 0;
+
     [Header("Pop Animation")]
     [Min(0.05f)]
     [SerializeField] private float popDuration = 0.35f;
@@ -22,6 +26,16 @@ public class KillCounter : MonoBehaviour
     private int killCount;
     private Vector3 baseScale;
     private Coroutine popRoutine;
+
+    public TextMeshProUGUI KillCountText => killCountText;
+
+    public int PlayerIndex => playerIndex;
+
+    public void Configure(TextMeshProUGUI text, int player)
+    {
+        killCountText = text;
+        playerIndex = player;
+    }
 
     private void OnEnable()
     {
@@ -47,8 +61,11 @@ public class KillCounter : MonoBehaviour
         UpdateText();
     }
 
-    private void OnZombieKilled()
+    private void OnZombieKilled(int killerPlayerIndex)
     {
+        if (playerIndex >= 0 && killerPlayerIndex != playerIndex)
+            return;
+
         killCount++;
         UpdateText();
         PlayPopAnimation();
