@@ -468,7 +468,7 @@ public class CarController : MonoBehaviour
         float currentSpeedKmh = CarRigidbody.linearVelocity.magnitude * 3.6f;
         if (currentSpeedKmh >= killSpeedKmh)
         {
-            zombie.KillZombie();
+            zombie.KillZombie(playerIndex);
             remainingKillRumble = killHapticDuration;
         }
     }
