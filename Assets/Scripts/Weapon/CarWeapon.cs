@@ -18,6 +18,10 @@ public class CarWeapon : MonoBehaviour
     [Header("Shooting")]
     public float fireRate = 0.12f;
 
+    [Header("Split Screen")]
+    [Tooltip("Gamepad index used when SplitScreenMode is active (0 = first gamepad, 1 = second).")]
+    public int playerIndex = 0;
+
     private float nextFireTime;
     private Collider[] ownerColliders;
     private float originalGunVolume;
@@ -47,16 +51,27 @@ public class CarWeapon : MonoBehaviour
 
     private void Update()
     {
-        bool altPressed =
-            Keyboard.current != null &&
-            Keyboard.current.leftAltKey.isPressed;
+        bool isFiring;
 
-        bool isFiring =
-            !altPressed &&
-            (
-                (Mouse.current != null && Mouse.current.leftButton.isPressed) ||
-                (Gamepad.current != null && Gamepad.current.rightShoulder.isPressed)
-            );
+        // Split screen: each player fires with their own gamepad's right shoulder button
+        if (SplitScreenMode.Active)
+        {
+            Gamepad pad = SplitScreenMode.GetPad(playerIndex);
+            isFiring = pad != null && pad.rightShoulder.isPressed;
+        }
+        else
+        {
+            bool altPressed =
+                Keyboard.current != null &&
+                Keyboard.current.leftAltKey.isPressed;
+
+            isFiring =
+                !altPressed &&
+                (
+                    (Mouse.current != null && Mouse.current.leftButton.isPressed) ||
+                    (Gamepad.current != null && Gamepad.current.rightShoulder.isPressed)
+                );
+        }
 
         if (isFiring)
         {

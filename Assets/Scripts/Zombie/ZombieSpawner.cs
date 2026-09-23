@@ -29,10 +29,17 @@ public class ZombieSpawner : MonoBehaviour
     {
         if (playerCar == null)
         {
-            GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
-            if (playerObj != null)
+            if (SplitScreenMode.Active)
             {
-                playerCar = playerObj.transform;
+                playerCar = SplitScreenMode.GetNearestPlayer(transform.position);
+            }
+            else
+            {
+                GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
+                if (playerObj != null)
+                {
+                    playerCar = playerObj.transform;
+                }
             }
         }
 
@@ -53,11 +60,28 @@ public class ZombieSpawner : MonoBehaviour
 
             UpdateAliveCount();
 
-            if (currentAliveZombies < maxZombiesInScene && playerCar != null)
+            if (currentAliveZombies < maxZombiesInScene && HasAnyPlayer())
             {
                 SpawnFromSpawnPoint();
             }
         }
+    }
+
+    private bool HasAnyPlayer()
+    {
+        if (SplitScreenMode.Active)
+            return SplitScreenMode.GetNearestPlayer(transform.position) != null;
+        return playerCar != null;
+    }
+
+    private float DistanceToNearestPlayer(Vector3 worldPos)
+    {
+        if (SplitScreenMode.Active)
+        {
+            Transform nearest = SplitScreenMode.GetNearestPlayer(worldPos);
+            return nearest != null ? Vector3.Distance(worldPos, nearest.position) : -1f;
+        }
+        return playerCar != null ? Vector3.Distance(worldPos, playerCar.position) : -1f;
     }
 
     private void SpawnFromSpawnPoint()
@@ -71,7 +95,7 @@ public class ZombieSpawner : MonoBehaviour
         {
             if (sp == null) continue;
 
-            float distToPlayer = Vector3.Distance(sp.position, playerCar.position);
+            float distToPlayer = DistanceToNearestPlayer(sp.position);
 
             if (distToPlayer >= minDistanceFromPlayer && distToPlayer <= maxDistanceFromPlayer)
             {
@@ -148,7 +172,9 @@ public class ZombieSpawner : MonoBehaviour
                 ZombieAI ai = newZombie.GetComponent<ZombieAI>();
                 if (ai != null)
                 {
-                    ai.playerCar = playerCar;
+                    ai.playerCar = SplitScreenMode.Active
+                        ? SplitScreenMode.GetNearestPlayer(chosenPoint.position)
+                        : playerCar;
                     ai.playerTag = playerTag;
                 }
 

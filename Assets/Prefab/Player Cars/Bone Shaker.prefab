@@ -36886,7 +36886,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0.712
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -37062,8 +37062,10 @@ MonoBehaviour:
   driftMinSpeed: 5
   driftFrictionSmoothing: 8
   killSpeedKmh: 10
+  playerIndex: 0
   boostHapticLow: 0.35
   boostHapticHigh: 0.45
+  boostHapticDuration: 0.3
   killHapticLow: 0.4
   killHapticHigh: 0.35
   killHapticDuration: 0.25
@@ -37146,7 +37148,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -37205,6 +37207,7 @@ MonoBehaviour:
   brakeLights:
   - {fileID: 381824397113039672}
   - {fileID: 9056496836571459345}
+  brakeLightSmoothing: 8
   desertSmokeEffects:
   - {fileID: 2080741044288939509}
   - {fileID: 4514186674657659219}
@@ -37215,6 +37218,7 @@ MonoBehaviour:
   minSmokeSpeed: 8
   emissionSmoothing: 5
   maxSmokeDistanceRate: 10
+  airborneFadeSmoothing: 8
 --- !u!1 &4821941054992882418
 GameObject:
   m_ObjectHideFlags: 0
