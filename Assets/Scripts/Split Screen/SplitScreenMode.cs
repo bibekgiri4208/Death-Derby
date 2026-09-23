@@ -8,7 +8,7 @@ public class SplitScreenMode : MonoBehaviour
 {
     public static bool Active { get; private set; }
 
-    private const string AutoEnableSceneName = "TopDown";
+    private const string AutoEnableSceneName = "Coop";
     private const string DefaultPlayerPrefsKey = "SplitScreenMode";
 
     [Header("Enable")]
@@ -412,6 +412,25 @@ public class SplitScreenMode : MonoBehaviour
 
         dividerGo.transform.SetAsLastSibling();
         dividerObject = dividerGo;
+    }
+
+    public void SetDividerVisible(bool visible)
+    {
+        if (visible && dividerObject == null)
+            CreateScreenDivider();
+
+        if (dividerObject != null)
+            dividerObject.SetActive(visible);
+    }
+
+    public static void SetSplitScreenDividerVisible(bool visible)
+    {
+        if (!Active)
+            return;
+
+        SplitScreenMode split = FindAnyObjectByType<SplitScreenMode>();
+        if (split != null)
+            split.SetDividerVisible(visible);
     }
 
     private void OnDestroy()

@@ -186,6 +186,8 @@ public class PauseMenu : MonoBehaviour
         mainPauseMenu.SetActive(pause);
         optionsMenu.SetActive(false);
 
+        SplitScreenMode.SetSplitScreenDividerVisible(!pause);
+
         if (pause)
         {
             previousLockMode = Cursor.lockState;
