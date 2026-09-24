@@ -137,7 +137,21 @@ public class SplitScreenMode : MonoBehaviour
     {
         Active = true;
 
-        CarController player1 = FindAnyObjectByType<CarController>();
+        CarController player2FromField = player2Car != null ? player2Car.GetComponent<CarController>() : null;
+
+        CarController player1 = null;
+        CarController[] cars = FindObjectsByType<CarController>();
+        foreach (CarController car in cars)
+        {
+            if (player2FromField != null && car.transform == player2FromField.transform)
+                continue;
+            player1 = car;
+            break;
+        }
+
+        if (player1 == null && cars.Length > 0)
+            player1 = cars[0];
+
         if (player1 == null)
         {
             Debug.LogError("SplitScreenMode: no CarController found to assign as Player 1.", this);

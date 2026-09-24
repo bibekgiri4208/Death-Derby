@@ -30,6 +30,9 @@ public class ZombieAI : MonoBehaviour
     [Tooltip("Normalized time in the attack animation at which the damage lands.")]
     [Range(0f, 1f)]
     public float attackDamageLandTime = 0.6f;
+    [Tooltip("How close the car must be for an attacking hit to connect. Keeps drive-bys/whiffs from damaging the player.")]
+    [Min(0.1f)]
+    public float attackHitDistance = 2f;
 
     [Header("Audio")]
     public AudioClip killSound;
@@ -239,6 +242,12 @@ public class ZombieAI : MonoBehaviour
     void DamageTarget()
     {
         if (playerCar == null) return;
+
+        Vector3 toCar = playerCar.position - transform.position;
+        toCar.y = 0f;
+
+        if (toCar.sqrMagnitude > attackHitDistance * attackHitDistance)
+            return;
 
         IDamageable damageable = playerCar.GetComponentInParent<IDamageable>();
         if (damageable == null) return;
