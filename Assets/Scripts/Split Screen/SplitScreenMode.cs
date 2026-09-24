@@ -53,6 +53,24 @@ public class SplitScreenMode : MonoBehaviour
         return null;
     }
 
+    public static Transform GetPlayer(int playerIndex)
+    {
+        if (Active)
+        {
+            if (playerIndex >= 0 && playerIndex < players.Count)
+                return players[playerIndex];
+            return null;
+        }
+
+        if (playerIndex == 0)
+        {
+            GameObject tagged = GameObject.FindGameObjectWithTag("Player");
+            return tagged != null ? tagged.transform : null;
+        }
+
+        return null;
+    }
+
     public static Transform GetNearestPlayer(Vector3 from)
     {
         if (Active)

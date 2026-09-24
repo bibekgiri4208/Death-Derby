@@ -25,6 +25,11 @@ public class ZombieAI : MonoBehaviour
     public float attackDistance = 3f;
     [Tooltip("Minimum seconds between consecutive attacks.")]
     public float attackCooldown = 1f;
+    [Tooltip("Damage dealt to the player's car when an attack lands.")]
+    public float attackDamage = 5f;
+    [Tooltip("Normalized time in the attack animation at which the damage lands.")]
+    [Range(0f, 1f)]
+    public float attackDamageLandTime = 0.6f;
 
     [Header("Audio")]
     public AudioClip killSound;
@@ -41,6 +46,7 @@ public class ZombieAI : MonoBehaviour
     private float destinationUpdateTimer;
     private bool isAttacking;
     private float attackCooldownTimer;
+    private bool damageDealtThisAttack;
     private int zombieId;
     private float surroundOffset;
     private static int nextZombieId = 0;
@@ -119,7 +125,15 @@ public class ZombieAI : MonoBehaviour
             if (anim != null)
             {
                 AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
-                if ((stateInfo.IsName("Attack1") || stateInfo.IsName("Attack2")) && stateInfo.normalizedTime >= 1f)
+                bool inAttackAnimation = stateInfo.IsName("Attack1") || stateInfo.IsName("Attack2");
+
+                if (inAttackAnimation && !damageDealtThisAttack && stateInfo.normalizedTime >= attackDamageLandTime)
+                {
+                    damageDealtThisAttack = true;
+                    DamageTarget();
+                }
+
+                if (inAttackAnimation && stateInfo.normalizedTime >= 1f)
                 {
                     EndAttack();
                 }
@@ -188,6 +202,7 @@ public class ZombieAI : MonoBehaviour
     void StartAttack()
     {
         isAttacking = true;
+        damageDealtThisAttack = false;
         agent.ResetPath();
 
         if (Random.value > 0.5f)
@@ -219,6 +234,16 @@ public class ZombieAI : MonoBehaviour
             Quaternion targetRot = Quaternion.LookRotation(dir);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 8f);
         }
+    }
+
+    void DamageTarget()
+    {
+        if (playerCar == null) return;
+
+        IDamageable damageable = playerCar.GetComponentInParent<IDamageable>();
+        if (damageable == null) return;
+
+        damageable.TakeDamage(attackDamage);
     }
 
     public void KillZombie(int killerPlayerIndex = -1)
