@@ -53,7 +53,16 @@ public class Health : MonoBehaviour, IDamageable
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
 
-    private void Die()
+    /// <summary>
+    /// Resets health back to full. Used for respawn-style behaviour.
+    /// </summary>
+    public void ResetHealth()
+    {
+        currentHealth = maxHealth;
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+    }
+
+    protected virtual void Die()
     {
         Debug.Log($"{gameObject.name} died!");
         Destroy(gameObject);
