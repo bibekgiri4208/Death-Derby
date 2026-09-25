@@ -115,6 +115,53 @@ public class CarEffects : MonoBehaviour
         }
     }
 
+    private void OnDisable()
+    {
+        if (nosAudioSource != null && nosAudioSource.isPlaying)
+        {
+            nosAudioSource.Stop();
+        }
+
+        if (boostFlames != null)
+        {
+            foreach (ParticleSystem flame in boostFlames)
+            {
+                if (flame != null)
+                {
+                    flame.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                }
+            }
+        }
+
+        if (smokeEmissions != null)
+        {
+            for (int i = 0; i < smokeEmissions.Length; i++)
+            {
+                smokeEmissions[i].rateOverTime = 0f;
+                smokeEmissions[i].rateOverDistance = 0f;
+            }
+        }
+
+        if (smokeMains != null)
+        {
+            for (int i = 0; i < smokeMains.Length; i++)
+            {
+                smokeMains[i].startSpeed = 0f;
+            }
+        }
+
+        if (brakeLightIntensities != null)
+        {
+            for (int i = 0; i < brakeLightIntensities.Length; i++)
+            {
+                if (brakeLights[i] != null)
+                {
+                    brakeLights[i].intensity = 0f;
+                }
+            }
+        }
+    }
+
     private void UpdateBoostEffects()
     {
         bool boosting = carController.IsBoosting;

@@ -62,6 +62,14 @@ public class CarAudio : MonoBehaviour
         UpdateEngineSound();
     }
 
+    private void OnDisable()
+    {
+        if (engineAudio != null && engineAudio.isPlaying)
+        {
+            engineAudio.Stop();
+        }
+    }
+
     private void UpdateEngineSound()
     {
         float speed = carRigidbody.linearVelocity.magnitude;

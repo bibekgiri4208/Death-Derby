@@ -84,6 +84,26 @@ public class CarWeapon : MonoBehaviour
         }
     }
 
+    private void OnDisable()
+    {
+        if (gunAudioSource != null)
+        {
+            gunAudioSource.Stop();
+            gunAudioSource.volume = originalGunVolume;
+        }
+
+        if (muzzleFlashes != null)
+        {
+            foreach (ParticleSystem flash in muzzleFlashes)
+            {
+                if (flash != null)
+                {
+                    flash.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                }
+            }
+        }
+    }
+
     private void Shoot()
     {
         if (Time.time < nextFireTime)
