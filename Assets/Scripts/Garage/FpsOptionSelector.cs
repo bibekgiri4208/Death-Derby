@@ -2,46 +2,31 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 
+/// <summary>
+/// Scene button for the frame rate cap. All state and application live in
+/// GraphicsSettingsManager, so the choice follows the player into every scene.
+/// </summary>
 public class FpsOptionSelector : MonoBehaviour, IOptionSelector
 {
-    public const string DefaultPlayerPrefsKey = "FpsLimit";
-
-    [Header("Options")]
-    [SerializeField] private int[] frameRates = { 30, 60, 120, 180, -1 };
-    [SerializeField] private int defaultFrameRate = 180;
-    [SerializeField] private string textPrefix = "FPS ";
-    [SerializeField] private string noLimitText = "No Limit";
+    public const string DefaultPlayerPrefsKey = GraphicsSettingsManager.FpsPrefsKey;
 
     [Header("Display")]
+    [SerializeField] private string textPrefix = "FPS ";
+    [SerializeField] private string noLimitText = "No Limit";
     [SerializeField] private TMP_Text label;
 
     [Header("Slide Animation")]
     [SerializeField] private float slideDuration = 0.15f;
     [SerializeField] private float slideDistanceScale = 1f;
 
-    [Header("Frame Rate")]
-    [SerializeField] private bool applyOnStart = true;
-    [SerializeField] private bool disableVSync = true;
-
-    [Header("Persistence")]
-    [SerializeField] private string playerPrefsKey = DefaultPlayerPrefsKey;
-
-    private int index;
     private Vector2 labelHome;
     private Coroutine slideRoutine;
 
-    public int CurrentFrameRate => frameRates[index];
-    public bool IsNoLimit => frameRates[index] < 0;
+    public int CurrentFrameRate => GraphicsSettingsManager.Exists
+        ? GraphicsSettingsManager.Instance.FrameRate
+        : 0;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    private static void ApplySavedFrameRateOnLoad()
-    {
-        if (!PlayerPrefs.HasKey(DefaultPlayerPrefsKey)) return;
-
-        int saved = PlayerPrefs.GetInt(DefaultPlayerPrefsKey);
-        QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = saved < 0 ? -1 : saved;
-    }
+    public bool IsNoLimit => GraphicsSettingsManager.Exists && GraphicsSettingsManager.Instance.IsNoLimit;
 
     void Awake()
     {
@@ -51,11 +36,7 @@ public class FpsOptionSelector : MonoBehaviour, IOptionSelector
 
     void Start()
     {
-        index = LoadIndex();
-
-        if (applyOnStart) ApplyFrameRate();
         if (label != null) label.text = FormatLabel();
-
         SnapLabelHome();
     }
 
@@ -71,36 +52,36 @@ public class FpsOptionSelector : MonoBehaviour, IOptionSelector
 
     public void Apply()
     {
-        ApplyFrameRate();
-        Save();
+        if (!GraphicsSettingsManager.Exists)
+        {
+            Debug.LogError("FpsOptionSelector: GraphicsSettingsManager is missing.", this);
+            return;
+        }
+
+        GraphicsSettingsManager.Instance.ApplyAll();
     }
 
     private void Step(int direction)
     {
-        if (frameRates == null || frameRates.Length == 0) return;
+        if (!GraphicsSettingsManager.Exists)
+        {
+            Debug.LogError("FpsOptionSelector: GraphicsSettingsManager is missing.", this);
+            return;
+        }
 
-        index = ((index + direction) % frameRates.Length + frameRates.Length) % frameRates.Length;
-
-        ApplyFrameRate();
-        Save();
+        GraphicsSettingsManager.Instance.StepFrameRate(direction);
         AnimateLabel(direction);
-    }
-
-    private void ApplyFrameRate()
-    {
-        if (frameRates == null || frameRates.Length == 0) return;
-
-        if (disableVSync) QualitySettings.vSyncCount = 0;
-
-        Application.targetFrameRate = IsNoLimit ? -1 : frameRates[index];
     }
 
     private string FormatLabel()
     {
-        if (frameRates == null || frameRates.Length == 0) return textPrefix;
-        if (IsNoLimit) return noLimitText;
+        if (!GraphicsSettingsManager.Exists) return textPrefix;
 
-        return textPrefix + frameRates[index];
+        GraphicsSettingsManager manager = GraphicsSettingsManager.Instance;
+
+        if (manager.IsNoLimit) return noLimitText;
+
+        return textPrefix + manager.FrameRate;
     }
 
     private void AnimateLabel(int direction)
@@ -165,30 +146,5 @@ public class FpsOptionSelector : MonoBehaviour, IOptionSelector
     private void SnapLabelHome()
     {
         if (label != null) label.rectTransform.anchoredPosition = labelHome;
-    }
-
-    private int LoadIndex()
-    {
-        if (frameRates == null || frameRates.Length == 0) return 0;
-
-        int startIndex = System.Array.IndexOf(frameRates, defaultFrameRate);
-        if (startIndex < 0) startIndex = 0;
-
-        if (!string.IsNullOrEmpty(playerPrefsKey) && PlayerPrefs.HasKey(playerPrefsKey))
-        {
-            int saved = PlayerPrefs.GetInt(playerPrefsKey);
-            int found = System.Array.IndexOf(frameRates, saved);
-            if (found >= 0) startIndex = found;
-        }
-
-        return startIndex;
-    }
-
-    private void Save()
-    {
-        if (string.IsNullOrEmpty(playerPrefsKey)) return;
-
-        PlayerPrefs.SetInt(playerPrefsKey, frameRates[index]);
-        PlayerPrefs.Save();
     }
 }
