@@ -4282,6 +4282,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 101382692841621242, guid: 3e662d1bf3042a94faca79e36c79023a,
         type: 3}
+      propertyPath: spawnInterval
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 101382692841621242, guid: 3e662d1bf3042a94faca79e36c79023a,
+        type: 3}
       propertyPath: maxZombiesInScene
       value: 40
       objectReference: {fileID: 0}
@@ -4893,6 +4898,59 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &1748392011000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1748392011000002}
+  - component: {fileID: 1748392011000003}
+  m_Layer: 0
+  m_Name: Desert Car Spawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1748392011000002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1748392011000001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1748392011000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1748392011000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b79f09a3396ea0853856033ec629874d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DesertCarSpawner
+  carPrefabs:
+  - {fileID: 5089216353689272328, guid: 866842c52b04ffc46b000fa9baab7b30, type: 3}
+  - {fileID: 7358854059992640779, guid: 176d262b70694fe4eb9685547d40e894, type: 3}
+  - {fileID: 436547849921054849, guid: 37fbd146c718e7b449da9443f3514cf9, type: 3}
+  - {fileID: 4722638119448103207, guid: 5f4ba5a26838cce409bde0cc7ff80cef, type: 3}
+  spawnPoint: {fileID: 0}
+  spawnPosition: {x: 500, y: 0.13, z: 500}
+  spawnEulerAngles: {x: 0, y: 0, z: 0}
+  playerIndex: 0
 --- !u!4 &1756679397357631
 Transform:
   m_ObjectHideFlags: 0
@@ -45211,6 +45269,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CarFollowCamera
   target: {fileID: 0}
+  playerIndex: 0
   offset: {x: 0, y: 5, z: -4}
   followSmoothness: 12
   lookHeight: 1.5
@@ -125325,6 +125384,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KillCounter
   killCountText: {fileID: 4336069005030086132}
   textPrefix: 
+  playerIndex: 0
   popDuration: 0.35
   popScale: 1.35
   popCurve:
@@ -147162,59 +147222,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!1 &1748392011000001
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1748392011000002}
-  - component: {fileID: 1748392011000003}
-  m_Layer: 0
-  m_Name: Desert Car Spawner
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1748392011000002
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1748392011000001}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1748392011000003
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1748392011000001}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b79f09a3396ea0853856033ec629874d, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::DesertCarSpawner
-  carPrefabs:
-  - {fileID: 5089216353689272328, guid: 866842c52b04ffc46b000fa9baab7b30, type: 3}
-  - {fileID: 7358854059992640779, guid: 176d262b70694fe4eb9685547d40e894, type: 3}
-  - {fileID: 436547849921054849, guid: 37fbd146c718e7b449da9443f3514cf9, type: 3}
-  - {fileID: 4722638119448103207, guid: 5f4ba5a26838cce409bde0cc7ff80cef, type: 3}
-  spawnPoint: {fileID: 0}
-  spawnPosition: {x: 500, y: 0.13, z: 500}
-  spawnEulerAngles: {x: 0, y: 0, z: 0}
-  playerIndex: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

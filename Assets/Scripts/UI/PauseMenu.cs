@@ -8,6 +8,8 @@ using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
 {
+    private const string GarageSceneName = "Garage";
+
     [Header("UI Panels")]
     [SerializeField] private GameObject mainPauseMenu;
     [SerializeField] private GameObject optionsMenu;
@@ -405,6 +407,15 @@ public class PauseMenu : MonoBehaviour
         }
 
         panelTransition = null;
+    }
+
+    public void ReturnToGarage()
+    {
+        PlayButtonSound();
+        AudioListener.pause = false;
+        Time.timeScale = 1f;
+
+        LoadingScreenManager.LoadScene(GarageSceneName);
     }
 
     public void ExitGame()
