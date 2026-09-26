@@ -1,33 +1,20 @@
 using UnityEngine;
 
+/// <summary>
+/// Scene button for the shadow toggle. All state and application live in
+/// GraphicsSettingsManager, so the choice follows the player into every scene.
+/// </summary>
 public class ShadowToggle : MonoBehaviour
 {
-    public const string DefaultPlayerPrefsKey = "ShadowsEnabled";
+    public const string DefaultPlayerPrefsKey = GraphicsSettingsManager.ShadowsPrefsKey;
 
-    [Header("Shadows")]
-    [Tooltip("The directional light whose shadows are toggled on and off.")]
-    [SerializeField] private Light mainLight;
+    // Fallback only, used if the manager is somehow absent. The manager is
+    // created before any scene loads, so normally this is never consulted.
     [SerializeField] private bool shadowsEnabled = true;
 
-    [Header("Persistence")]
-    [SerializeField] private string playerPrefsKey = DefaultPlayerPrefsKey;
-
-    private float originalShadowDistance;
-    private LightShadows originalLightShadows;
-
-    void Awake()
-    {
-        if (mainLight == null) mainLight = FindAnyObjectByType<Light>();
-
-        originalShadowDistance = QualitySettings.shadowDistance;
-        originalLightShadows = mainLight != null ? mainLight.shadows : LightShadows.Soft;
-    }
-
-    void Start()
-    {
-        shadowsEnabled = LoadEnabled();
-        ApplyShadows();
-    }
+    public bool IsEnabled => GraphicsSettingsManager.Exists
+        ? GraphicsSettingsManager.Instance.ShadowsEnabled
+        : shadowsEnabled;
 
     private void OnMouseDown()
     {
@@ -36,44 +23,19 @@ public class ShadowToggle : MonoBehaviour
 
     public void ToggleShadows()
     {
-        SetShadowsEnabled(!shadowsEnabled);
+        SetShadowsEnabled(!IsEnabled);
     }
 
     public void SetShadowsEnabled(bool enabled)
     {
         shadowsEnabled = enabled;
-        ApplyShadows();
-        Save();
-    }
 
-    public bool IsEnabled => shadowsEnabled;
-
-    private void ApplyShadows()
-    {
-        if (shadowsEnabled)
+        if (GraphicsSettingsManager.Exists)
         {
-            QualitySettings.shadowDistance = originalShadowDistance;
-            if (mainLight != null) mainLight.shadows = originalLightShadows;
+            GraphicsSettingsManager.Instance.SetShadowsEnabled(enabled);
+            return;
         }
-        else
-        {
-            QualitySettings.shadowDistance = 0f;
-            if (mainLight != null) mainLight.shadows = LightShadows.None;
-        }
-    }
 
-    private bool LoadEnabled()
-    {
-        if (string.IsNullOrEmpty(playerPrefsKey) || !PlayerPrefs.HasKey(playerPrefsKey)) return shadowsEnabled;
-
-        return PlayerPrefs.GetInt(playerPrefsKey, shadowsEnabled ? 1 : 0) != 0;
-    }
-
-    private void Save()
-    {
-        if (string.IsNullOrEmpty(playerPrefsKey)) return;
-
-        PlayerPrefs.SetInt(playerPrefsKey, shadowsEnabled ? 1 : 0);
-        PlayerPrefs.Save();
+        Debug.LogError("ShadowToggle: GraphicsSettingsManager is missing, shadow toggle is inactive.", this);
     }
 }
