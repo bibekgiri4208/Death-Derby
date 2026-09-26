@@ -27,6 +27,8 @@ public class CarSelection : MonoBehaviour
     int currentCarIndex;
     Menu3DController menuController;
 
+    public int CurrentCarIndex => currentCarIndex;
+
     void Awake()
     {
         if (cars == null || cars.Length == 0)
