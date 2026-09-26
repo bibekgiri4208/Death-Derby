@@ -2,23 +2,13 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 
+/// <summary>
+/// Scene button for the quality preset. All state and application live in
+/// GraphicsSettingsManager, so the choice follows the player into every scene.
+/// </summary>
 public class QualityOptionSelector : MonoBehaviour, IOptionSelector
 {
-    public const string DefaultPlayerPrefsKey = "GraphicsQuality";
-
-    [Header("Options")]
-    [SerializeField] private string[] presetNames = { "Low", "Medium", "High" };
-    [SerializeField] private int defaultPresetIndex = 2;
-
-    [Header("Scene Light")]
-    [Tooltip("The directional light whose shadows are controlled by this preset.")]
-    [SerializeField] private Light mainLight;
-
-    [Header("Medium Preset")]
-    [Tooltip("Shadow distance used while Medium is active, capped by the original value.")]
-    [SerializeField] private float mediumShadowDistance = 40f;
-    [Range(0f, 1f)][SerializeField] private float mediumAmbientScale = 0.6f;
-    [Range(0f, 1f)][SerializeField] private float mediumReflectionScale = 0.7f;
+    public const string DefaultPlayerPrefsKey = GraphicsSettingsManager.QualityPrefsKey;
 
     [Header("Display")]
     [SerializeField] private TMP_Text label;
@@ -27,37 +17,18 @@ public class QualityOptionSelector : MonoBehaviour, IOptionSelector
     [SerializeField] private float slideDuration = 0.15f;
     [SerializeField] private float slideDistanceScale = 1f;
 
-    [Header("Persistence")]
-    [SerializeField] private string playerPrefsKey = DefaultPlayerPrefsKey;
-
-    private int index;
     private Vector2 labelHome;
     private Coroutine slideRoutine;
 
-    private float originalShadowDistance;
-    private LightShadows originalLightShadows;
-    private float originalAmbientIntensity;
-    private float originalReflectionIntensity;
-
     void Awake()
     {
-        if (mainLight == null) mainLight = FindAnyObjectByType<Light>();
         if (label == null) label = GetComponentInChildren<TMP_Text>(true);
         if (label != null) labelHome = label.rectTransform.anchoredPosition;
-
-        originalShadowDistance = QualitySettings.shadowDistance;
-        originalLightShadows = mainLight != null ? mainLight.shadows : LightShadows.Soft;
-        originalAmbientIntensity = RenderSettings.ambientIntensity;
-        originalReflectionIntensity = RenderSettings.reflectionIntensity;
     }
 
     void Start()
     {
-        index = LoadIndex();
-
-        if (index != defaultPresetIndex) ApplyPreset();
         if (label != null) label.text = FormatLabel();
-
         SnapLabelHome();
     }
 
@@ -73,73 +44,37 @@ public class QualityOptionSelector : MonoBehaviour, IOptionSelector
 
     public void Apply()
     {
-        ApplyPreset();
-        Save();
+        if (!GraphicsSettingsManager.Exists)
+        {
+            Debug.LogError("QualityOptionSelector: GraphicsSettingsManager is missing.", this);
+            return;
+        }
+
+        GraphicsSettingsManager.Instance.ApplyAll();
     }
 
     private void Step(int direction)
     {
-        if (presetNames == null || presetNames.Length == 0) return;
-
-        index = ((index + direction) % presetNames.Length + presetNames.Length) % presetNames.Length;
-
-        ApplyPreset();
-        Save();
-        AnimateLabel(direction);
-    }
-
-    private void ApplyPreset()
-    {
-        switch (index)
+        if (!GraphicsSettingsManager.Exists)
         {
-            case 0:
-                ApplyLow();
-                break;
-            case 1:
-                ApplyMedium();
-                break;
-            default:
-                ApplyHigh();
-                break;
+            Debug.LogError("QualityOptionSelector: GraphicsSettingsManager is missing.", this);
+            return;
         }
-    }
 
-    private void ApplyHigh()
-    {
-        QualitySettings.shadowDistance = originalShadowDistance;
-
-        if (mainLight != null) mainLight.shadows = originalLightShadows;
-
-        RenderSettings.ambientIntensity = originalAmbientIntensity;
-        RenderSettings.reflectionIntensity = originalReflectionIntensity;
-    }
-
-    private void ApplyMedium()
-    {
-        QualitySettings.shadowDistance = Mathf.Min(originalShadowDistance, mediumShadowDistance);
-
-        if (mainLight != null) mainLight.shadows = LightShadows.Hard;
-
-        RenderSettings.ambientIntensity = originalAmbientIntensity * mediumAmbientScale;
-        RenderSettings.reflectionIntensity = originalReflectionIntensity * mediumReflectionScale;
-    }
-
-    private void ApplyLow()
-    {
-        QualitySettings.shadowDistance = 0f;
-
-        if (mainLight != null) mainLight.shadows = LightShadows.None;
-
-        RenderSettings.ambientIntensity = 0f;
-        RenderSettings.reflectionIntensity = 0f;
+        GraphicsSettingsManager.Instance.StepQuality(direction);
+        AnimateLabel(direction);
     }
 
     private string FormatLabel()
     {
-        if (presetNames == null || presetNames.Length == 0) return string.Empty;
-        if (index < 0 || index >= presetNames.Length) return string.Empty;
+        if (!GraphicsSettingsManager.Exists) return string.Empty;
 
-        return presetNames[index];
+        string[] names = GraphicsSettingsManager.Instance.QualityPresetNames;
+        int index = GraphicsSettingsManager.Instance.QualityIndex;
+
+        if (names == null || index < 0 || index >= names.Length) return string.Empty;
+
+        return names[index];
     }
 
     private void AnimateLabel(int direction)
@@ -204,29 +139,5 @@ public class QualityOptionSelector : MonoBehaviour, IOptionSelector
     private void SnapLabelHome()
     {
         if (label != null) label.rectTransform.anchoredPosition = labelHome;
-    }
-
-    private int LoadIndex()
-    {
-        if (presetNames == null || presetNames.Length == 0) return 0;
-
-        int startIndex = defaultPresetIndex;
-        if (startIndex < 0 || startIndex >= presetNames.Length) startIndex = presetNames.Length - 1;
-
-        if (!string.IsNullOrEmpty(playerPrefsKey) && PlayerPrefs.HasKey(playerPrefsKey))
-        {
-            int saved = PlayerPrefs.GetInt(playerPrefsKey);
-            if (saved >= 0 && saved < presetNames.Length) startIndex = saved;
-        }
-
-        return startIndex;
-    }
-
-    private void Save()
-    {
-        if (string.IsNullOrEmpty(playerPrefsKey)) return;
-
-        PlayerPrefs.SetInt(playerPrefsKey, index);
-        PlayerPrefs.Save();
     }
 }
