@@ -2862,124 +2862,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1202691740}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1001 &1215728940
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 3008824373412090360, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 500
-      objectReference: {fileID: 0}
-    - target: {fileID: 3008824373412090360, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.13
-      objectReference: {fileID: 0}
-    - target: {fileID: 3008824373412090360, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 500
-      objectReference: {fileID: 0}
-    - target: {fileID: 3008824373412090360, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3008824373412090360, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3008824373412090360, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3008824373412090360, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3008824373412090360, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3008824373412090360, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3008824373412090360, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3687917051064885317, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4722638119448103207, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: m_Name
-      value: Bone Shaker
-      objectReference: {fileID: 0}
-    - target: {fileID: 4722638119448103207, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8194441451877700333, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: InitialModule.startColor.maxColor.b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8194441451877700333, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: InitialModule.startColor.maxColor.g
-      value: 0.67133105
-      objectReference: {fileID: 0}
-    - target: {fileID: 8194441451877700333, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: InitialModule.startColor.maxColor.r
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8716776059174208612, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.62
-      objectReference: {fileID: 0}
-    - target: {fileID: 8716776059174208612, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0.321
-      objectReference: {fileID: 0}
-    - target: {fileID: 8716776059174208612, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.99996966
-      objectReference: {fileID: 0}
-    - target: {fileID: 8716776059174208612, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.0077907927
-      objectReference: {fileID: 0}
-    - target: {fileID: 8716776059174208612, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0.893
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 5f4ba5a26838cce409bde0cc7ff80cef, type: 3}
 --- !u!1 &1255965211
 GameObject:
   m_ObjectHideFlags: 0
@@ -4775,12 +4657,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1954735973}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!4 &1973851037 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 3008824373412090360, guid: 5f4ba5a26838cce409bde0cc7ff80cef,
-    type: 3}
-  m_PrefabInstance: {fileID: 1215728940}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2006109572
 GameObject:
   m_ObjectHideFlags: 0
@@ -45334,7 +45210,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a194243844819a645bff54ede5bf627c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CarFollowCamera
-  target: {fileID: 1973851037}
+  target: {fileID: 0}
   offset: {x: 0, y: 5, z: -4}
   followSmoothness: 12
   lookHeight: 1.5
@@ -147286,6 +147162,59 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &1748392011000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1748392011000002}
+  - component: {fileID: 1748392011000003}
+  m_Layer: 0
+  m_Name: Desert Car Spawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1748392011000002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1748392011000001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1748392011000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1748392011000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b79f09a3396ea0853856033ec629874d, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::DesertCarSpawner
+  carPrefabs:
+  - {fileID: 5089216353689272328, guid: 866842c52b04ffc46b000fa9baab7b30, type: 3}
+  - {fileID: 7358854059992640779, guid: 176d262b70694fe4eb9685547d40e894, type: 3}
+  - {fileID: 436547849921054849, guid: 37fbd146c718e7b449da9443f3514cf9, type: 3}
+  - {fileID: 4722638119448103207, guid: 5f4ba5a26838cce409bde0cc7ff80cef, type: 3}
+  spawnPoint: {fileID: 0}
+  spawnPosition: {x: 500, y: 0.13, z: 500}
+  spawnEulerAngles: {x: 0, y: 0, z: 0}
+  playerIndex: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -147305,7 +147234,6 @@ SceneRoots:
   - {fileID: 675991858}
   - {fileID: 185339603}
   - {fileID: 1756623411}
-  - {fileID: 1215728940}
   - {fileID: 340133492}
   - {fileID: 2006109573}
   - {fileID: 447705034383955934}
@@ -147313,3 +147241,4 @@ SceneRoots:
   - {fileID: 320389919}
   - {fileID: 89407625}
   - {fileID: 1850553238}
+  - {fileID: 1748392011000002}

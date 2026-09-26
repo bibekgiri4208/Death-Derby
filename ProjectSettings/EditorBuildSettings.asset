@@ -12,7 +12,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Loading Screen.unity
     guid: b51b993d2ff479e4081184d07cd13e2a
   - enabled: 1
-    path: Assets/Scenes/OpenWorld.unity
+    path: Assets/Scenes/Desert.unity
     guid: 852f7a2f9967f994ab2d8f674d70bbbd
   - enabled: 1
     path: Assets/Scenes/Coop.unity
