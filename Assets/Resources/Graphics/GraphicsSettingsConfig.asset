@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7324ae422b3c4fbb8b202b68a1e4c4eb, type: 3}
+  m_Name: GraphicsSettingsConfig
+  m_EditorClassIdentifier:
+  frameRates:
+  - 30
+  - 60
+  - 120
+  - 180
+  - -1
+  defaultFrameRate: 180
+  disableVSync: 1
+  presetNames:
+  - Low
+  - Medium
+  - High
+  defaultPresetIndex: 2
+  lowShadowDistance: 20
+  mediumShadowDistance: 40
+  mediumAmbientScale: 0.6
+  mediumReflectionScale: 0.7
