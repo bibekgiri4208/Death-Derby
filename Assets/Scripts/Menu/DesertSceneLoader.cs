@@ -4,7 +4,9 @@ using UnityEngine.SceneManagement;
 /// <summary>
 /// Auto-wires the "Desert Cube" button in the Garage's Start Menu so that
 /// pressing it saves the currently selected car and loads the Desert scene
-/// through the loading screen.
+/// through the loading screen. The host object persists across scene loads so
+/// the button is re-wired every time the Garage is entered, not just the first
+/// time the game is launched.
 /// </summary>
 public class DesertSceneLoader : MonoBehaviour
 {
@@ -13,19 +15,41 @@ public class DesertSceneLoader : MonoBehaviour
     private const string DesertSceneName = "Desert";
     private const string CarIndexKey = "CarIndexValue";
 
+    private Interactable3DButton wiredButton;
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void AutoWire()
     {
-        if (SceneManager.GetActiveScene().name != SourceSceneName)
-            return;
-
         if (FindAnyObjectByType<DesertSceneLoader>() != null)
             return;
 
-        new GameObject("Desert Scene Loader").AddComponent<DesertSceneLoader>();
+        GameObject host = new GameObject("Desert Scene Loader");
+        DontDestroyOnLoad(host);
+        host.AddComponent<DesertSceneLoader>();
     }
 
     private void Awake()
+    {
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+
+        if (SceneManager.GetActiveScene().name == SourceSceneName)
+            TryWireButton();
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name != SourceSceneName)
+            return;
+
+        TryWireButton();
+    }
+
+    private void TryWireButton()
     {
         Interactable3DButton button = null;
 
@@ -44,6 +68,10 @@ public class DesertSceneLoader : MonoBehaviour
             return;
         }
 
+        if (wiredButton == button)
+            return;
+
+        wiredButton = button;
         button.onClick.AddListener(LoadDesertScene);
     }
 
