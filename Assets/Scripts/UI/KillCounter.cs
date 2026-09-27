@@ -31,6 +31,8 @@ public class KillCounter : MonoBehaviour
 
     public int PlayerIndex => playerIndex;
 
+    public int KillCount => killCount;
+
     public void Configure(TextMeshProUGUI text, int player)
     {
         killCountText = text;

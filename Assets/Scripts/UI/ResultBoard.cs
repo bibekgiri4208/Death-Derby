@@ -103,8 +103,9 @@ public class ResultBoard : MonoBehaviour
         IsShowing = true;
         WinnerIndex = winnerIndex;
 
+        // A negative winner means nobody out-scored the other player, e.g. a tied round.
         if (resultText != null)
-            resultText.text = $"Player {winnerIndex + 1}";
+            resultText.text = winnerIndex >= 0 ? $"Player {winnerIndex + 1}" : "Draw";
 
         if (disableCarSystems)
             DisableAllCars();
