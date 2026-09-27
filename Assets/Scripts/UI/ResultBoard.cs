@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 /// <summary>
 /// Owns the result board. Stays hidden while the match runs, then reveals the
@@ -17,9 +18,11 @@ public class ResultBoard : MonoBehaviour
     [Tooltip("Label that shows the winner, e.g. 'Player 1' or 'Player 2'.")]
     [SerializeField] private TextMeshProUGUI resultText;
 
-    [Header("First Selected Button")]
-    [Tooltip("Button focused when the board appears so controller users can submit straight away.")]
-    [SerializeField] private GameObject firstSelectedButton;
+    [Header("Menu Buttons")]
+    [Tooltip("Result screen buttons in left-to-right order. The first one is focused when the board " +
+             "appears. Navigation is restricted to this row so HUD elements such as the health bar " +
+             "sliders cannot be selected while the board is up.")]
+    [SerializeField] private Button[] menuButtons;
 
     [Header("Game Over")]
     [Tooltip("Stop gameplay time while the result screen is up. Menu animations use unscaled time, so buttons still react.")]
@@ -53,6 +56,7 @@ public class ResultBoard : MonoBehaviour
     private bool cursorWasVisible;
     private bool frozeTime;
     private bool cursorUnlocked;
+    private Navigation[] savedNavigation;
 
     private void Awake()
     {
@@ -121,6 +125,7 @@ public class ResultBoard : MonoBehaviour
         }
 
         SetBoardVisible(true);
+        RestrictNavigation();
         SelectFirstButton();
     }
 
@@ -132,8 +137,7 @@ public class ResultBoard : MonoBehaviour
         SetBoardVisible(false);
     }
 
-    // Undo everything Show() changed on global state. Time.timeScale in particular
-    // outlives a scene load, so it has to be restored even on OnDestroy.
+    // Undo everything Show() changed on global or shared state.
     private void RestoreState()
     {
         if (frozeTime)
@@ -148,6 +152,8 @@ public class ResultBoard : MonoBehaviour
             Cursor.lockState = previousLockMode;
             Cursor.visible = cursorWasVisible;
         }
+
+        RestoreNavigation();
     }
 
     private void SetBoardVisible(bool visible)
@@ -158,6 +164,48 @@ public class ResultBoard : MonoBehaviour
         boardGroup.alpha = visible ? 1f : 0f;
         boardGroup.interactable = visible;
         boardGroup.blocksRaycasts = visible;
+    }
+
+    // Automatic navigation searches every Selectable in the scene by screen position, so
+    // pushing the stick up from a bottom-centre button lands on a health bar slider.
+    // An explicit left/right row keeps selection on the buttons only.
+    private void RestrictNavigation()
+    {
+        if (menuButtons == null || menuButtons.Length == 0)
+            return;
+
+        savedNavigation = new Navigation[menuButtons.Length];
+
+        for (int i = 0; i < menuButtons.Length; i++)
+        {
+            Button button = menuButtons[i];
+            if (button == null)
+                continue;
+
+            savedNavigation[i] = button.navigation;
+
+            Navigation navigation = button.navigation;
+            navigation.mode = Navigation.Mode.Explicit;
+            navigation.selectOnUp = null;
+            navigation.selectOnDown = null;
+            navigation.selectOnLeft = i > 0 ? menuButtons[i - 1] : null;
+            navigation.selectOnRight = i < menuButtons.Length - 1 ? menuButtons[i + 1] : null;
+            button.navigation = navigation;
+        }
+    }
+
+    private void RestoreNavigation()
+    {
+        if (savedNavigation == null || menuButtons == null)
+            return;
+
+        for (int i = 0; i < menuButtons.Length && i < savedNavigation.Length; i++)
+        {
+            if (menuButtons[i] != null)
+                menuButtons[i].navigation = savedNavigation[i];
+        }
+
+        savedNavigation = null;
     }
 
     private void DisableAllCars()
@@ -173,10 +221,25 @@ public class ResultBoard : MonoBehaviour
 
     private void SelectFirstButton()
     {
-        if (firstSelectedButton == null || EventSystem.current == null)
+        Button first = FirstButton();
+        if (first == null || EventSystem.current == null)
             return;
 
         EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(firstSelectedButton);
+        EventSystem.current.SetSelectedGameObject(first.gameObject);
+    }
+
+    private Button FirstButton()
+    {
+        if (menuButtons == null)
+            return null;
+
+        foreach (Button button in menuButtons)
+        {
+            if (button != null)
+                return button;
+        }
+
+        return null;
     }
 }
