@@ -105,11 +105,7 @@ public class PauseMenu : MonoBehaviour
         {
             if (Time.unscaledTime - lastEscPressTime <= doublePressWindow)
             {
-                if (!IsPaused)
-                    PauseGame(true);
-                else
-                    PauseGame(false);
-
+                TogglePause();
                 lastEscPressTime = -Mathf.Infinity;
             }
             else
@@ -121,11 +117,17 @@ public class PauseMenu : MonoBehaviour
         // Gamepad: Start/Options button (single press)
         if (AnyGamepadStartPressed())
         {
-            if (!IsPaused)
-                PauseGame(true);
-            else
-                PauseGame(false);
+            TogglePause();
         }
+    }
+
+    private void TogglePause()
+    {
+        // The result screen owns input once the match is over.
+        if (ResultBoard.AnyShowing)
+            return;
+
+        PauseGame(!IsPaused);
     }
 
     // In split screen either player can pause/unpause with their gamepad.
