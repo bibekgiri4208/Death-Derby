@@ -1878,7 +1878,7 @@ PrefabInstance:
     - target: {fileID: 7845570526870752540, guid: 5b1566dd85f487545bbae5fefd68bf16,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1997,12 +1997,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 335633081}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.46583962, z: -0, w: 0.88486916}
-  m_LocalPosition: {x: 522.106, y: -0.000027377911, z: 695.554}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0.88486916, z: -0, w: 0.46583962}
+  m_LocalPosition: {x: -3.0872693, y: -0.5000249, z: 2.3026345}
+  m_LocalScale: {x: 0.90909094, y: 0.90909094, z: 0.90909094}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 6154642170784197851}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &335633087
 BoxCollider:
@@ -4591,12 +4591,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 803439735}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.46583962, z: -0, w: 0.88486916}
-  m_LocalPosition: {x: 522.627, y: 0.854, z: 695.466}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0.88486916, z: -0, w: 0.46583962}
+  m_LocalPosition: {x: -3.560902, y: 0.2763636, z: 2.382646}
+  m_LocalScale: {x: 0.90909094, y: 0.90909094, z: 0.90909094}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 6154642170784197851}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &803439741
 BoxCollider:
@@ -5584,12 +5584,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1017915652}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.46583962, z: -0, w: 0.88486916}
-  m_LocalPosition: {x: 522.983, y: -0.000027377911, z: 696.156}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0.88486916, z: -0, w: 0.46583962}
+  m_LocalPosition: {x: -3.8844993, y: -0.5000249, z: 1.7553711}
+  m_LocalScale: {x: 0.90909094, y: 0.90909094, z: 0.90909094}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 6154642170784197851}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &1017915658
 BoxCollider:
@@ -6690,12 +6690,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1289004129}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.46583962, z: -0, w: 0.88486916}
-  m_LocalPosition: {x: 522.957, y: -0.000027377911, z: 694.986}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0.88486916, z: -0, w: 0.46583962}
+  m_LocalPosition: {x: -3.8608623, y: -0.5000249, z: 2.818992}
+  m_LocalScale: {x: 0.90909094, y: 0.90909094, z: 0.90909094}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 6154642170784197851}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &1289004135
 BoxCollider:
@@ -13876,6 +13876,10 @@ Transform:
   - {fileID: 5975945829186080119}
   - {fileID: 7772898973417286522}
   - {fileID: 8146109391153899760}
+  - {fileID: 1017915657}
+  - {fileID: 335633086}
+  - {fileID: 1289004134}
+  - {fileID: 803439740}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!224 &6326989522314719613
@@ -15064,7 +15068,6 @@ GameObject:
   - component: {fileID: 6154642170784197851}
   - component: {fileID: 4580028620099783484}
   - component: {fileID: 7477800390844876586}
-  - component: {fileID: 8017827009912566810}
   m_Layer: 0
   m_Name: Sheriff Building
   m_TagString: Untagged
@@ -15072,28 +15075,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!64 &8017827009912566810
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8017827009912566809}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 4625585522188052414, guid: ce23dbecb1876dd45aab0c0b3eb3fa15, type: 3}
 --- !u!23 &8066487021678793158
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -16046,9 +16027,5 @@ SceneRoots:
   - {fileID: 1997340160}
   - {fileID: 1867423965}
   - {fileID: 6154642170784197851}
-  - {fileID: 1017915657}
-  - {fileID: 335633086}
-  - {fileID: 1289004134}
-  - {fileID: 803439740}
   - {fileID: 5793143319233834291}
   - {fileID: 1955803866633577158}
