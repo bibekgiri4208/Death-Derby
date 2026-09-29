@@ -21,12 +21,22 @@ public class LoadingScreenManager : MonoBehaviour
     [SerializeField] private Slider progressBar;
 
     [Header("Load Settings")]
-    [SerializeField] private float minimumLoadTime = 3f;
+    [SerializeField] private float minimumLoadTime = 2f;
+
+    [Header("Loading Artwork")]
+    [Tooltip("Full-screen image that shows the artwork for the scene being loaded.")]
+    [SerializeField] private Image backgroundImage;
+    [Tooltip("Artwork shown while loading the Desert. Leave empty to keep the scene's default image.")]
+    [SerializeField] private Sprite desertLoadingImage;
+    [Tooltip("Artwork shown while loading the Coop scene. Leave empty to keep the scene's default image.")]
+    [SerializeField] private Sprite coopLoadingImage;
 
     private static string targetScene;
     private bool isLoading;
 
     private const string LoadingSceneName = "Loading Screen";
+    private const string DesertSceneName = "Desert";
+    private const string CoopSceneName = "Coop";
 
     void Awake()
     {
@@ -45,10 +55,32 @@ public class LoadingScreenManager : MonoBehaviour
         if (string.IsNullOrEmpty(targetScene))
             return;
 
+        ApplyLoadingImage(targetScene);
+
         if (loadingPanel != null)
             loadingPanel.SetActive(true);
 
         StartCoroutine(LoadSceneAsync(targetScene));
+    }
+
+    /// <summary>Swaps the full-screen artwork to match the scene being loaded.</summary>
+    private void ApplyLoadingImage(string sceneName)
+    {
+        if (backgroundImage == null) return;
+
+        Sprite sprite = GetLoadingImage(sceneName);
+
+        // A null result means "no dedicated artwork", so the image keeps whatever
+        // the Loading Screen scene already shows.
+        if (sprite != null)
+            backgroundImage.sprite = sprite;
+    }
+
+    private Sprite GetLoadingImage(string sceneName)
+    {
+        if (sceneName == DesertSceneName) return desertLoadingImage;
+        if (sceneName == CoopSceneName) return coopLoadingImage;
+        return null;
     }
 
     void Update()
@@ -91,6 +123,18 @@ public class LoadingScreenManager : MonoBehaviour
 
     private void AutoWireReferences()
     {
+        if (backgroundImage == null)
+        {
+            foreach (Image candidate in FindObjectsByType<Image>(FindObjectsInactive.Include))
+            {
+                if (candidate.gameObject.name == "Background")
+                {
+                    backgroundImage = candidate;
+                    break;
+                }
+            }
+        }
+
         if (progressBar == null)
         {
             progressBar = FindAnyObjectByType<Slider>();
