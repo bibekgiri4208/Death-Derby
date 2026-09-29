@@ -41,6 +41,12 @@ public class PauseMenu : MonoBehaviour
     [Tooltip("Player preference key used to remember the FPS meter on/off state.")]
     [SerializeField] private string fpsMeterPrefsKey = "FpsMeterEnabled";
 
+    [Header("Music Toggle")]
+    [Tooltip("Name of the music object in the current scene that the Music button controls.")]
+    [SerializeField] private string musicObjectName = "Background Music";
+    [Tooltip("Label under the options menu that shows the current music state.")]
+    [SerializeField] private string musicStateLabelName = "Music Text";
+
     public static bool IsPaused { get; private set; }
 
     private float lastEscPressTime = -Mathf.Infinity;
@@ -53,6 +59,7 @@ public class PauseMenu : MonoBehaviour
     private Coroutine panelTransition;
     private FpsCounter cachedFpsCounter;
     private TMP_Text cachedFpsMeterLabel;
+    private bool musicOn;
 
     private void Awake()
     {
@@ -81,6 +88,7 @@ public class PauseMenu : MonoBehaviour
     {
         PauseGame(false);
         ApplySavedFpsMeterState();
+        SyncMusicFromSource();
     }
 
     private void Update()
@@ -331,6 +339,8 @@ public class PauseMenu : MonoBehaviour
             mainPauseMenu, mainMenuGroup,
             optionsMenu, optionsGroup,
             optionsMenuFirstButton));
+
+        UpdateMusicLabel();
     }
 
     public void CloseOptions()
@@ -437,6 +447,79 @@ public class PauseMenu : MonoBehaviour
     {
         if (audioSource != null && audioSource.clip != null)
             audioSource.PlayOneShot(audioSource.clip);
+    }
+
+    public void ToggleMusic()
+    {
+        PlayButtonSound();
+
+        musicOn = !musicOn;
+        ApplyMusicState();
+    }
+
+    private void SyncMusicFromSource()
+    {
+        AudioSource music = GetSceneMusic();
+        if (music == null) return;
+
+        // Adopt whatever the scene already set up (e.g. Play On Awake) instead of
+        // forcing the music off on load.
+        musicOn = music.isPlaying && !music.mute;
+        UpdateMusicLabel();
+    }
+
+    private void ApplyMusicState()
+    {
+        AudioSource music = GetSceneMusic();
+
+        if (music == null)
+        {
+            Debug.LogWarning("PauseMenu: no '" + musicObjectName + "' AudioSource found in this scene.", this);
+            UpdateMusicLabel();
+            return;
+        }
+
+        music.mute = !musicOn;
+
+        if (musicOn)
+        {
+            if (!music.isPlaying) music.Play();
+        }
+        else if (music.isPlaying)
+        {
+            music.Stop();
+        }
+
+        UpdateMusicLabel();
+    }
+
+    private AudioSource GetSceneMusic()
+    {
+        foreach (AudioSource source in FindObjectsByType<AudioSource>(FindObjectsInactive.Include))
+        {
+            if (source != null && source.gameObject.name == musicObjectName)
+                return source;
+        }
+
+        return null;
+    }
+
+    private void UpdateMusicLabel()
+    {
+        TMP_Text label = GetMusicStateLabel();
+        if (label == null) return;
+
+        label.text = musicOn ? "On" : "Off";
+    }
+
+    private TMP_Text GetMusicStateLabel()
+    {
+        if (optionsMenu == null) return null;
+
+        Transform labelTransform = FindChildByName(optionsMenu.transform, musicStateLabelName);
+        if (labelTransform == null) return null;
+
+        return labelTransform.GetComponentInChildren<TMP_Text>(true);
     }
 
     public void ToggleFpsMeter()
