@@ -509,7 +509,7 @@ public class PauseMenu : MonoBehaviour
         TMP_Text label = GetMusicStateLabel();
         if (label == null) return;
 
-        label.text = musicOn ? "On" : "Off";
+        label.text = musicOn ? "Music On" : "Music Off";
     }
 
     private TMP_Text GetMusicStateLabel()
