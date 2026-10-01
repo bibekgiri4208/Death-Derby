@@ -151,7 +151,7 @@ public class PauseMenu : MonoBehaviour
     private void TogglePause()
     {
         // The result screen owns input once the match is over.
-        if (ResultBoard.AnyShowing)
+        if (ResultBoard.AnyShowing || ScoreBoard.AnyShowing)
             return;
 
         PauseGame(!IsPaused);

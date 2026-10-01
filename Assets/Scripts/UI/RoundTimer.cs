@@ -81,42 +81,13 @@ public class RoundTimer : MonoBehaviour
         if (!decideRoundOnTimeout)
             return;
 
-        ResultBoard board = FindAnyObjectByType<ResultBoard>();
+        ScoreBoard board = FindAnyObjectByType<ScoreBoard>();
         if (board == null)
         {
-            Debug.LogWarning("RoundTimer: no ResultBoard in this scene, cannot award the round.", this);
+            Debug.LogWarning("RoundTimer: no ScoreBoard in this scene, cannot show the result.", this);
             return;
         }
 
-        board.Show(HighestScoringPlayer());
-    }
-
-    // -1 means a draw, which ResultBoard renders as "Draw".
-    private static int HighestScoringPlayer()
-    {
-        KillCounter[] counters = FindObjectsByType<KillCounter>();
-
-        int bestPlayer = -1;
-        int bestKills = 0;
-        int playersOnBest = 0;
-
-        foreach (KillCounter counter in counters)
-        {
-            if (counter == null || counter.PlayerIndex < 0)
-                continue;
-
-            if (bestPlayer < 0 || counter.KillCount > bestKills)
-            {
-                bestPlayer = counter.PlayerIndex;
-                bestKills = counter.KillCount;
-                playersOnBest = 1;
-            }
-            else if (counter.KillCount == bestKills)
-            {
-                playersOnBest++;
-            }
-        }
-
-        return playersOnBest > 1 ? -1 : bestPlayer;
+        board.Show(timeExpired: true);
     }
 }
