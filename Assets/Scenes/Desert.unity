@@ -34204,18 +34204,6 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 324951497859232241}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &9000000000000000001 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4642041000225935152, guid: 40b41ad864373e74d99b46fc26cbc3bc,
-    type: 3}
-  m_PrefabInstance: {fileID: 324951497859232241}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3653e553e6bb0e04b81f8b11d4de9f6c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PauseMenu
 --- !u!1 &1621167921
 GameObject:
   m_ObjectHideFlags: 0
@@ -44498,7 +44486,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: a6a3d520bf8afe149a8b00b8ea16c64f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 05fe8dcac2e33624794ec87e88a47d06, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -48233,7 +48221,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 2f6258e2a8a64b141bd0140dcb3d5aae, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 81b210c5a71064a4c8b934f67c28584f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -59803,7 +59791,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: a6a3d520bf8afe149a8b00b8ea16c64f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 05fe8dcac2e33624794ec87e88a47d06, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -66071,6 +66059,18 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 2504780106993520473, guid: ce23dbecb1876dd45aab0c0b3eb3fa15, type: 3}
+--- !u!114 &9000000000000000001 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4642041000225935152, guid: 40b41ad864373e74d99b46fc26cbc3bc,
+    type: 3}
+  m_PrefabInstance: {fileID: 324951497859232241}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3653e553e6bb0e04b81f8b11d4de9f6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PauseMenu
 --- !u!222 &9003732324341170698
 CanvasRenderer:
   m_ObjectHideFlags: 0
