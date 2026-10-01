@@ -36941,6 +36941,7 @@ GameObject:
   - component: {fileID: 7128058199594960034}
   - component: {fileID: 2015331201084047062}
   - component: {fileID: -8135542523867847790}
+  - component: {fileID: 8479055860892675339}
   m_Layer: 0
   m_Name: Bone Shaker
   m_TagString: Player
@@ -37219,6 +37220,24 @@ MonoBehaviour:
   emissionSmoothing: 5
   maxSmokeDistanceRate: 10
   airborneFadeSmoothing: 8
+--- !u!114 &8479055860892675339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4722638119448103207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d864671a8ad83b469c35e0316f4364f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AntiRollBar4Wheel
+  FrontLeftWheel: {fileID: 5001244982104616708}
+  FrontRightWheel: {fileID: 6146326308705495002}
+  RearLeftWheel: {fileID: 6952236165512627754}
+  RearRightWheel: {fileID: 7090633779738164798}
+  FrontAntiRollStiffness: 5000
+  RearAntiRollStiffness: 5000
 --- !u!1 &4821941054992882418
 GameObject:
   m_ObjectHideFlags: 0
