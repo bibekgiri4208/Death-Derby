@@ -99,17 +99,30 @@ public class PauseMenu : MonoBehaviour
     private void HandleInput()
     {
         bool optionsOpen = optionsMenu != null && optionsMenu.activeSelf;
+        bool backPressed = BackPressed();
 
-        // Escape / B (gamepad) closes the Options menu back to the main pause menu
-        if (optionsOpen && (Input.GetKeyDown(KeyCode.Escape) || AnyGamepadEastPressed()))
+        // While paused, Escape / B acts as the back button: it steps out of the
+        // Options menu first, and resumes the game from the main pause menu.
+        if (IsPaused)
         {
-            lastEscPressTime = -Mathf.Infinity;
-            CloseOptions();
+            if (backPressed)
+            {
+                lastEscPressTime = -Mathf.Infinity;
+
+                if (optionsOpen)
+                    CloseOptions();
+                else
+                    Resume();
+            }
+
+            if (AnyGamepadStartPressed())
+                TogglePause();
+
             return;
         }
 
         // Keyboard: Escape (double press)
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (backPressed)
         {
             if (Time.unscaledTime - lastEscPressTime <= doublePressWindow)
             {
@@ -127,6 +140,12 @@ public class PauseMenu : MonoBehaviour
         {
             TogglePause();
         }
+    }
+
+    // Back / cancel input: Escape on keyboard, B on gamepad.
+    private static bool BackPressed()
+    {
+        return Input.GetKeyDown(KeyCode.Escape) || AnyGamepadEastPressed();
     }
 
     private void TogglePause()
