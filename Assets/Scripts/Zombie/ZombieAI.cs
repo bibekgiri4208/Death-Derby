@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
-public class ZombieAI : MonoBehaviour
+public class ZombieAI : MonoBehaviour, IDamageable
 {
     public static event System.Action<int> OnZombieKilled;
 
@@ -39,6 +39,11 @@ public class ZombieAI : MonoBehaviour
     [Tooltip("Volume of the kill sound (0-1).")]
     public float killSoundVolume = 1f;
 
+    [Header("Damage")]
+    [Tooltip("Total damage needed to kill this zombie. The Bullet prefab deals 10 per shot, so 10 = one-shot kill.")]
+    [Min(0.1f)]
+    public float maxHealth = 10f;
+
     [Header("Status")]
     public bool isDead = false;
 
@@ -52,6 +57,7 @@ public class ZombieAI : MonoBehaviour
     private bool damageDealtThisAttack;
     private int zombieId;
     private float surroundOffset;
+    private float currentHealth;
     private static int nextZombieId = 0;
 
     private static readonly int SpeedHash = Animator.StringToHash("Speed");
@@ -63,6 +69,8 @@ public class ZombieAI : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
+
+        currentHealth = maxHealth;
 
         agent.baseOffset = 0.9f;
         agent.height = 1.4f;
@@ -253,6 +261,28 @@ public class ZombieAI : MonoBehaviour
         if (damageable == null) return;
 
         damageable.TakeDamage(attackDamage);
+    }
+
+    public void TakeDamage(float damageAmount)
+    {
+        TakeDamage(damageAmount, -1);
+    }
+
+    /// <summary>
+    /// Applies bullet/impact damage. Once health runs out the zombie is killed through
+    /// the normal death path so blood, sound and the kill counter all still run.
+    /// </summary>
+    public void TakeDamage(float damageAmount, int attackerPlayerIndex)
+    {
+        if (isDead || damageAmount <= 0f)
+            return;
+
+        currentHealth -= damageAmount;
+
+        if (currentHealth > 0f)
+            return;
+
+        KillZombie(attackerPlayerIndex);
     }
 
     public void KillZombie(int killerPlayerIndex = -1)

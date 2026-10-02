@@ -18,6 +18,7 @@ public class Bullet : MonoBehaviour
     private Vector3 lastPosition;
     private float maxRange = 100f;  // Set dynamically by the gun
     private bool launched;
+    private int shooterPlayerIndex = -1; // Used to credit the kill to the right player
 
     private void Awake()
     {
@@ -25,10 +26,11 @@ public class Bullet : MonoBehaviour
         bulletCollider = GetComponent<Collider>();
     }
 
-    public void Launch(Vector3 direction, Collider[] ownerColliders, float range)
+    public void Launch(Vector3 direction, Collider[] ownerColliders, float range, int playerIndex = -1)
     {
         ignoredColliders = ownerColliders;
         maxRange = range;
+        shooterPlayerIndex = playerIndex;
 
         direction.Normalize();
 
@@ -132,7 +134,7 @@ public class Bullet : MonoBehaviour
 
         if (damageable != null)
         {
-            damageable.TakeDamage(damage);
+            damageable.TakeDamage(damage, shooterPlayerIndex);
         }
 
         if (sparkPrefab != null)

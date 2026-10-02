@@ -131,7 +131,7 @@ public class CarWeapon : MonoBehaviour
 
             if (bullet != null)
             {
-                bullet.Launch(shootDirection, ownerColliders, bulletRange);
+                bullet.Launch(shootDirection, ownerColliders, bulletRange, playerIndex);
             }
         }
 
