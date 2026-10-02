@@ -9,6 +9,11 @@ public class SplitScreenMode : MonoBehaviour
     public static bool Active { get; private set; }
 
     private const string AutoEnableSceneName = "Coop";
+
+    // Scenes that must always stay single player. SplitScreenMode is only ever
+    // auto-created in AutoEnableSceneName, so a scene listed here can also carry a
+    // SplitScreenMode component without it switching itself on.
+    private static readonly string[] SinglePlayerSceneNames = { "Training" };
     private const string DefaultPlayerPrefsKey = "SplitScreenMode";
 
     [Header("Enable")]
@@ -111,7 +116,12 @@ public class SplitScreenMode : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void AutoEnable()
     {
-        if (SceneManager.GetActiveScene().name != AutoEnableSceneName)
+        string sceneName = SceneManager.GetActiveScene().name;
+
+        if (sceneName != AutoEnableSceneName)
+            return;
+
+        if (IsSinglePlayerScene(sceneName))
             return;
 
         if (FindAnyObjectByType<SplitScreenMode>() != null)
@@ -120,8 +130,22 @@ public class SplitScreenMode : MonoBehaviour
         new GameObject("Split Screen Mode").AddComponent<SplitScreenMode>();
     }
 
+    private static bool IsSinglePlayerScene(string sceneName)
+    {
+        foreach (string single in SinglePlayerSceneNames)
+        {
+            if (sceneName == single)
+                return true;
+        }
+
+        return false;
+    }
+
     private void Awake()
     {
+        if (IsSinglePlayerScene(gameObject.scene.name))
+            return;
+
         bool enabled = enableOnStart;
 
         if (usePlayerPrefsOverride && PlayerPrefs.HasKey(playerPrefsKey))

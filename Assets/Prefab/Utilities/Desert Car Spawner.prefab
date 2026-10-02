@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3134234268632925938
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6213384777641000057}
+  - component: {fileID: 6880356969267470974}
+  m_Layer: 0
+  m_Name: Desert Car Spawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6213384777641000057
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3134234268632925938}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6880356969267470974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3134234268632925938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b79f09a3396ea0853856033ec629874d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DesertCarSpawner
+  carPrefabs:
+  - {fileID: 5089216353689272328, guid: 866842c52b04ffc46b000fa9baab7b30, type: 3}
+  - {fileID: 7358854059992640779, guid: 176d262b70694fe4eb9685547d40e894, type: 3}
+  - {fileID: 436547849921054849, guid: 37fbd146c718e7b449da9443f3514cf9, type: 3}
+  - {fileID: 4722638119448103207, guid: 5f4ba5a26838cce409bde0cc7ff80cef, type: 3}
+  spawnPoint: {fileID: 0}
+  spawnPosition: {x: 500, y: 0.13, z: 500}
+  spawnEulerAngles: {x: 0, y: 0, z: 0}
+  playerIndex: 0

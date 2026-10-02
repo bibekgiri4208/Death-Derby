@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Coop.unity
     guid: 491060fa417be924f8f65ae8ced4fc99
+  - enabled: 1
+    path: Assets/Scenes/Training.unity
+    guid: 773554a9eed5cc048b618405e997df59
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 9eb07e2d669e9c94e9d7d3c782a916f7,
       type: 2}
