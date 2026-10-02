@@ -126,6 +126,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timerText: {fileID: 2174740747882889710}
+  usePlayerPreference: 1
   roundDuration: 180
   decideRoundOnTimeout: 1
 --- !u!1 &8850952472677546497

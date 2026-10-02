@@ -13,7 +13,10 @@ public class RoundTimer : MonoBehaviour
     [SerializeField] private TextMeshProUGUI timerText;
 
     [Header("Round")]
-    [Tooltip("Length of a round in seconds.")]
+    [Tooltip("Take the round length from the player's Match Timer preference (set on the Garage's Timer Cube).")]
+    [SerializeField] private bool usePlayerPreference = true;
+
+    [Tooltip("Length of a round in seconds, used only when 'Use Player Preference' is off.")]
     [Min(1f)]
     [SerializeField] private float roundDuration = 180f;
 
@@ -22,6 +25,7 @@ public class RoundTimer : MonoBehaviour
     [SerializeField] private bool decideRoundOnTimeout = true;
 
     public float Remaining => remaining;
+    public float Duration => roundDuration;
 
     private float remaining;
     private bool running;
@@ -32,7 +36,35 @@ public class RoundTimer : MonoBehaviour
         if (timerText == null)
             timerText = GetComponentInChildren<TextMeshProUGUI>(true);
 
+        if (usePlayerPreference)
+            roundDuration = MatchTimerSettings.Duration;
+
         remaining = roundDuration;
+    }
+
+    private void OnEnable()
+    {
+        if (usePlayerPreference)
+            MatchTimerSettings.DurationChanged += HandleDurationChanged;
+    }
+
+    private void OnDisable()
+    {
+        MatchTimerSettings.DurationChanged -= HandleDurationChanged;
+    }
+
+    /// <summary>
+    /// Re-arms the clock when the preference changes mid-round, so the on-screen
+    /// timer matches the new setting straight away instead of next scene load.
+    /// </summary>
+    private void HandleDurationChanged(float duration)
+    {
+        // A round that already timed out has handed the win over, so leave it alone.
+        if (!running) return;
+
+        roundDuration = duration;
+        remaining = duration;
+        UpdateText(force: true);
     }
 
     private void Start()

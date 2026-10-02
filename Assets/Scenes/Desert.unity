@@ -12435,7 +12435,7 @@ PrefabInstance:
     - target: {fileID: 7845570526870752540, guid: 5b1566dd85f487545bbae5fefd68bf16,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -100684,6 +100684,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timerText: {fileID: 2174740749378256301}
+  usePlayerPreference: 1
   roundDuration: 180
   decideRoundOnTimeout: 1
 --- !u!33 &8868542861152605375

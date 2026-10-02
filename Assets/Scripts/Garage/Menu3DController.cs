@@ -10,13 +10,13 @@ public class Menu3DController : MonoBehaviour
     [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private GameObject graphicsMenuPanel;
     [SerializeField] private GameObject startMenuPanel;
-    [SerializeField] private GameObject musicMenuPanel;
+    [SerializeField] private GameObject optionsMenuPanel;
     [SerializeField] private bool showMainMenuOnStart = true;
 
     [Header("Auto Wiring")]
     [SerializeField] private string graphicsButtonName = "Graphics Cube";
     [SerializeField] private string startButtonName = "Start Cube";
-    [SerializeField] private string musicButtonName = "Music Cube";
+    [SerializeField] private string optionsButtonName = "Options Cube";
     [SerializeField] private string returnButtonName = "Return Cube";
 
     [Header("Gamepad / Keyboard")]
@@ -42,12 +42,12 @@ public class Menu3DController : MonoBehaviour
     private readonly List<Vector3> graphicsHomePositions = new List<Vector3>();
     private readonly List<Interactable3DButton> startMenuButtons = new List<Interactable3DButton>();
     private readonly List<Vector3> startMenuHomePositions = new List<Vector3>();
-    private readonly List<Interactable3DButton> musicMenuButtons = new List<Interactable3DButton>();
-    private readonly List<Vector3> musicMenuHomePositions = new List<Vector3>();
+    private readonly List<Interactable3DButton> optionsMenuButtons = new List<Interactable3DButton>();
+    private readonly List<Vector3> optionsMenuHomePositions = new List<Vector3>();
     private GameObject currentPanel;
     private Interactable3DButton graphicsMainButton;
     private Interactable3DButton startMainButton;
-    private Interactable3DButton musicMainButton;
+    private Interactable3DButton optionsMainButton;
     private int selectedIndex = -1;
     private int lastDirection;
     private float nextRepeatTime;
@@ -59,7 +59,7 @@ public class Menu3DController : MonoBehaviour
     public GameObject MainMenuPanel => mainMenuPanel;
     public GameObject GraphicsMenuPanel => graphicsMenuPanel;
     public GameObject StartMenuPanel => startMenuPanel;
-    public GameObject MusicMenuPanel => musicMenuPanel;
+    public GameObject OptionsMenuPanel => optionsMenuPanel;
     public GameObject CurrentPanel => currentPanel;
 
     void Awake()
@@ -68,7 +68,7 @@ public class Menu3DController : MonoBehaviour
         CachePanelButtons(mainMenuPanel, mainMenuButtons, mainMenuHomePositions);
         CachePanelButtons(graphicsMenuPanel, graphicsButtons, graphicsHomePositions);
         CachePanelButtons(startMenuPanel, startMenuButtons, startMenuHomePositions);
-        CachePanelButtons(musicMenuPanel, musicMenuButtons, musicMenuHomePositions);
+        CachePanelButtons(optionsMenuPanel, optionsMenuButtons, optionsMenuHomePositions);
         WirePanelButtons();
     }
 
@@ -106,7 +106,7 @@ public class Menu3DController : MonoBehaviour
         StopSlide();
         SetPanelActive(graphicsMenuPanel, false);
         SetPanelActive(startMenuPanel, false);
-        SetPanelActive(musicMenuPanel, false);
+        SetPanelActive(optionsMenuPanel, false);
         SetPanelActive(mainMenuPanel, true);
         SetButtonsInteractable(mainMenuButtons, true);
         currentPanel = mainMenuPanel;
@@ -119,7 +119,7 @@ public class Menu3DController : MonoBehaviour
     {
         StopSlide();
         SetPanelActive(startMenuPanel, false);
-        SetPanelActive(musicMenuPanel, false);
+        SetPanelActive(optionsMenuPanel, false);
         SetPanelActive(graphicsMenuPanel, true);
         SetPanelActive(mainMenuPanel, true);
         SetButtonsInteractable(mainMenuButtons, false);
@@ -133,7 +133,7 @@ public class Menu3DController : MonoBehaviour
     {
         StopSlide();
         SetPanelActive(graphicsMenuPanel, false);
-        SetPanelActive(musicMenuPanel, false);
+        SetPanelActive(optionsMenuPanel, false);
         SetPanelActive(startMenuPanel, true);
         SetPanelActive(mainMenuPanel, true);
         SetButtonsInteractable(mainMenuButtons, false);
@@ -143,18 +143,18 @@ public class Menu3DController : MonoBehaviour
         StartSlideIn(startMenuButtons, startMenuHomePositions);
     }
 
-    public void ShowMusicMenu()
+    public void ShowOptionsMenu()
     {
         StopSlide();
         SetPanelActive(graphicsMenuPanel, false);
         SetPanelActive(startMenuPanel, false);
-        SetPanelActive(musicMenuPanel, true);
+        SetPanelActive(optionsMenuPanel, true);
         SetPanelActive(mainMenuPanel, true);
         SetButtonsInteractable(mainMenuButtons, false);
-        currentPanel = musicMenuPanel;
+        currentPanel = optionsMenuPanel;
         RefreshButtons();
 
-        StartSlideIn(musicMenuButtons, musicMenuHomePositions);
+        StartSlideIn(optionsMenuButtons, optionsMenuHomePositions);
     }
 
     public void CloseStartMenu()
@@ -163,7 +163,7 @@ public class Menu3DController : MonoBehaviour
 
         StopSlide();
         SetPanelActive(graphicsMenuPanel, false);
-        SetPanelActive(musicMenuPanel, false);
+        SetPanelActive(optionsMenuPanel, false);
         SetPanelActive(mainMenuPanel, true);
         SetButtonsInteractable(mainMenuButtons, true);
         currentPanel = mainMenuPanel;
@@ -179,7 +179,7 @@ public class Menu3DController : MonoBehaviour
 
         StopSlide();
         SetPanelActive(startMenuPanel, false);
-        SetPanelActive(musicMenuPanel, false);
+        SetPanelActive(optionsMenuPanel, false);
         SetPanelActive(mainMenuPanel, true);
         SetButtonsInteractable(mainMenuButtons, true);
         currentPanel = mainMenuPanel;
@@ -189,9 +189,9 @@ public class Menu3DController : MonoBehaviour
         StartSlideOut(graphicsButtons, graphicsHomePositions, graphicsMenuPanel);
     }
 
-    public void CloseMusicMenu()
+    public void CloseOptionsMenu()
     {
-        if (currentPanel != musicMenuPanel) return;
+        if (currentPanel != optionsMenuPanel) return;
 
         StopSlide();
         SetPanelActive(graphicsMenuPanel, false);
@@ -200,9 +200,9 @@ public class Menu3DController : MonoBehaviour
         SetButtonsInteractable(mainMenuButtons, true);
         currentPanel = mainMenuPanel;
         RefreshButtons();
-        SetSelected(GetButtonIndex(musicMainButton));
+        SetSelected(GetButtonIndex(optionsMainButton));
 
-        StartSlideOut(musicMenuButtons, musicMenuHomePositions, musicMenuPanel);
+        StartSlideOut(optionsMenuButtons, optionsMenuHomePositions, optionsMenuPanel);
     }
 
     private int GetButtonIndex(Interactable3DButton target)
@@ -271,7 +271,7 @@ public class Menu3DController : MonoBehaviour
         ResetPositions(mainMenuButtons, mainMenuHomePositions);
         ResetPositions(graphicsButtons, graphicsHomePositions);
         ResetPositions(startMenuButtons, startMenuHomePositions);
-        ResetPositions(musicMenuButtons, musicMenuHomePositions);
+        ResetPositions(optionsMenuButtons, optionsMenuHomePositions);
     }
 
     private void ResetPositions(List<Interactable3DButton> list, List<Vector3> homePositions)
@@ -393,10 +393,10 @@ public class Menu3DController : MonoBehaviour
             if (start != null) startMenuPanel = start.gameObject;
         }
 
-        if (musicMenuPanel == null)
+        if (optionsMenuPanel == null)
         {
-            Transform music = FindDeepChild(transform, "Music Menu");
-            if (music != null) musicMenuPanel = music.gameObject;
+            Transform options = FindDeepChild(transform, "Options Menu");
+            if (options != null) optionsMenuPanel = options.gameObject;
         }
 
         if (mainMenuPanel == null || graphicsMenuPanel == null || startMenuPanel == null)
@@ -426,11 +426,11 @@ public class Menu3DController : MonoBehaviour
                 start.onClick.AddListener(ShowStartMenu);
             }
 
-            Transform musicButton = FindDeepChild(mainMenuPanel.transform, musicButtonName);
-            if (musicButton != null && musicButton.TryGetComponent(out Interactable3DButton music))
+            Transform optionsButton = FindDeepChild(mainMenuPanel.transform, optionsButtonName);
+            if (optionsButton != null && optionsButton.TryGetComponent(out Interactable3DButton options))
             {
-                musicMainButton = music;
-                music.onClick.AddListener(ShowMusicMenu);
+                optionsMainButton = options;
+                options.onClick.AddListener(ShowOptionsMenu);
             }
         }
 
@@ -681,9 +681,9 @@ public class Menu3DController : MonoBehaviour
         {
             CloseGraphicsMenu();
         }
-        else if (currentPanel == musicMenuPanel)
+        else if (currentPanel == optionsMenuPanel)
         {
-            CloseMusicMenu();
+            CloseOptionsMenu();
         }
     }
 
