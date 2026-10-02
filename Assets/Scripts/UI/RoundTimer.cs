@@ -113,13 +113,51 @@ public class RoundTimer : MonoBehaviour
         if (!decideRoundOnTimeout)
             return;
 
-        ScoreBoard board = FindAnyObjectByType<ScoreBoard>();
-        if (board == null)
+        // The two modes keep separate boards, and only one of them exists per scene:
+        // Desert scores the round's kills, Coop names the player who out-killed the other.
+        ResultBoard resultBoard = FindAnyObjectByType<ResultBoard>();
+        if (resultBoard != null)
         {
-            Debug.LogWarning("RoundTimer: no ScoreBoard in this scene, cannot show the result.", this);
+            resultBoard.Show(HighestScoringPlayer());
             return;
         }
 
-        board.Show(timeExpired: true);
+        ScoreBoard scoreBoard = FindAnyObjectByType<ScoreBoard>();
+        if (scoreBoard == null)
+        {
+            Debug.LogWarning("RoundTimer: no result board in this scene, cannot show the result.", this);
+            return;
+        }
+
+        scoreBoard.Show(timeExpired: true);
+    }
+
+    // -1 means a draw, which ResultBoard renders as "Draw".
+    private static int HighestScoringPlayer()
+    {
+        KillCounter[] counters = FindObjectsByType<KillCounter>();
+
+        int bestPlayer = -1;
+        int bestKills = 0;
+        int playersOnBest = 0;
+
+        foreach (KillCounter counter in counters)
+        {
+            if (counter == null || counter.PlayerIndex < 0)
+                continue;
+
+            if (bestPlayer < 0 || counter.KillCount > bestKills)
+            {
+                bestPlayer = counter.PlayerIndex;
+                bestKills = counter.KillCount;
+                playersOnBest = 1;
+            }
+            else if (counter.KillCount == bestKills)
+            {
+                playersOnBest++;
+            }
+        }
+
+        return playersOnBest > 1 ? -1 : bestPlayer;
     }
 }
