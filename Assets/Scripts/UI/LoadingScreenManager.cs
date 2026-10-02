@@ -30,6 +30,8 @@ public class LoadingScreenManager : MonoBehaviour
     [SerializeField] private Sprite desertLoadingImage;
     [Tooltip("Artwork shown while loading the Coop scene. Leave empty to keep the scene's default image.")]
     [SerializeField] private Sprite coopLoadingImage;
+    [Tooltip("Artwork shown while loading the Training scene. Leave empty to keep the scene's default image.")]
+    [SerializeField] private Sprite trainingLoadingImage;
 
     private static string targetScene;
     private bool isLoading;
@@ -37,6 +39,7 @@ public class LoadingScreenManager : MonoBehaviour
     private const string LoadingSceneName = "Loading Screen";
     private const string DesertSceneName = "Desert";
     private const string CoopSceneName = "Coop";
+    private const string TrainingSceneName = "Training";
 
     void Awake()
     {
@@ -80,6 +83,7 @@ public class LoadingScreenManager : MonoBehaviour
     {
         if (sceneName == DesertSceneName) return desertLoadingImage;
         if (sceneName == CoopSceneName) return coopLoadingImage;
+        if (sceneName == TrainingSceneName) return trainingLoadingImage;
         return null;
     }
 
