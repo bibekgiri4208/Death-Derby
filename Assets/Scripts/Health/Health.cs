@@ -24,6 +24,11 @@ public class Health : MonoBehaviour, IDamageable
     // Required by IDamageable interface for Bullet.cs
     public void TakeDamage(float damageAmount)
     {
+        TakeDamage(damageAmount, -1);
+    }
+
+    public void TakeDamage(float damageAmount, int attackerPlayerIndex)
+    {
         if (currentHealth <= 0) return;
 
         currentHealth -= damageAmount;
