@@ -5037,11 +5037,11 @@ GameObject:
   - component: {fileID: 4214216983750044298}
   - component: {fileID: 6098580648454410304}
   - component: {fileID: 2660707819779229447}
-  - component: {fileID: 144098855692800266}
   - component: {fileID: 1399705824548507613}
   - component: {fileID: 8127556869509884603}
   - component: {fileID: 4034600121485056746}
   - component: {fileID: 491834579451730387}
+  - component: {fileID: 1730809618756967805}
   m_Layer: 3
   m_Name: Hot Rod
   m_TagString: Untagged
@@ -5170,27 +5170,6 @@ MonoBehaviour:
   killHapticLow: 0.4
   killHapticHigh: 0.35
   killHapticDuration: 0.25
---- !u!114 &144098855692800266
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 436547849921054849}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bafd321ab64aedf4187e6c216af5adf4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CarWeapon
-  gunPoints: []
-  bulletPrefab: {fileID: 5590803718053999679, guid: 277dfbc226218c6449d1828b2a72357f,
-    type: 3}
-  bulletRange: 200
-  gunAudioSource: {fileID: 3995035862897095486}
-  gunFadeOutSpeed: 12
-  muzzleFlashes: []
-  fireRate: 0.08
-  playerIndex: 0
 --- !u!114 &1399705824548507613
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5354,6 +5333,24 @@ MonoBehaviour:
   emissionSmoothing: 5
   maxSmokeDistanceRate: 10
   airborneFadeSmoothing: 8
+--- !u!114 &1730809618756967805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 436547849921054849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d864671a8ad83b469c35e0316f4364f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AntiRollBar4Wheel
+  FrontLeftWheel: {fileID: 6477655186116925927}
+  FrontRightWheel: {fileID: 4753692795758457520}
+  RearLeftWheel: {fileID: 4174063721310061627}
+  RearRightWheel: {fileID: 4560005146802044389}
+  FrontAntiRollStiffness: 5000
+  RearAntiRollStiffness: 5000
 --- !u!1 &479130319416868290
 GameObject:
   m_ObjectHideFlags: 0

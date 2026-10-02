@@ -70591,6 +70591,7 @@ GameObject:
   - component: {fileID: 1193485670062200931}
   - component: {fileID: 4269534890607649191}
   - component: {fileID: 1939776595353855184}
+  - component: {fileID: 1474529329191638737}
   m_Layer: 0
   m_Name: Dust Devil
   m_TagString: Untagged
@@ -70715,6 +70716,7 @@ MonoBehaviour:
   driftMinSpeed: 5
   driftFrictionSmoothing: 8
   killSpeedKmh: 10
+  playerIndex: 0
   boostHapticLow: 0.35
   boostHapticHigh: 0.45
   boostHapticDuration: 0.3
@@ -70894,6 +70896,24 @@ MonoBehaviour:
   emissionSmoothing: 5
   maxSmokeDistanceRate: 10
   airborneFadeSmoothing: 8
+--- !u!114 &1474529329191638737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7358854059992640779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d864671a8ad83b469c35e0316f4364f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AntiRollBar4Wheel
+  FrontLeftWheel: {fileID: 6568474716427863710}
+  FrontRightWheel: {fileID: 1611523730996253899}
+  RearLeftWheel: {fileID: 8367283478666906450}
+  RearRightWheel: {fileID: 2126973587090674199}
+  FrontAntiRollStiffness: 5000
+  RearAntiRollStiffness: 5000
 --- !u!1 &7380067237303633031
 GameObject:
   m_ObjectHideFlags: 0
