@@ -70767,6 +70767,7 @@ MonoBehaviour:
   - {fileID: 5967346828671340807}
   - {fileID: 6485020186670238768}
   fireRate: 0.12
+  playerIndex: 0
 --- !u!82 &4269534890607649191
 AudioSource:
   m_ObjectHideFlags: 0

@@ -63,6 +63,11 @@ public class OilTank : MonoBehaviour, IDamageable
 
     public void TakeDamage(float damageAmount)
     {
+        TakeDamage(damageAmount, -1);
+    }
+
+    public void TakeDamage(float damageAmount, int attackerPlayerIndex)
+    {
         // Don't take damage if it's already completely burnt out
         if (isDestroyed) return;
 
