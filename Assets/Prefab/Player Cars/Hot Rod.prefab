@@ -5143,7 +5143,7 @@ MonoBehaviour:
   maxSteerAngle: 30
   handbrakeForce: 5000
   maxForwardSpeed: 35
-  maxReverseSpeed: 12
+  maxReverseSpeed: 35
   boostForce: 7000
   boostMaxSpeed: 45
   steerSmoothSpeed: 6

@@ -45345,7 +45345,7 @@ MonoBehaviour:
   maxSteerAngle: 30
   handbrakeForce: 5000
   maxForwardSpeed: 35
-  maxReverseSpeed: 12
+  maxReverseSpeed: 35
   boostForce: 9000
   boostMaxSpeed: 55
   steerSmoothSpeed: 6
@@ -45353,6 +45353,25 @@ MonoBehaviour:
   steeringSpeedForMinAngle: 30
   downForce: 80
   centerOfMassOffset: {x: 0, y: -0.5, z: 0}
+  burnoutKeepStillBrakeForce: 5000
+  burnoutMotorMultiplier: 1.5
+  burnoutForwardFriction: 0.05
+  burnoutSidewaysFriction: 0.2
+  burnoutTurnSpeed: 2.5
+  driftSidewaysFriction: 0.3
+  driftForwardFriction: 0.6
+  driftSteerMultiplier: 1.3
+  driftMotorMultiplier: 0.7
+  driftMinSpeed: 5
+  driftFrictionSmoothing: 8
+  killSpeedKmh: 10
+  playerIndex: 0
+  boostHapticLow: 0.35
+  boostHapticHigh: 0.45
+  boostHapticDuration: 0.3
+  killHapticLow: 0.4
+  killHapticHigh: 0.35
+  killHapticDuration: 0.25
 --- !u!114 &2108017970844882182
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -45373,6 +45392,8 @@ MonoBehaviour:
   maxVolume: 1
   pitchSmoothSpeed: 5
   volumeSmoothSpeed: 5
+  burnoutPitch: 2.2
+  burnoutVolume: 0.9
 --- !u!82 &2688852181776359847
 AudioSource:
   m_ObjectHideFlags: 0
@@ -45517,6 +45538,8 @@ MonoBehaviour:
   - {fileID: 606508053053635243}
   - {fileID: 3563085812947567873}
   nosAudioSource: {fileID: 6171135927369449617}
+  brakeLights: []
+  brakeLightSmoothing: 8
   desertSmokeEffects:
   - {fileID: 849380733239106520}
   - {fileID: 5266904863068181281}
@@ -45524,6 +45547,10 @@ MonoBehaviour:
   - {fileID: 4735931497282998545}
   maxSmokeEmissionRate: 120
   maxSmokeParticleSpeed: 4
+  minSmokeSpeed: 8
+  emissionSmoothing: 5
+  maxSmokeDistanceRate: 10
+  airborneFadeSmoothing: 8
 --- !u!1 &5136356076612747444
 GameObject:
   m_ObjectHideFlags: 0
