@@ -1863,7 +1863,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: On
+  m_text: "M: On"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d607877e7a66bbf4089911a30ddf867f, type: 2}
   m_sharedMaterial: {fileID: 30965821062046865, guid: d607877e7a66bbf4089911a30ddf867f,
@@ -44200,7 +44200,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a3f9c1e7b2d48f0a6c39e15d7b0284f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MatchTimerOptionSelector
-  textPrefix: "Time "
+  textPrefix: 
   label: {fileID: 5511000000000000014}
   slideDuration: 0.15
   slideDistanceScale: 1
@@ -44261,7 +44261,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Time 3 Min
+  m_text: 3 min
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d607877e7a66bbf4089911a30ddf867f, type: 2}
   m_sharedMaterial: {fileID: 30965821062046865, guid: d607877e7a66bbf4089911a30ddf867f,

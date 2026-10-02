@@ -67,24 +67,16 @@ public static class MatchTimerSettings
         DurationChanged?.Invoke(DurationOptions[index]);
     }
 
-    /// <summary>Short label for the menu cube, e.g. "3 Min".</summary>
+    /// <summary>
+    /// Label for the menu cube in whole minutes, e.g. "3 min". Every option is a
+    /// multiple of 60, so minutes alone are enough to read on the cube.
+    /// </summary>
     public static string GetLabel(int optionIndex)
     {
         if (optionIndex < 0 || optionIndex >= DurationOptions.Length)
             return string.Empty;
 
-        float seconds = DurationOptions[optionIndex];
-
-        if (seconds < 60f)
-            return Mathf.RoundToInt(seconds) + " Sec";
-
-        string label = Mathf.RoundToInt(seconds / 60f) + " Min";
-
-        int leftover = Mathf.RoundToInt(seconds % 60f);
-        if (leftover > 0)
-            label += " " + leftover + " Sec";
-
-        return label;
+        return Mathf.RoundToInt(DurationOptions[optionIndex] / 60f) + " min";
     }
 
     private static void EnsureLoaded()

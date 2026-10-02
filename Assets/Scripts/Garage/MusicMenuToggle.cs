@@ -30,6 +30,6 @@ public class MusicMenuToggle : MonoBehaviour
         if (statusLabel == null) return;
 
         bool isOn = musicAudioSource != null && !musicAudioSource.mute;
-        statusLabel.text = isOn ? "On" : "Off";
+        statusLabel.text = isOn ? "M: On" : "M: Off";
     }
 }

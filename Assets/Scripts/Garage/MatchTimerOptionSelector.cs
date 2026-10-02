@@ -11,8 +11,8 @@ public class MatchTimerOptionSelector : MonoBehaviour, IOptionSelector
     public const string DefaultPlayerPrefsKey = MatchTimerSettings.DurationPrefsKey;
 
     [Header("Display")]
-    [Tooltip("Shown before the duration, e.g. 'Time ' + '3 Min'.")]
-    [SerializeField] private string textPrefix = "Time ";
+    [Tooltip("Shown before the duration. Leave empty for a bare number of minutes.")]
+    [SerializeField] private string textPrefix = "";
     [SerializeField] private TMP_Text label;
 
     [Header("Slide Animation")]
