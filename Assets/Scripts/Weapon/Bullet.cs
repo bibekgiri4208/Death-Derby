@@ -3,7 +3,7 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     public float speed = 80f;
-    public float lifetime = 3f; // Fallback timer
+    public float lifetime = 3f;
     public int damage = 10;
     public float castRadius = 0.12f;
 
@@ -11,19 +11,39 @@ public class Bullet : MonoBehaviour
     public GameObject sparkPrefab;
 
     private Rigidbody rb;
-    private Collider bulletCollider;
     private Collider[] ignoredColliders;
-
-    private Vector3 startPosition; // Stores where the bullet was fired from
-    private Vector3 lastPosition;
-    private float maxRange = 100f;  // Set dynamically by the gun
+    private TrailRenderer[] trails;
+    private RaycastHit[] hits = new RaycastHit[16];
+    private CombatPool pool;
+    private GameObject sourcePrefab;
+    private Vector3 direction;
+    private float distanceTraveled;
+    private float expiresAt;
+    private float maxRange = 100f;
     private bool launched;
     private int shooterPlayerIndex = -1; // Used to credit the kill to the right player
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        bulletCollider = GetComponent<Collider>();
+        trails = GetComponentsInChildren<TrailRenderer>(true);
+
+        // Sweeps below are the single collision path, including zombie trigger colliders.
+        // No dynamic Rigidbody simulation, CCD, or bullet-to-bullet contact pairs are needed.
+        if (rb != null)
+        {
+            rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+            rb.isKinematic = true;
+            rb.detectCollisions = false;
+        }
+        foreach (Collider collider in GetComponentsInChildren<Collider>(true))
+            collider.enabled = false;
+    }
+
+    internal void SetPool(CombatPool owner, GameObject prefab)
+    {
+        pool = owner;
+        sourcePrefab = prefab;
     }
 
     public void Launch(Vector3 direction, Collider[] ownerColliders, float range, int playerIndex = -1)
@@ -32,27 +52,18 @@ public class Bullet : MonoBehaviour
         maxRange = range;
         shooterPlayerIndex = playerIndex;
 
-        direction.Normalize();
-
-        if (bulletCollider != null && ignoredColliders != null)
-        {
-            foreach (Collider ownerCollider in ignoredColliders)
-            {
-                if (ownerCollider != null)
-                {
-                    Physics.IgnoreCollision(bulletCollider, ownerCollider, true);
-                }
-            }
-        }
-
+        this.direction = direction.normalized;
         transform.forward = direction;
-        startPosition = transform.position; // Record spawn point
-        lastPosition = transform.position;
+        if (rb != null)
+        {
+            rb.position = transform.position;
+            rb.rotation = transform.rotation;
+        }
+        foreach (TrailRenderer trail in trails)
+            trail.Clear();
+        distanceTraveled = 0f;
+        expiresAt = Time.time + lifetime;
         launched = true;
-
-        rb.linearVelocity = direction * speed;
-
-        Destroy(gameObject, lifetime); // Keep as a safety fallback
     }
 
     private void FixedUpdate()
@@ -60,48 +71,57 @@ public class Bullet : MonoBehaviour
         if (!launched)
             return;
 
-        // --- RANGE CHECK ---
-        float distanceTraveled = Vector3.Distance(startPosition, transform.position);
-        if (distanceTraveled >= maxRange)
+        if (Time.time >= expiresAt || distanceTraveled >= maxRange)
         {
-            Destroy(gameObject);
+            Release();
             return;
         }
-        // -------------------
 
-        Vector3 travel = transform.position - lastPosition;
-        float distance = travel.magnitude;
+        Vector3 position = rb != null ? rb.position : transform.position;
+        float distance = Mathf.Min(speed * Time.fixedDeltaTime, maxRange - distanceTraveled);
 
         if (distance > 0.001f)
         {
-            RaycastHit[] hits = Physics.SphereCastAll(
-                lastPosition,
-                castRadius,
-                travel.normalized,
-                distance
-            );
-
-            foreach (RaycastHit hit in hits)
+            int hitCount;
+            // Grow only when saturated so dense crowds never truncate the nearest valid hit.
+            do
             {
-                if (ShouldIgnore(hit.collider))
-                    continue;
+                hitCount = Physics.SphereCastNonAlloc(position, castRadius, direction, hits,
+                    distance, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide);
+                if (hitCount < hits.Length)
+                    break;
+                System.Array.Resize(ref hits, hits.Length * 2);
+            } while (true);
 
-                Vector3 hitPoint = hit.point;
-                Vector3 hitNormal = hit.normal;
-                Hit(hit.collider.gameObject, hitPoint, hitNormal);
+            int nearest = -1;
+            float nearestDistance = float.MaxValue;
+            for (int i = 0; i < hitCount; i++)
+            {
+                if (!ShouldIgnore(hits[i].collider) && hits[i].distance < nearestDistance)
+                {
+                    nearest = i;
+                    nearestDistance = hits[i].distance;
+                }
+            }
+            if (nearest >= 0)
+            {
+                RaycastHit hit = hits[nearest];
+                Hit(hit.collider.gameObject, hit.point, hit.normal);
                 return;
             }
         }
 
-        lastPosition = transform.position;
+        distanceTraveled += distance;
+        Vector3 nextPosition = position + direction * distance;
+        if (rb != null)
+            rb.MovePosition(nextPosition);
+        else
+            transform.position = nextPosition;
     }
 
     private bool ShouldIgnore(Collider other)
     {
         if (other == null)
-            return true;
-
-        if (bulletCollider != null && other == bulletCollider)
             return true;
 
         if (ignoredColliders == null)
@@ -116,19 +136,12 @@ public class Bullet : MonoBehaviour
         return false;
     }
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (ShouldIgnore(collision.collider))
-            return;
-
-        Vector3 hitPoint = collision.contacts.Length > 0 ? collision.contacts[0].point : transform.position;
-        Vector3 hitNormal = collision.contacts.Length > 0 ? collision.contacts[0].normal : -transform.forward;
-
-        Hit(collision.gameObject, hitPoint, hitNormal);
-    }
-
     private void Hit(GameObject hitObject, Vector3 point, Vector3 normal)
     {
+        if (!launched)
+            return;
+        launched = false;
+
         // Finds ANY component on the hit object (or its parent) that implements IDamageable
         IDamageable damageable = hitObject.GetComponentInParent<IDamageable>();
 
@@ -139,10 +152,22 @@ public class Bullet : MonoBehaviour
 
         if (sparkPrefab != null)
         {
-            GameObject sparks = Instantiate(sparkPrefab, point, Quaternion.LookRotation(normal));
-            Destroy(sparks, 1f);
+            Quaternion rotation = Quaternion.LookRotation(normal.sqrMagnitude > 0.001f ? normal : -direction);
+            CombatPool.SpawnEffect(sparkPrefab, point, rotation, 1f);
         }
 
-        Destroy(gameObject);
+        Release();
+    }
+
+    private void Release()
+    {
+        launched = false;
+        ignoredColliders = null;
+        foreach (TrailRenderer trail in trails)
+            trail.Clear();
+        if (pool != null && sourcePrefab != null)
+            pool.ReturnBullet(this, sourcePrefab);
+        else
+            Destroy(gameObject);
     }
 }

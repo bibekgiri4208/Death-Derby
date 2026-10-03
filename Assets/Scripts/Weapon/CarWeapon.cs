@@ -30,6 +30,14 @@ public class CarWeapon : MonoBehaviour
     {
         ownerColliders = GetComponentsInChildren<Collider>();
 
+        if (bulletPrefab != null && bulletPrefab.TryGetComponent(out Bullet bullet))
+        {
+            float travelTime = Mathf.Min(bullet.lifetime, bulletRange / Mathf.Max(bullet.speed, 0.01f));
+            int barrelCount = gunPoints != null ? gunPoints.Length : 0;
+            int reserve = barrelCount * (Mathf.CeilToInt(travelTime / Mathf.Max(fireRate, 0.01f)) + 2);
+            CombatPool.WarmBullets(bulletPrefab, reserve);
+        }
+
         if (gunAudioSource != null)
         {
             originalGunVolume = gunAudioSource.volume;
@@ -119,20 +127,14 @@ public class CarWeapon : MonoBehaviour
             if (gunPoint == null)
                 continue;
 
-            Vector3 shootDirection = gunPoint.forward;
-
-            GameObject bulletObject = Instantiate(
+            CombatPool.SpawnBullet(
                 bulletPrefab,
                 gunPoint.position,
-                gunPoint.rotation
+                gunPoint.rotation,
+                ownerColliders,
+                bulletRange,
+                playerIndex
             );
-
-            Bullet bullet = bulletObject.GetComponent<Bullet>();
-
-            if (bullet != null)
-            {
-                bullet.Launch(shootDirection, ownerColliders, bulletRange, playerIndex);
-            }
         }
 
         PlayMuzzleFlash();

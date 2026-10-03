@@ -40,9 +40,9 @@ public class ZombieAI : MonoBehaviour, IDamageable
     public float killSoundVolume = 1f;
 
     [Header("Damage")]
-    [Tooltip("Total damage needed to kill this zombie. The Bullet prefab deals 10 per shot, so 10 = one-shot kill.")]
+    [Tooltip("Total damage needed to kill this zombie.")]
     [Min(0.1f)]
-    public float maxHealth = 10f;
+    public float maxHealth = 1f;
 
     [Header("Status")]
     public bool isDead = false;
@@ -63,6 +63,20 @@ public class ZombieAI : MonoBehaviour, IDamageable
     private static readonly int SpeedHash = Animator.StringToHash("Speed");
     private static readonly int Attack1Hash = Animator.StringToHash("Attack1");
     private static readonly int Attack2Hash = Animator.StringToHash("Attack2");
+
+    public static void PrewarmDeathEffects()
+    {
+        BloodDecal.Prewarm();
+        BloodSplash.Prewarm();
+        CombatPool.WarmSounds(16);
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    private static void WarmInitialScene()
+    {
+        if (FindAnyObjectByType<ZombieSpawner>() != null || FindAnyObjectByType<ZombieAI>() != null)
+            PrewarmDeathEffects();
+    }
 
     void Awake()
     {
@@ -295,16 +309,7 @@ public class ZombieAI : MonoBehaviour, IDamageable
         BloodDecal.Spawn(transform.position);
         BloodSplash.Spawn(transform.position + Vector3.up * 0.15f, Quaternion.identity);
 
-        if (killSound != null)
-        {
-            GameObject soundObj = new GameObject("ZombieKillSound");
-            AudioSource src = soundObj.AddComponent<AudioSource>();
-            src.clip = killSound;
-            src.volume = killSoundVolume;
-            src.spatialBlend = 0f;
-            src.Play();
-            Destroy(soundObj, killSound.length + 0.1f);
-        }
+        CombatPool.PlayKillSound(killSound, killSoundVolume, transform.position);
 
         if (agent != null) agent.enabled = false;
 

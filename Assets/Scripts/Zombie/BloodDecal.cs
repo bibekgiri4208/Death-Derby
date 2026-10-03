@@ -6,21 +6,22 @@ public class BloodDecal : MonoBehaviour
     public static int MaxDecals = 60;
     public static float Lifetime = 25f;
 
-    private const int SplatTextureSize = 256;
-    private const int SplatTextureVariants = 6;
-
     private static readonly List<BloodDecal> ActiveDecals = new List<BloodDecal>();
-    private static List<Texture2D> cachedTextures;
-    private static bool assetsReady;
+    private static readonly Stack<BloodDecal> InactiveDecals = new Stack<BloodDecal>();
+    private static readonly List<Texture2D> generatedTextures = new List<Texture2D>();
+    private static Sprite[] cachedSprites;
+    private static Transform poolRoot;
+    private static RaycastHit[] surfaceHits = new RaycastHit[16];
 
     private SpriteRenderer spriteRenderer;
-    private Sprite sprite;
     private Color tint;
     private float spawnedTime;
 
     public static void Spawn(Vector3 deathPosition)
     {
+        if (MaxDecals <= 0) return;
         EnsureAssets();
+        EnsurePoolRoot();
 
         if (TryGetSurface(deathPosition, out Vector3 point, out Vector3 normal))
         {
@@ -51,9 +52,17 @@ public class BloodDecal : MonoBehaviour
 
     private static void CreateDecal(Vector3 point, Vector3 normal, float size)
     {
-        if (!assetsReady || cachedTextures == null || cachedTextures.Count == 0) return;
+        // Recycle immediately so bursts of kills cannot exceed the limit in one frame.
+        while (ActiveDecals.Count >= MaxDecals)
+            ActiveDecals[0].Recycle();
 
-        GameObject go = new GameObject("BloodDecal");
+        BloodDecal decal = null;
+        while (InactiveDecals.Count > 0 && decal == null)
+            decal = InactiveDecals.Pop();
+        if (decal == null)
+            decal = CreatePooledDecal();
+
+        GameObject go = decal.gameObject;
         go.transform.position = point + normal * 0.02f;
 
         Vector3 forward = normal;
@@ -64,31 +73,41 @@ public class BloodDecal : MonoBehaviour
 
         go.transform.localScale = new Vector3(size, size, 1f);
 
-        SpriteRenderer renderer = go.AddComponent<SpriteRenderer>();
-        renderer.sprite = Sprite.Create(
-            PickSplatTexture(),
-            new Rect(0, 0, SplatTextureSize, SplatTextureSize),
-            new Vector2(0.5f, 0.5f),
-            SplatTextureSize);
-
-        BloodDecal decal = go.AddComponent<BloodDecal>();
-        decal.Init(renderer);
+        decal.spriteRenderer.sprite = cachedSprites[Random.Range(0, cachedSprites.Length)];
+        decal.Init();
         ActiveDecals.Add(decal);
-
-        if (ActiveDecals.Count > MaxDecals)
-        {
-            BloodDecal oldest = ActiveDecals[0];
-            if (oldest != decal && oldest != null)
-            {
-                Destroy(oldest.gameObject);
-            }
-        }
+        go.SetActive(true);
     }
 
-    private void Init(SpriteRenderer renderer)
+    public static void Prewarm()
     {
-        spriteRenderer = renderer;
-        sprite = renderer.sprite;
+        EnsureAssets();
+        EnsurePoolRoot();
+        while (ActiveDecals.Count + InactiveDecals.Count < Mathf.Max(0, MaxDecals))
+            InactiveDecals.Push(CreatePooledDecal());
+    }
+
+    private static void EnsurePoolRoot()
+    {
+        if (poolRoot != null) return;
+        ActiveDecals.Clear();
+        InactiveDecals.Clear();
+        poolRoot = new GameObject("Blood Decal Pool").transform;
+    }
+
+    private static BloodDecal CreatePooledDecal()
+    {
+        EnsurePoolRoot();
+        GameObject go = new GameObject("BloodDecal", typeof(SpriteRenderer));
+        go.transform.SetParent(poolRoot, false);
+        BloodDecal decal = go.AddComponent<BloodDecal>();
+        decal.spriteRenderer = go.GetComponent<SpriteRenderer>();
+        go.SetActive(false);
+        return decal;
+    }
+
+    private void Init()
+    {
         spawnedTime = Time.time;
 
         float jitter = Random.Range(0.85f, 1.15f);
@@ -101,7 +120,7 @@ public class BloodDecal : MonoBehaviour
         float t = (Time.time - spawnedTime) / Lifetime;
         if (t >= 1f)
         {
-            Destroy(gameObject);
+            Recycle();
             return;
         }
 
@@ -119,7 +138,16 @@ public class BloodDecal : MonoBehaviour
     private void OnDestroy()
     {
         ActiveDecals.Remove(this);
-        if (sprite != null) Destroy(sprite);
+    }
+
+    private void Recycle()
+    {
+        ActiveDecals.Remove(this);
+        gameObject.SetActive(false);
+        if (InactiveDecals.Count < Mathf.Max(0, MaxDecals))
+            InactiveDecals.Push(this);
+        else
+            Destroy(gameObject);
     }
 
     private static bool TryGetSurface(Vector3 pos, out Vector3 point, out Vector3 normal)
@@ -127,14 +155,31 @@ public class BloodDecal : MonoBehaviour
         const float maxDist = 8f;
         Vector3 origin = pos + Vector3.up * 0.15f;
 
-        RaycastHit[] hits = Physics.RaycastAll(origin, Vector3.down, maxDist, ~0, QueryTriggerInteraction.Ignore);
-        for (int i = 0; i < hits.Length; i++)
+        int hitCount;
+        do
         {
-            Collider c = hits[i].collider;
-            if (c == null || c.transform.root.CompareTag("Player")) continue;
+            hitCount = Physics.RaycastNonAlloc(origin, Vector3.down, surfaceHits, maxDist,
+                ~0, QueryTriggerInteraction.Ignore);
+            if (hitCount < surfaceHits.Length) break;
+            System.Array.Resize(ref surfaceHits, surfaceHits.Length * 2);
+        } while (true);
 
-            point = hits[i].point;
-            normal = hits[i].normal;
+        int nearest = -1;
+        float nearestDistance = float.MaxValue;
+        for (int i = 0; i < hitCount; i++)
+        {
+            Collider c = surfaceHits[i].collider;
+            if (c == null || c.transform.root.CompareTag("Player")) continue;
+            if (surfaceHits[i].distance < nearestDistance)
+            {
+                nearest = i;
+                nearestDistance = surfaceHits[i].distance;
+            }
+        }
+        if (nearest >= 0)
+        {
+            point = surfaceHits[nearest].point;
+            normal = surfaceHits[nearest].normal;
             return true;
         }
 
@@ -143,97 +188,44 @@ public class BloodDecal : MonoBehaviour
         return false;
     }
 
-    private static Texture2D PickSplatTexture()
-    {
-        return cachedTextures[Random.Range(0, cachedTextures.Count)];
-    }
-
     private static void EnsureAssets()
     {
-        if (assetsReady) return;
+        if (cachedSprites != null && cachedSprites[0] != null) return;
 
-        cachedTextures = new List<Texture2D>(SplatTextureVariants);
-        for (int i = 0; i < SplatTextureVariants; i++)
+        int size = BloodSplatSource.SplatTextureSize;
+        cachedSprites = new Sprite[BloodSplatSource.SplatTextureVariants];
+        for (int i = 0; i < cachedSprites.Length; i++)
         {
-            cachedTextures.Add(GenerateSplatTexture(i));
-        }
-
-        assetsReady = true;
-    }
-
-    private static float Smoothstep(float edge0, float edge1, float x)
-    {
-        float t = Mathf.Clamp01((x - edge0) / (edge1 - edge0));
-        return t * t * (3f - 2f * t);
-    }
-
-    private static Texture2D GenerateSplatTexture(int index)
-    {
-        const int size = SplatTextureSize;
-        Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
-        tex.wrapMode = TextureWrapMode.Clamp;
-        tex.filterMode = FilterMode.Bilinear;
-
-        System.Random rng = new System.Random(1051 + index * 997);
-
-        float p1 = (float)(rng.NextDouble() * Mathf.PI * 2.0);
-        float p2 = (float)(rng.NextDouble() * Mathf.PI * 2.0);
-        float p3 = (float)(rng.NextDouble() * Mathf.PI * 2.0);
-        float p4 = (float)(rng.NextDouble() * Mathf.PI * 2.0);
-
-        int dropletCount = 6 + rng.Next(5);
-        float[] dropletAngle = new float[dropletCount];
-        float[] dropletDist = new float[dropletCount];
-        float[] dropletRadius = new float[dropletCount];
-
-        for (int i = 0; i < dropletCount; i++)
-        {
-            dropletAngle[i] = (float)(rng.NextDouble() * Mathf.PI * 2.0);
-            dropletDist[i] = 0.35f + (float)(rng.NextDouble() * 0.28f);
-            dropletRadius[i] = 0.025f + (float)(rng.NextDouble() * 0.06f);
-        }
-
-        Color32[] pixels = new Color32[size * size];
-
-        for (int y = 0; y < size; y++)
-        {
-            for (int x = 0; x < size; x++)
+            Texture2D texture = Resources.Load<Texture2D>("Effects/BloodSplats/BloodSplat_" + i);
+            if (texture == null)
             {
-                float u = (x + 0.5f) / size;
-                float v = (y + 0.5f) / size;
-                float dx = u - 0.5f;
-                float dy = v - 0.5f;
-                float r = Mathf.Sqrt(dx * dx + dy * dy);
-                float ang = Mathf.Atan2(dy, dx);
+                // Prewarm before zombies appear, keeping the fallback off the kill path.
+                texture = BloodSplatSource.GenerateSplatTexture(i);
+                generatedTextures.Add(texture);
+            }
+            cachedSprites[i] = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f), size, 0, SpriteMeshType.FullRect);
+        }
+    }
 
-                float boundary = 0.38f
-                    + 0.085f * Mathf.Sin(2f * ang + p1)
-                    + 0.055f * Mathf.Sin(3f * ang + p2)
-                    + 0.04f * Mathf.Sin(5f * ang + p3)
-                    + 0.02f * Mathf.Sin(7f * ang + p4);
-
-                float baseCoverage = 1f - Smoothstep(boundary * 0.82f, boundary, r);
-
-                float drop = 0f;
-                for (int i = 0; i < dropletCount; i++)
-                {
-                    float cosA = Mathf.Cos(dropletAngle[i]);
-                    float sinA = Mathf.Sin(dropletAngle[i]);
-                    float offX = dx - cosA * dropletDist[i];
-                    float offY = dy - sinA * dropletDist[i];
-                    float dd = Mathf.Sqrt(offX * offX + offY * offY);
-                    float hit = 1f - Smoothstep(dropletRadius[i] * 0.45f, dropletRadius[i], dd);
-                    drop = Mathf.Max(drop, hit);
-                }
-
-                float coverage = Mathf.Clamp01(baseCoverage + drop * 0.95f);
-                byte a = (byte)(Mathf.Clamp01(coverage * 0.95f) * 255f);
-                pixels[y * size + x] = new Color32(255, 255, 255, a);
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics()
+    {
+        if (cachedSprites != null)
+        {
+            foreach (Sprite sprite in cachedSprites)
+            {
+                if (sprite != null) Destroy(sprite);
             }
         }
-
-        tex.SetPixels32(pixels);
-        tex.Apply();
-        return tex;
+        foreach (Texture2D texture in generatedTextures)
+        {
+            if (texture != null) Destroy(texture);
+        }
+        generatedTextures.Clear();
+        cachedSprites = null;
+        poolRoot = null;
+        ActiveDecals.Clear();
+        InactiveDecals.Clear();
     }
 }

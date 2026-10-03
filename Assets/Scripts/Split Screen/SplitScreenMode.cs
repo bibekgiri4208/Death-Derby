@@ -188,6 +188,8 @@ public class SplitScreenMode : MonoBehaviour
                              " of 2 required gamepads connected. Player 2 will be idle until a second gamepad is plugged in.", this);
 
         player1.playerIndex = 0;
+        foreach (CarWeapon weapon in player1.GetComponentsInChildren<CarWeapon>(true))
+            weapon.playerIndex = player1.playerIndex;
 
         GameObject p2Go = ResolvePlayer2Car(player1, out bool createdP2);
         CarController player2 = p2Go != null ? p2Go.GetComponent<CarController>() : null;
@@ -195,6 +197,8 @@ public class SplitScreenMode : MonoBehaviour
         if (player2 != null)
         {
             player2.playerIndex = 1;
+            foreach (CarWeapon weapon in player2.GetComponentsInChildren<CarWeapon>(true))
+                weapon.playerIndex = player2.playerIndex;
             if (!p2Go.activeSelf)
                 p2Go.SetActive(true);
         }

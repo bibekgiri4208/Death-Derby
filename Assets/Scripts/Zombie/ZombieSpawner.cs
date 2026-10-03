@@ -27,6 +27,8 @@ public class ZombieSpawner : MonoBehaviour
 
     private void Start()
     {
+        ZombieAI.PrewarmDeathEffects();
+
         if (playerCar == null)
         {
             if (SplitScreenMode.Active)

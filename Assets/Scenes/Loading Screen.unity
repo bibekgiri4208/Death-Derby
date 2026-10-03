@@ -333,10 +333,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -410,7 +410,8 @@ MonoBehaviour:
   backgroundImage: {fileID: 37532984}
   desertLoadingImage: {fileID: 21300000, guid: d7d081a9514139f4c8f10dcd6a23cec3, type: 3}
   coopLoadingImage: {fileID: 21300000, guid: 44c93ce376c895b45bef3e35edbade0f, type: 3}
-  trainingLoadingImage: {fileID: 21300000, guid: accf0754a09e53043b2dbeef351e73e5, type: 3}
+  trainingLoadingImage: {fileID: 21300000, guid: accf0754a09e53043b2dbeef351e73e5,
+    type: 3}
 --- !u!1 &846757363
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,7 +4,7 @@ using UnityEngine;
 public class Health : MonoBehaviour, IDamageable
 {
     [Header("Health Settings")]
-    [SerializeField] private float maxHealth = 100f;
+    [SerializeField] private float maxHealth = 300f;
     private float currentHealth;
 
     // Public properties that PlayerHealthUI needs

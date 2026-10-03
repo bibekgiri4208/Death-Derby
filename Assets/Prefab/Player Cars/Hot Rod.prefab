@@ -5204,7 +5204,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd04655ed4a8f8a4c93a0132f6bf2d02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
-  maxHealth: 100
+  maxHealth: 300
 --- !u!82 &4034600121485056746
 AudioSource:
   m_ObjectHideFlags: 0

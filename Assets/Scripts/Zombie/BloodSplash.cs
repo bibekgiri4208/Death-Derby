@@ -5,13 +5,17 @@ public class BloodSplash : MonoBehaviour
     private const string PrefabResourcePath = "Effects/SmokyBloodSplash/SmokyBloodSplash";
     private static GameObject cachedPrefab;
 
+    public static void Prewarm()
+    {
+        CombatPool.WarmEffect(GetPrefab(), 16);
+    }
+
     public static BloodSplash Spawn(Vector3 position, Quaternion rotation)
     {
         GameObject prefab = GetPrefab();
         if (prefab != null)
         {
-            GameObject spawned = Object.Instantiate(prefab, position, rotation);
-            Object.Destroy(spawned, 2f);
+            CombatPool.SpawnEffect(prefab, position, rotation, 2f);
             return null;
         }
 
