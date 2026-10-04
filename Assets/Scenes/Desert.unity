@@ -84328,6 +84328,12 @@ MonoBehaviour:
   menuButtons:
   - {fileID: 9126933432039842873}
   - {fileID: 2088129864171516537}
+  entrance:
+    duration: 0.6
+    slideDistance: 80
+    startScale: 0.85
+    inputDelay: 1
+    releaseDelay: 0.25
   playerTag: Player
   freezeTime: 1
   disableCarSystems: 1

@@ -34,10 +34,13 @@ public class ScoreBoard : MonoBehaviour
     [SerializeField] private string scoreFormat = "Score: {0}";
 
     [Header("Menu Buttons")]
-    [Tooltip("Result screen buttons in left-to-right order. The first one is focused when the board " +
-             "appears. Navigation is restricted to this row so HUD elements cannot be selected " +
+    [Tooltip("Result screen buttons in left-to-right order. The first one is focused after the entrance " +
+             "and input delay. Navigation is restricted to this row so HUD elements cannot be selected " +
              "while the board is up.")]
     [SerializeField] private Button[] menuButtons;
+
+    [Header("Board Entrance")]
+    [SerializeField] private ResultBoardTransition entrance = new ResultBoardTransition();
 
     [Header("Player")]
     [Tooltip("Tag of the spawned player car. Its Health drives the board when the car is destroyed.")]
@@ -66,7 +69,6 @@ public class ScoreBoard : MonoBehaviour
         }
     }
 
-    private CanvasGroup boardGroup;
     private CursorLockMode previousLockMode;
     private bool cursorWasVisible;
     private bool frozeTime;
@@ -80,9 +82,7 @@ public class ScoreBoard : MonoBehaviour
         if (board == null)
             board = gameObject;
 
-        boardGroup = board.GetComponent<CanvasGroup>();
-        if (boardGroup == null)
-            boardGroup = board.AddComponent<CanvasGroup>();
+        entrance.Initialize(this, board);
     }
 
     private void OnEnable()
@@ -103,6 +103,7 @@ public class ScoreBoard : MonoBehaviour
     {
         PlayerHealth.OnPlayerDied -= HandlePlayerDied;
         UnbindPlayerHealth();
+        entrance.Hide();
     }
 
     private void OnDestroy()
@@ -179,16 +180,15 @@ public class ScoreBoard : MonoBehaviour
             cursorUnlocked = true;
         }
 
-        SetBoardVisible(true);
         RestrictNavigation();
-        SelectFirstButton();
+        entrance.Show(SelectFirstButton);
     }
 
     public void Hide()
     {
         IsShowing = false;
         RestoreState();
-        SetBoardVisible(false);
+        entrance.Hide();
     }
 
     private void ApplyHeaderText(bool timeExpired)
@@ -274,16 +274,6 @@ public class ScoreBoard : MonoBehaviour
         }
 
         RestoreNavigation();
-    }
-
-    private void SetBoardVisible(bool visible)
-    {
-        if (boardGroup == null)
-            return;
-
-        boardGroup.alpha = visible ? 1f : 0f;
-        boardGroup.interactable = visible;
-        boardGroup.blocksRaycasts = visible;
     }
 
     // Automatic navigation searches every Selectable by screen position, so pushing the

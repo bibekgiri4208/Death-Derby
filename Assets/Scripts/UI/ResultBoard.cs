@@ -19,10 +19,13 @@ public class ResultBoard : MonoBehaviour
     [SerializeField] private TextMeshProUGUI resultText;
 
     [Header("Menu Buttons")]
-    [Tooltip("Result screen buttons in left-to-right order. The first one is focused when the board " +
-             "appears. Navigation is restricted to this row so HUD elements such as the health bar " +
+    [Tooltip("Result screen buttons in left-to-right order. The first one is focused after the entrance " +
+             "and input delay. Navigation is restricted to this row so HUD elements such as the health bar " +
              "sliders cannot be selected while the board is up.")]
     [SerializeField] private Button[] menuButtons;
+
+    [Header("Board Entrance")]
+    [SerializeField] private ResultBoardTransition entrance = new ResultBoardTransition();
 
     [Header("Game Over")]
     [Tooltip("Stop gameplay time while the result screen is up. Menu animations use unscaled time, so buttons still react.")]
@@ -51,7 +54,6 @@ public class ResultBoard : MonoBehaviour
 
     public int WinnerIndex { get; private set; } = -1;
 
-    private CanvasGroup boardGroup;
     private CursorLockMode previousLockMode;
     private bool cursorWasVisible;
     private bool frozeTime;
@@ -63,9 +65,7 @@ public class ResultBoard : MonoBehaviour
         if (board == null)
             board = gameObject;
 
-        boardGroup = board.GetComponent<CanvasGroup>();
-        if (boardGroup == null)
-            boardGroup = board.AddComponent<CanvasGroup>();
+        entrance.Initialize(this, board);
     }
 
     private void OnEnable()
@@ -77,6 +77,7 @@ public class ResultBoard : MonoBehaviour
     private void OnDisable()
     {
         PlayerHealth.OnPlayerDied -= HandlePlayerDied;
+        entrance.Hide();
     }
 
     private void OnDestroy()
@@ -125,9 +126,8 @@ public class ResultBoard : MonoBehaviour
             cursorUnlocked = true;
         }
 
-        SetBoardVisible(true);
         RestrictNavigation();
-        SelectFirstButton();
+        entrance.Show(SelectFirstButton);
     }
 
     public void Hide()
@@ -135,7 +135,7 @@ public class ResultBoard : MonoBehaviour
         IsShowing = false;
         WinnerIndex = -1;
         RestoreState();
-        SetBoardVisible(false);
+        entrance.Hide();
     }
 
     // Undo everything Show() changed on global or shared state.
@@ -155,16 +155,6 @@ public class ResultBoard : MonoBehaviour
         }
 
         RestoreNavigation();
-    }
-
-    private void SetBoardVisible(bool visible)
-    {
-        if (boardGroup == null)
-            return;
-
-        boardGroup.alpha = visible ? 1f : 0f;
-        boardGroup.interactable = visible;
-        boardGroup.blocksRaycasts = visible;
     }
 
     // Automatic navigation searches every Selectable in the scene by screen position, so

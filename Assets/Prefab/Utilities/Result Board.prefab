@@ -809,6 +809,12 @@ MonoBehaviour:
   menuButtons:
   - {fileID: 897941861807602622}
   - {fileID: 7936969582172073470}
+  entrance:
+    duration: 0.6
+    slideDistance: 80
+    startScale: 0.85
+    inputDelay: 1
+    releaseDelay: 0.25
   freezeTime: 1
   disableCarSystems: 1
   showCursor: 1
