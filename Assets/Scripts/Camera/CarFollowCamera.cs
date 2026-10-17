@@ -75,10 +75,14 @@ public class CarFollowCamera : MonoBehaviour
     }
 
     private bool isUIMode;
+    private bool menuOwnsInput;
 
     private void Update()
     {
-        isUIMode = PauseMenu.IsPaused ||
+        // Result screens own the pointer too. Otherwise this camera immediately
+        // undoes their cursor unlock and the UI input module cannot hit buttons.
+        menuOwnsInput = PauseMenu.IsPaused || ResultBoard.AnyShowing || ScoreBoard.AnyShowing;
+        isUIMode = menuOwnsInput ||
                    (Keyboard.current != null &&
                     Keyboard.current.leftAltKey.isPressed);
 
@@ -90,6 +94,9 @@ public class CarFollowCamera : MonoBehaviour
         {
             LockCursor();
         }
+
+        if (menuOwnsInput)
+            return;
 
         if (SplitScreenMode.Active)
         {
@@ -109,7 +116,8 @@ public class CarFollowCamera : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (target == null)
+        // Do not orbit or change the frozen arena view when moving the menu cursor.
+        if (menuOwnsInput || target == null)
             return;
 
         if (isFixedCam)

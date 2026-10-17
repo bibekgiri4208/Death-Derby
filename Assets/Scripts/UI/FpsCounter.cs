@@ -13,6 +13,17 @@ public class FpsCounter : MonoBehaviour
     private float timer;
     private int frameCount;
 
+    private void OnEnable()
+    {
+        timer = 0f;
+        frameCount = 0;
+        if (fpsText != null)
+        {
+            float delta = Time.unscaledDeltaTime;
+            fpsText.text = textPrefix + (delta > 0f ? Mathf.RoundToInt(1f / delta) : 0);
+        }
+    }
+
     private void Update()
     {
         frameCount++;
@@ -21,7 +32,7 @@ public class FpsCounter : MonoBehaviour
         if (timer >= updateInterval)
         {
             float fps = frameCount / timer;
-            fpsText.text = textPrefix + Mathf.RoundToInt(fps);
+            if (fpsText != null) fpsText.text = textPrefix + Mathf.RoundToInt(fps);
             frameCount = 0;
             timer = 0f;
         }

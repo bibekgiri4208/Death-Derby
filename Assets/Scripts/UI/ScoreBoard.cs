@@ -76,12 +76,18 @@ public class ScoreBoard : MonoBehaviour
     private Navigation[] savedNavigation;
     private TextMeshProUGUI cachedHeaderLabel;
     private Health playerHealth;
+    private DerbyMenuView menuView;
 
     private void Awake()
     {
         if (board == null)
             board = gameObject;
 
+        menuView = DerbyMenuView.CreateResults(transform, board, menuButtons, false);
+        board = menuView.Main;
+        resultText = menuView.Score;
+        headerText = menuView.Header;
+        menuButtons = menuView.Buttons;
         entrance.Initialize(this, board);
     }
 
@@ -104,6 +110,7 @@ public class ScoreBoard : MonoBehaviour
         PlayerHealth.OnPlayerDied -= HandlePlayerDied;
         UnbindPlayerHealth();
         entrance.Hide();
+        menuView?.HideBackdrop();
     }
 
     private void OnDestroy()
@@ -161,6 +168,8 @@ public class ScoreBoard : MonoBehaviour
 
         ApplyHeaderText(timeExpired);
         ApplyScoreText(Score);
+        menuView.SetSoloResult(timeExpired, Score);
+        menuView.ShowBackdrop();
 
         if (disableCarSystems)
             DisableAllCars();
@@ -189,6 +198,7 @@ public class ScoreBoard : MonoBehaviour
         IsShowing = false;
         RestoreState();
         entrance.Hide();
+        menuView?.HideBackdrop();
     }
 
     private void ApplyHeaderText(bool timeExpired)

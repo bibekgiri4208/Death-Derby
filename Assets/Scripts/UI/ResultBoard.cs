@@ -59,12 +59,17 @@ public class ResultBoard : MonoBehaviour
     private bool frozeTime;
     private bool cursorUnlocked;
     private Navigation[] savedNavigation;
+    private DerbyMenuView menuView;
 
     private void Awake()
     {
         if (board == null)
             board = gameObject;
 
+        menuView = DerbyMenuView.CreateResults(transform, board, menuButtons, true);
+        board = menuView.Main;
+        resultText = menuView.Winner;
+        menuButtons = menuView.Buttons;
         entrance.Initialize(this, board);
     }
 
@@ -78,6 +83,7 @@ public class ResultBoard : MonoBehaviour
     {
         PlayerHealth.OnPlayerDied -= HandlePlayerDied;
         entrance.Hide();
+        menuView?.HideBackdrop();
     }
 
     private void OnDestroy()
@@ -107,6 +113,8 @@ public class ResultBoard : MonoBehaviour
         // A negative winner means nobody out-scored the other player, e.g. a tied round.
         if (resultText != null)
             resultText.text = winnerIndex >= 0 ? $"Player {winnerIndex + 1}" : "Draw";
+        menuView.SetWinner(winnerIndex);
+        menuView.ShowBackdrop();
 
         if (disableCarSystems)
             DisableAllCars();
@@ -136,6 +144,7 @@ public class ResultBoard : MonoBehaviour
         WinnerIndex = -1;
         RestoreState();
         entrance.Hide();
+        menuView?.HideBackdrop();
     }
 
     // Undo everything Show() changed on global or shared state.

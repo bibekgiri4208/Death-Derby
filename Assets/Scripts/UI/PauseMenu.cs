@@ -60,6 +60,11 @@ public class PauseMenu : MonoBehaviour
     private FpsCounter cachedFpsCounter;
     private TMP_Text cachedFpsMeterLabel;
     private bool musicOn;
+    private DerbyMenuView menuView;
+    private Vector3 mainRestPosition;
+    private Vector3 optionsRestPosition;
+    private Vector3 mainRestScale;
+    private Vector3 optionsRestScale;
 
     private void Awake()
     {
@@ -67,6 +72,16 @@ public class PauseMenu : MonoBehaviour
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.ignoreListenerPause = true;
+
+        menuView = DerbyMenuView.CreatePause(this, mainPauseMenu, optionsMenu);
+        mainPauseMenu = menuView.Main;
+        optionsMenu = menuView.Options;
+        mainMenuFirstButton = menuView.Buttons[0].gameObject;
+        optionsMenuFirstButton = menuView.OptionButtons[0].gameObject;
+        mainRestPosition = mainPauseMenu.transform.localPosition;
+        optionsRestPosition = optionsMenu.transform.localPosition;
+        mainRestScale = mainPauseMenu.transform.localScale;
+        optionsRestScale = optionsMenu.transform.localScale;
 
         mainMenuGroup = GetOrAddCanvasGroup(mainPauseMenu);
         optionsGroup = GetOrAddCanvasGroup(optionsMenu);
@@ -199,6 +214,10 @@ public class PauseMenu : MonoBehaviour
             StopCoroutine(panelTransition);
             panelTransition = null;
         }
+        mainPauseMenu.transform.localPosition = mainRestPosition;
+        mainPauseMenu.transform.localScale = mainRestScale;
+        optionsMenu.transform.localPosition = optionsRestPosition;
+        optionsMenu.transform.localScale = optionsRestScale;
 
         if (mainMenuGroup != null)
         {
@@ -216,6 +235,8 @@ public class PauseMenu : MonoBehaviour
 
         mainPauseMenu.SetActive(pause);
         optionsMenu.SetActive(false);
+        if (pause) menuView.ShowBackdrop();
+        else menuView.HideBackdrop();
 
         SplitScreenMode.SetSplitScreenDividerVisible(!pause);
 
@@ -241,7 +262,7 @@ public class PauseMenu : MonoBehaviour
             FreezeScene(false);
         }
 
-        if (pause && mainMenuFirstButton != null)
+        if (pause && mainMenuFirstButton != null && EventSystem.current != null)
         {
             EventSystem.current.SetSelectedGameObject(null);
             EventSystem.current.SetSelectedGameObject(mainMenuFirstButton);
@@ -294,6 +315,11 @@ public class PauseMenu : MonoBehaviour
 
                 // Keep all UI (buttons, EventSystem, input modules, etc.) interactive
                 if (behaviour is UIBehaviour)
+                    continue;
+
+                // This HUD uses unscaled time and must still update while the
+                // Options panel is open (including immediately after enabling it).
+                if (behaviour is FpsCounter)
                     continue;
 
                 frozenBehaviours.Add(behaviour);
@@ -360,6 +386,8 @@ public class PauseMenu : MonoBehaviour
             optionsMenuFirstButton));
 
         UpdateMusicLabel();
+        FpsCounter counter = GetFpsCounter();
+        if (counter != null) UpdateFpsMeterLabel(counter.gameObject.activeSelf);
     }
 
     public void CloseOptions()
@@ -431,7 +459,7 @@ public class PauseMenu : MonoBehaviour
             showGroup.blocksRaycasts = true;
         }
 
-        if (firstButton != null)
+        if (firstButton != null && EventSystem.current != null)
         {
             EventSystem.current.SetSelectedGameObject(null);
             EventSystem.current.SetSelectedGameObject(firstButton);
@@ -528,11 +556,12 @@ public class PauseMenu : MonoBehaviour
         TMP_Text label = GetMusicStateLabel();
         if (label == null) return;
 
-        label.text = musicOn ? "Music On" : "Music Off";
+        label.text = musicOn ? "MUSIC: ON" : "MUSIC: OFF";
     }
 
     private TMP_Text GetMusicStateLabel()
     {
+        if (menuView?.MusicStateLabel != null) return menuView.MusicStateLabel;
         if (optionsMenu == null) return null;
 
         Transform labelTransform = FindChildByName(optionsMenu.transform, musicStateLabelName);
@@ -543,6 +572,7 @@ public class PauseMenu : MonoBehaviour
 
     public void ToggleFpsMeter()
     {
+        PlayButtonSound();
         FpsCounter counter = GetFpsCounter();
         if (counter == null) return;
 
@@ -594,6 +624,7 @@ public class PauseMenu : MonoBehaviour
 
     private TMP_Text GetFpsMeterLabel()
     {
+        if (menuView?.FpsStateLabel != null) return menuView.FpsStateLabel;
         if (cachedFpsMeterLabel != null) return cachedFpsMeterLabel;
         if (optionsMenu == null) return null;
 
@@ -622,6 +653,6 @@ public class PauseMenu : MonoBehaviour
     {
         TMP_Text label = GetFpsMeterLabel();
         if (label != null)
-            label.text = enabled ? "Fps: ON" : "Fps: OFF";
+            label.text = enabled ? "FPS: ON" : "FPS: OFF";
     }
 }
