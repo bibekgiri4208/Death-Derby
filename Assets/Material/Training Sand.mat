@@ -25,13 +25,15 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _PatchScale: 24
+    - _PatchScale: 32
     - _RippleScale: 1.8
-    - _RippleHeight: 0.012
-    - _GrainStrength: 0.35
+    - _RippleHeight: 0.004
+    - _RippleContrast: 0.014
+    - _DetailFadeDistance: 16
+    - _GrainStrength: 0.16
     - _Smoothness: 0.08
     m_Colors:
     - _BaseColor: {r: 0.78, g: 0.55, b: 0.29, a: 1}
-    - _LowColor: {r: 0.56, g: 0.35, b: 0.16, a: 1}
+    - _LowColor: {r: 0.65, g: 0.435, b: 0.225, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

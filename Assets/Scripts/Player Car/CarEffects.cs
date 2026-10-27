@@ -12,29 +12,34 @@ public class CarEffects : MonoBehaviour
     [Tooltip("How smoothly brake lights fade in/out (lower = smoother).")]
     public float brakeLightSmoothing = 8f;
 
-    [Header("Desert Smoke / Dust Effect")]
-    [Tooltip("Assign the smoke particle systems for all 4 wheels here.")]
+    [Header("Wheel Dust")]
+    [Tooltip("Existing wheel emitters are reused; missing emitters are created automatically.")]
     public ParticleSystem[] desertSmokeEffects;
-    public float maxSmokeEmissionRate = 120f;
-    public float maxSmokeParticleSpeed = 4f;
-    [Tooltip("Minimum car speed before smoke starts appearing.")]
-    public float minSmokeSpeed = 8f;
+    public float maxSmokeEmissionRate = 64f;
+    public float maxSmokeParticleSpeed = 1.4f;
+    [Tooltip("Minimum ground speed for rolling dust. Wheelspin can still kick up sand at a standstill.")]
+    public float minSmokeSpeed = 1.5f;
     [Tooltip("How smoothly the emission rate transitions (lower = smoother).")]
     public float emissionSmoothing = 5f;
-    [Tooltip("Smoke emitted per meter driven (this is what makes the trail thick).")]
-    public float maxSmokeDistanceRate = 10f;
-    [Tooltip("How smoothly smoke fades out while the car is airborne and no wheel touches the ground.")]
-    public float airborneFadeSmoothing = 8f;
+    [Tooltip("Ground-level sand particles per metre. The finer dust wake is emitted separately.")]
+    public float maxSmokeDistanceRate = 2.5f;
+    [Range(0f, 0.75f)] public float dustOpacity = 0.45f;
+    [Tooltip("Fine airborne sand that joins the wheel plumes into a lingering desert wake.")]
+    [Range(0f, 2f)] public float dustWakeDensity = 1f;
+    [Range(0f, 0.6f)] public float dustWakeOpacity = 0.26f;
+    [Range(1f, 5f)] public float dustWakeLifetime = 3.4f;
+    [Range(0.5f, 2f)] public float dustWakeSize = 1.1f;
+    [HideInInspector] public ParticleSystem[] desertDustWakeEffects;
 
-    private const float MinActiveSmokeRate = 20f;
+    [Header("Sand Tyre Imprints")]
+    public bool enableTireTracks = true;
+    [Range(0.15f, 0.65f)] public float tireTrackWidth = 0.32f;
+    [Range(0f, 1f)] public float tireTrackStrength = 0.38f;
 
     private CarController carController;
-    private ParticleSystem.EmissionModule[] smokeEmissions;
-    private ParticleSystem.MainModule[] smokeMains;
-    private bool[] rearSmokeSystems;
+    private WheelSurfaceEffects wheelSurfaceEffects;
     private float[] brakeLightIntensities;
     private bool wasBoosting;
-    private float currentSmokeAmount;
     private float brakeLightAmount;
 
     private void Start()
@@ -50,21 +55,37 @@ public class CarEffects : MonoBehaviour
         }
 
         // Old serialized data may have saved these as 0, so enforce sensible defaults
-        if (minSmokeSpeed < 2f) minSmokeSpeed = 8f;
+        if (minSmokeSpeed < 0.1f) minSmokeSpeed = 1.5f;
         if (emissionSmoothing < 0.5f) emissionSmoothing = 5f;
-        if (maxSmokeDistanceRate < 0.5f) maxSmokeDistanceRate = 10f;
         if (brakeLightSmoothing < 0.5f) brakeLightSmoothing = 8f;
 
         InitializeBoostEffects();
         InitializeBrakeLights();
-        InitializeSmokeEffects();
+        wheelSurfaceEffects = new WheelSurfaceEffects(carController, this);
     }
 
     private void Update()
     {
         UpdateBoostEffects();
         UpdateBrakeLights();
-        UpdateDesertSmoke();
+    }
+
+    private void FixedUpdate()
+    {
+        // Unity does not call Start again after a Play-mode script reload. Rebuild the
+        // non-serialized helper lazily so dust does not silently disappear after recompiling.
+        if (wheelSurfaceEffects == null)
+        {
+            if (carController == null) carController = GetComponent<CarController>();
+            if (carController == null) return;
+            wheelSurfaceEffects = new WheelSurfaceEffects(carController, this);
+        }
+        wheelSurfaceEffects?.Tick(Time.fixedDeltaTime);
+    }
+
+    private void OnEnable()
+    {
+        wheelSurfaceEffects?.ResetContacts();
     }
 
     private void InitializeBoostEffects()
@@ -81,37 +102,6 @@ public class CarEffects : MonoBehaviour
         {
             nosAudioSource.playOnAwake = false;
             nosAudioSource.loop = true;
-        }
-    }
-
-    private void InitializeSmokeEffects()
-    {
-        if (desertSmokeEffects != null && desertSmokeEffects.Length > 0)
-        {
-            smokeEmissions = new ParticleSystem.EmissionModule[desertSmokeEffects.Length];
-            smokeMains = new ParticleSystem.MainModule[desertSmokeEffects.Length];
-            rearSmokeSystems = new bool[desertSmokeEffects.Length];
-
-            Vector3 carPos = transform.position;
-
-            for (int i = 0; i < desertSmokeEffects.Length; i++)
-            {
-                if (desertSmokeEffects[i] != null)
-                {
-                    smokeEmissions[i] = desertSmokeEffects[i].emission;
-                    smokeMains[i] = desertSmokeEffects[i].main;
-
-                    // Classify as rear wheel emitter by position relative to the car's forward axis
-                    Vector3 offset = desertSmokeEffects[i].transform.position - carPos;
-                    rearSmokeSystems[i] = Vector3.Dot(transform.forward, offset) < 0f;
-
-                    // Force simulation space to World so smoke trails behind naturally
-                    smokeMains[i].simulationSpace = ParticleSystemSimulationSpace.World;
-                    // Start with zero emission; UpdateDesertSmoke drives both rateOverTime and rateOverDistance per frame
-                    smokeEmissions[i].rateOverDistance = 0f;
-                    smokeEmissions[i].rateOverTime = 0f;
-                }
-            }
         }
     }
 
@@ -133,22 +123,7 @@ public class CarEffects : MonoBehaviour
             }
         }
 
-        if (smokeEmissions != null)
-        {
-            for (int i = 0; i < smokeEmissions.Length; i++)
-            {
-                smokeEmissions[i].rateOverTime = 0f;
-                smokeEmissions[i].rateOverDistance = 0f;
-            }
-        }
-
-        if (smokeMains != null)
-        {
-            for (int i = 0; i < smokeMains.Length; i++)
-            {
-                smokeMains[i].startSpeed = 0f;
-            }
-        }
+        wheelSurfaceEffects?.Stop();
 
         if (brakeLightIntensities != null)
         {
@@ -235,63 +210,6 @@ public class CarEffects : MonoBehaviour
 
             float baseIntensity = i < brakeLightIntensities.Length ? brakeLightIntensities[i] : brakeLight.intensity;
             brakeLight.intensity = baseIntensity * brakeLightAmount;
-        }
-    }
-
-    private void UpdateDesertSmoke()
-    {
-        if (desertSmokeEffects == null || desertSmokeEffects.Length == 0 || carController.CarRigidbody == null)
-            return;
-
-        float absoluteMaxSpeed = carController.IsBoosting ? carController.boostMaxSpeed : carController.maxForwardSpeed;
-
-        // Ignore vertical velocity so the module only reacts to horizontal driving speed
-        Vector3 flatVelocity = carController.CarRigidbody.linearVelocity;
-        flatVelocity.y = 0f;
-        float currentSpeed = flatVelocity.magnitude;
-
-        // Hard dead zone: zero smoke until the car is genuinely driving
-        float speedRange = Mathf.Max(absoluteMaxSpeed - minSmokeSpeed, 0.01f);
-        float targetAmount = carController.IsBurningOut
-            ? 1f
-            : Mathf.Clamp01((currentSpeed - minSmokeSpeed) / speedRange);
-
-        // All four wheels must touch ground for the desert smoke; in the air it fades out
-        bool grounded = carController.frontLeftCollider != null
-            && carController.frontLeftCollider.isGrounded
-            && carController.frontRightCollider != null
-            && carController.frontRightCollider.isGrounded
-            && carController.rearLeftCollider != null
-            && carController.rearLeftCollider.isGrounded
-            && carController.rearRightCollider != null
-            && carController.rearRightCollider.isGrounded;
-
-        if (!grounded) targetAmount = 0f;
-
-        // Frame-rate independent exponential smoothing kills flicker from speed jitter.
-        // While airborne use a dedicated (slower) setting so the smoke fades out gradually.
-        float smoothing = grounded ? emissionSmoothing : airborneFadeSmoothing;
-        float lerpFactor = 1f - Mathf.Exp(-Time.deltaTime * smoothing);
-        float smokeAmount = Mathf.Lerp(currentSmokeAmount, targetAmount, lerpFactor);
-        currentSmokeAmount = smokeAmount;
-
-        // Once active, keep a minimum spawn rate so the trail is continuous (no sputtering puffs)
-        float targetRate = smokeAmount > 0.001f
-            ? Mathf.Max(smokeAmount * maxSmokeEmissionRate, MinActiveSmokeRate)
-            : 0f;
-        float smoothedParticleSpeed = Mathf.Lerp(1.0f, maxSmokeParticleSpeed, smokeAmount);
-
-        for (int i = 0; i < desertSmokeEffects.Length; i++)
-        {
-            if (desertSmokeEffects[i] == null) continue;
-
-            // During burnout only the rear wheels smoke; otherwise all four wheels emit
-            bool emitsSmoke = !carController.IsBurningOut || rearSmokeSystems[i];
-
-            smokeEmissions[i].rateOverTime = emitsSmoke ? targetRate : 0f;
-            // Restores the thick trail: only above dead zone to avoid crawl-speed puffs
-            smokeEmissions[i].rateOverDistance = emitsSmoke && smokeAmount > 0.001f ? maxSmokeDistanceRate : 0f;
-            smokeMains[i].startSpeed = smoothedParticleSpeed;
         }
     }
 }

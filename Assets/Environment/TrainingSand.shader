@@ -6,8 +6,10 @@ Shader "Death Derby/Training Sand"
         _LowColor("Compacted Sand", Color) = (0.56, 0.35, 0.16, 1)
         _PatchScale("Colour Patch Size (metres)", Range(2, 80)) = 24
         _RippleScale("Wind Ripples Per Metre", Range(0.5, 5)) = 1.8
-        _RippleHeight("Ripple Relief (metres)", Range(0, 0.04)) = 0.012
-        _GrainStrength("Fine Grain", Range(0, 1)) = 0.35
+        _RippleHeight("Ripple Relief (metres)", Range(0, 0.04)) = 0.004
+        _RippleContrast("Ripple Colour Contrast", Range(0, 0.08)) = 0.014
+        _DetailFadeDistance("Fine Detail Fade Distance (metres)", Range(6, 40)) = 16
+        _GrainStrength("Fine Grain", Range(0, 1)) = 0.16
         _Smoothness("Smoothness", Range(0, 0.4)) = 0.08
     }
 
@@ -26,6 +28,8 @@ Shader "Death Derby/Training Sand"
             float _PatchScale;
             float _RippleScale;
             float _RippleHeight;
+            float _RippleContrast;
+            float _DetailFadeDistance;
             half _GrainStrength;
             half _Smoothness;
         CBUFFER_END
@@ -46,26 +50,40 @@ Shader "Death Derby/Training Sand"
                         lerp(SandHash(cell + float2(0, 1)), SandHash(cell + 1), f.x), f.y);
         }
 
+        float SandFilteredNoise(float2 p)
+        {
+            float footprint = max(length(ddx(p)), length(ddy(p)));
+            return lerp(SandNoise(p), 0.5, smoothstep(0.3, 1.4, footprint));
+        }
+
         // World-space patterns do not stretch with the terrain UVs or repeat in tiles.
         void SandSurface(float3 positionWS, half3 geometricNormal, out half3 albedo, out half3 normalWS)
         {
             float2 p = positionWS.xz;
-            float broad = SandNoise(p / _PatchScale);
-            float mottling = SandNoise(p * 0.29 + 17.3);
-            float patch = saturate(0.2 + broad * 0.65 + (mottling - 0.5) * 0.22);
+            float broad = SandFilteredNoise(p / _PatchScale) * 0.7 + SandFilteredNoise(p / (_PatchScale * 0.43) + 41.7) * 0.3;
+            float mottling = SandFilteredNoise(p * 0.29 + 17.3);
+            float patch = saturate(0.2 + broad * 0.65 + (mottling - 0.5) * 0.14);
 
             float warp = SandNoise(p * 0.18 + 8.7);
-            float phase = (dot(p, float2(0.857, 0.515)) * _RippleScale + warp * 1.8) * TWO_PI;
-            // Suppress sub-pixel detail at distance instead of allowing it to shimmer.
-            float rippleFade = 1.0 - smoothstep(0.8, 3.0, fwidth(phase));
-            float ripple = (sin(phase) + 0.22 * sin(phase * 2.0 + 0.6)) * rippleFade;
-            float rippleMask = smoothstep(0.18, 0.8, mottling) * 0.7 + 0.3;
+            float bend = SandNoise(p * 0.065 + 23.1);
+            float phase = (dot(p, float2(0.857, 0.515)) * _RippleScale + warp * 1.8 + bend * 3.0) * TWO_PI;
+            // Spatial filtering alone does not prevent a striped surface strobing past
+            // a fast camera. Keep the ripples local, soft, and absent in the mid-distance.
+            float distanceToCamera = distance(positionWS, _WorldSpaceCameraPos);
+            float detailFade = 1.0 - smoothstep(_DetailFadeDistance * 0.25, _DetailFadeDistance, distanceToCamera);
+            float footprint = fwidth(phase);
+            float rippleFade = (1.0 - smoothstep(0.25, 1.25, footprint)) * detailFade;
+            float harmonicFade = 1.0 - smoothstep(0.15, 0.65, footprint);
+            float ripple = (sin(phase) + 0.15 * sin(phase * 2.0 + 0.6) * harmonicFade) * rippleFade;
+            // Irregular quiet patches interrupt the continuous parallel "conveyor belt" lines.
+            float rippleMask = smoothstep(0.34, 0.75, mottling) * lerp(0.35, 1.0, bend);
             float2 grainUV = p * 38.0;
-            float grainFade = 1.0 - smoothstep(0.25, 0.8, max(fwidth(grainUV.x), fwidth(grainUV.y)));
+            float grainFade = (1.0 - smoothstep(0.15, 0.5, max(fwidth(grainUV.x), fwidth(grainUV.y))))
+                * (1.0 - smoothstep(2.0, 8.0, distanceToCamera));
             float grain = (SandNoise(grainUV) - 0.5) * grainFade * _GrainStrength;
 
             albedo = lerp(_LowColor.rgb, _BaseColor.rgb, patch);
-            albedo *= 1.0 + ripple * rippleMask * 0.045 + grain * 0.2;
+            albedo *= 1.0 + ripple * rippleMask * _RippleContrast + grain * 0.12;
 
             // Surface-gradient bump mapping needs no mesh tangents (Unity terrains have none).
             // This changes lighting only: wheel contact and terrain geometry stay untouched.

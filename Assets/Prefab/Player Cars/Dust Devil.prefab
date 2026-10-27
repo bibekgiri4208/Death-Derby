@@ -70729,12 +70729,16 @@ MonoBehaviour:
   - {fileID: 3358230657232451650}
   - {fileID: 5865625772103919835}
   - {fileID: 8296538325369357437}
-  maxSmokeEmissionRate: 120
-  maxSmokeParticleSpeed: 4
-  minSmokeSpeed: 8
+  maxSmokeEmissionRate: 64
+  maxSmokeParticleSpeed: 1.4
+  minSmokeSpeed: 1.5
   emissionSmoothing: 5
-  maxSmokeDistanceRate: 10
-  airborneFadeSmoothing: 8
+  maxSmokeDistanceRate: 2.5
+  dustOpacity: 0.45
+  dustWakeDensity: 1
+  dustWakeOpacity: 0.26
+  dustWakeLifetime: 3.4
+  dustWakeSize: 1.1
 --- !u!114 &1474529329191638737
 MonoBehaviour:
   m_ObjectHideFlags: 0
