@@ -16,6 +16,8 @@ public sealed class WheelSurfaceEffects
         public Vector3 point, trackPoint, trackNormal, trackRight;
         public float dustAmount, pendingParticles, pendingHaze, distance;
         public bool grounded, hasTrack;
+        public SandDeformationSurface deformableSand;
+        public bool checkedDeformation;
     }
 
     private readonly CarController controller;
@@ -266,7 +268,9 @@ public sealed class WheelSurfaceEffects
                 Vector3 point = state.grounded ? Vector3.Lerp(state.point, hit.point, (particle + 1f) / hazeCount) : hit.point;
                 EmitWake(state, point, hit.normal, contactVelocity, slip);
             }
-            if (settings.enableTireTracks && speed > 0.35f)
+            bool deformed = settings.enableTireTracks && settings.enableSandDeformation
+                && UpdateDeformation(state, hit, slip, body.mass, speed);
+            if (!deformed && settings.enableTireTracks && speed > 0.35f)
                 UpdateTrack(state, hit, slip, body.mass);
             else state.hasTrack = false;
             state.point = hit.point;
@@ -315,6 +319,36 @@ public sealed class WheelSurfaceEffects
             applyShapeToPosition = false
         };
         state.haze.Emit(emit, 1);
+    }
+
+    private bool UpdateDeformation(WheelState state, WheelHit hit, float slip, float mass, float speed)
+    {
+        if (!state.checkedDeformation)
+        {
+            state.deformableSand = SandDeformationSurface.GetOrCreate(hit.collider as TerrainCollider);
+            state.checkedDeformation = true;
+        }
+        if (state.deformableSand == null || !state.deformableSand.isActiveAndEnabled) return false;
+        // Resting wheels do not keep digging. Wheelspin at a standstill still moves sand.
+        if (speed < 0.25f && slip < 0.15f) return true;
+        float load = Mathf.Clamp01(hit.force / Mathf.Max(1, mass * Physics.gravity.magnitude * 0.25f));
+        if (load < 0.02f) return true;
+        Vector3 right = Vector3.ProjectOnPlane(hit.sidewaysDir, hit.normal).normalized;
+        if (right.sqrMagnitude < 0.5f) return true;
+        Vector3 from = state.grounded ? state.point : hit.point;
+        Vector3 movement = hit.point - from;
+        if (movement.sqrMagnitude > 0.0001f)
+        {
+            Vector3 pathRight = Vector3.Cross(hit.normal, movement.normalized);
+            if (Vector3.Dot(pathRight, right) < 0) pathRight = -pathRight;
+            right = Vector3.Slerp(right, pathRight, slip).normalized;
+        }
+        float pressure = Mathf.Sqrt(load) * Mathf.Lerp(0.5f, 1, slip);
+        state.deformableSand.DeformSegment(from, hit.point, right,
+            settings.tireTrackWidth * (1 + slip * 0.3f),
+            settings.sandRutDepth * pressure, settings.sandPileHeight * pressure,
+            Mathf.Clamp(hit.sidewaysSlip, -1, 1));
+        return true;
     }
 
     private void UpdateTrack(WheelState state, WheelHit hit, float slip, float mass)
@@ -380,6 +414,8 @@ public sealed class WheelSurfaceEffects
         state.pendingParticles = 0;
         state.pendingHaze = 0;
         state.distance = 0;
+        state.deformableSand = null;
+        state.checkedDeformation = false;
     }
 
     public void ResetContacts()

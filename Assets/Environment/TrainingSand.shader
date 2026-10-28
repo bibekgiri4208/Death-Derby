@@ -11,6 +11,11 @@ Shader "Death Derby/Training Sand"
         _DetailFadeDistance("Fine Detail Fade Distance (metres)", Range(6, 40)) = 16
         _GrainStrength("Fine Grain", Range(0, 1)) = 0.16
         _Smoothness("Smoothness", Range(0, 0.4)) = 0.08
+        [HideInInspector] _SandPatchMask("Runtime Sand Patch Mask", 2D) = "black" {}
+        [HideInInspector] _SandPatchCoverage("Runtime Sand Deformation Coverage", 2D) = "black" {}
+        [HideInInspector] _SandPatchWorld("Runtime Sand Patch Bounds", Vector) = (0, 0, 0, 0)
+        [HideInInspector] _SandPatchEnabled("Runtime Sand Patches Enabled", Float) = 0
+        [HideInInspector] _SandPatchSurface("Runtime Sand Patch Surface", Float) = 0
     }
 
     SubShader
@@ -21,6 +26,8 @@ Shader "Death Derby/Training Sand"
         HLSLINCLUDE
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+        TEXTURE2D(_SandPatchMask); SAMPLER(sampler_SandPatchMask);
+        TEXTURE2D(_SandPatchCoverage); SAMPLER(sampler_SandPatchCoverage);
 
         CBUFFER_START(UnityPerMaterial)
             half4 _BaseColor;
@@ -32,7 +39,57 @@ Shader "Death Derby/Training Sand"
             float _DetailFadeDistance;
             half _GrainStrength;
             half _Smoothness;
+            float4 _SandPatchWorld;
+            float4 _SandPatchMask_TexelSize;
+            half _SandPatchEnabled;
+            half _SandPatchSurface;
         CBUFFER_END
+
+        half SandDeformationCoverage(float2 uv)
+        {
+            if (any(uv < 0) || any(uv >= 1)) return 0;
+            float2 tilePosition = uv * _SandPatchMask_TexelSize.zw;
+            float2 tile = floor(tilePosition);
+            // Sample texel centres explicitly: hardware point-sampler rounding at
+            // a tile edge must not choose a different slot than the fine lookup.
+            float2 lookupUV = (tile + 0.5) * _SandPatchMask_TexelSize.xy;
+            float slot = floor(SAMPLE_TEXTURE2D_LOD(_SandPatchMask, sampler_SandPatchMask, lookupUV, 0).r * 255.0 + 0.5) - 1;
+            if (slot < 0) return 0;
+            // Matches the fixed 8 x 4 cache atlas; every slot contains 80 x 80 cells.
+            float2 tileUV = (min(floor(frac(tilePosition) * 80.0), 79.0) + 0.5) / 80.0;
+            float2 atlasUV = (float2(fmod(slot, 8.0), floor(slot / 8.0)) + tileUV) / float2(8, 4);
+            return SAMPLE_TEXTURE2D_LOD(_SandPatchCoverage, sampler_SandPatchCoverage, atlasUV, 0).r;
+        }
+
+        void SandClipReplacedGround(float3 positionWS)
+        {
+            // Only runtime material copies enable this. The dense replacement mesh
+            // draws the groove below the original surface instead of covering it up.
+            if (_SandPatchEnabled > 0.5)
+            {
+                float2 uv = (positionWS.xz - _SandPatchWorld.xy) * _SandPatchWorld.zw;
+                half replaced = SandDeformationCoverage(uv);
+                if (_SandPatchSurface > 0.5)
+                {
+                    // Untouched portions of the mesh must not render in any pass.
+                    clip(replaced - 0.5);
+                    return;
+                }
+                // A clip discards all MSAA samples at once, but the replacement
+                // mesh only covers some samples along its outer edge. Preserve
+                // the original sand there instead of exposing sky-colored cracks.
+                // Adjacent active tiles still form one continuous cutout.
+                float2 footprint = max(abs(ddx(uv)) + abs(ddy(uv)), _SandPatchWorld.zw * 0.1);
+                if (replaced > 0.5)
+                {
+                    replaced = min(replaced, SandDeformationCoverage(uv + footprint));
+                    replaced = min(replaced, SandDeformationCoverage(uv + float2(footprint.x, -footprint.y)));
+                    replaced = min(replaced, SandDeformationCoverage(uv + float2(-footprint.x, footprint.y)));
+                    replaced = min(replaced, SandDeformationCoverage(uv - footprint));
+                    clip(0.5 - replaced);
+                }
+            }
+        }
 
         float SandHash(float2 p)
         {
@@ -180,6 +237,7 @@ Shader "Death Derby/Training Sand"
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+                SandClipReplacedGround(input.positionWS);
                 half3 albedo, normalWS;
                 SandSurface(input.positionWS, input.normalWS, albedo, normalWS);
 
@@ -200,7 +258,10 @@ Shader "Death Derby/Training Sand"
                 #elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
                     lighting.shadowCoord = TransformWorldToShadowCoord(input.positionWS);
                 #endif
-                lighting.fogCoord = input.fogAndVertexLight.x;
+                // Terrain and replacement tiles have very different triangle sizes.
+                // Interpolated vertex fog exposes their rectangular boundaries;
+                // evaluate fog from the fragment's world position on both surfaces.
+                lighting.fogCoord = InitializeInputDataFog(float4(input.positionWS, 1), input.fogAndVertexLight.x);
                 lighting.vertexLighting = input.fogAndVertexLight.yzw;
                 #ifdef DYNAMICLIGHTMAP_ON
                     lighting.bakedGI = SAMPLE_GI(input.lightmapUV, input.dynamicLightmapUV, input.vertexSH, normalWS);
@@ -234,6 +295,7 @@ Shader "Death Derby/Training Sand"
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+                SandClipReplacedGround(input.positionWS);
                 half3 albedo, normalWS;
                 SandSurface(input.positionWS, input.normalWS, albedo, normalWS);
                 #if defined(_GBUFFER_NORMALS_OCT)
@@ -252,10 +314,16 @@ Shader "Death Derby/Training Sand"
             Tags { "LightMode" = "DepthOnly" }
             ColorMask R
             HLSLPROGRAM
+            #pragma target 3.0
             #pragma vertex SandVertex
             #pragma fragment SandDepth
             #pragma multi_compile_instancing
-            half SandDepth(SandVaryings input) : SV_Target { return input.positionCS.z; }
+            half SandDepth(SandVaryings input) : SV_Target
+            {
+                UNITY_SETUP_INSTANCE_ID(input);
+                SandClipReplacedGround(input.positionWS);
+                return input.positionCS.z;
+            }
             ENDHLSL
         }
 
@@ -296,11 +364,44 @@ Shader "Death Derby/Training Sand"
             ZWrite On
             ZTest LEqual
             HLSLPROGRAM
-            #pragma vertex ShadowPassVertex
-            #pragma fragment ShadowPassFragment
+            #pragma target 3.0
+            #pragma vertex SandShadowVertex
+            #pragma fragment SandShadowFragment
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
             #pragma multi_compile_instancing
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
+            float3 _LightDirection;
+            float3 _LightPosition;
+
+            struct SandShadowVaryings
+            {
+                float4 positionCS : SV_POSITION;
+                float3 positionWS : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            SandShadowVaryings SandShadowVertex(SandAttributes input)
+            {
+                SandShadowVaryings output;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+                output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
+                float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
+                #if defined(_CASTING_PUNCTUAL_LIGHT_SHADOW)
+                    float3 lightDirection = normalize(_LightPosition - output.positionWS);
+                #else
+                    float3 lightDirection = _LightDirection;
+                #endif
+                output.positionCS = ApplyShadowClamping(TransformWorldToHClip(
+                    ApplyShadowBias(output.positionWS, normalWS, lightDirection)));
+                return output;
+            }
+
+            half4 SandShadowFragment(SandShadowVaryings input) : SV_Target
+            {
+                UNITY_SETUP_INSTANCE_ID(input);
+                SandClipReplacedGround(input.positionWS);
+                return 0;
+            }
             ENDHLSL
         }
     }
