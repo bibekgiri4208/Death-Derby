@@ -16,6 +16,11 @@ Shader "Death Derby/Training Sand"
         [HideInInspector] _SandPatchWorld("Runtime Sand Patch Bounds", Vector) = (0, 0, 0, 0)
         [HideInInspector] _SandPatchEnabled("Runtime Sand Patches Enabled", Float) = 0
         [HideInInspector] _SandPatchSurface("Runtime Sand Patch Surface", Float) = 0
+        [HideInInspector] _SandBakedGI("Training Baked Indirect Light", 2D) = "black" {}
+        [HideInInspector] _SandBakedDirection("Training Baked Light Direction", 2D) = "gray" {}
+        [HideInInspector] _SandBakedWorld("Training Baked Ground Bounds", Vector) = (0, 0, 0, 0)
+        [HideInInspector] _SandBakedST("Training Baked Lightmap Transform", Vector) = (1, 1, 0, 0)
+        [HideInInspector] _SandBakedEnabled("Training Baked Indirect Light Enabled", Float) = 0
     }
 
     SubShader
@@ -28,6 +33,8 @@ Shader "Death Derby/Training Sand"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
         TEXTURE2D(_SandPatchMask); SAMPLER(sampler_SandPatchMask);
         TEXTURE2D(_SandPatchCoverage); SAMPLER(sampler_SandPatchCoverage);
+        TEXTURE2D(_SandBakedGI); SAMPLER(sampler_SandBakedGI);
+        TEXTURE2D(_SandBakedDirection);
 
         CBUFFER_START(UnityPerMaterial)
             half4 _BaseColor;
@@ -43,6 +50,9 @@ Shader "Death Derby/Training Sand"
             float4 _SandPatchMask_TexelSize;
             half _SandPatchEnabled;
             half _SandPatchSurface;
+            float4 _SandBakedWorld;
+            float4 _SandBakedST;
+            half _SandBakedEnabled;
         CBUFFER_END
 
         half SandDeformationCoverage(float2 uv)
@@ -230,6 +240,9 @@ Shader "Death Derby/Training Sand"
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
+            #pragma multi_compile_fragment _ _REFLECTION_PROBE_ATLAS
             #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
             #pragma multi_compile_fragment _ _LIGHT_COOKIES
             #pragma multi_compile _ _LIGHT_LAYERS
@@ -280,6 +293,18 @@ Shader "Death Derby/Training Sand"
                 #else
                     lighting.bakedGI = SAMPLE_GI(input.lightmapUV, input.vertexSH, normalWS);
                 #endif
+                // Unity's terrain baker ignores layerless custom-shader terrains.
+                // The editor bake proxy supplies this world-aligned indirect map.
+                // Terrain and moving/recycled rut meshes sample the same texels;
+                // this replaces ambient GI rather than adding light twice.
+                if (_SandBakedEnabled > 0.5)
+                {
+                    float2 groundUV = (input.positionWS.xz - _SandBakedWorld.xy) * _SandBakedWorld.zw;
+                    lighting.bakedGI = SampleDirectionalLightmap(
+                        TEXTURE2D_ARGS(_SandBakedGI, sampler_SandBakedGI),
+                        TEXTURE2D_ARGS(_SandBakedDirection, sampler_SandBakedGI),
+                        saturate(groundUV), _SandBakedST, normalWS, true);
+                }
                 lighting.shadowMask = SAMPLE_SHADOWMASK(input.lightmapUV);
                 lighting.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
                 #if defined(_DBUFFER)

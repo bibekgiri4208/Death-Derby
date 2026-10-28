@@ -40,6 +40,13 @@ public static class SandDeformationValidation
             var collider = host.GetComponent<TerrainCollider>();
             terrain.materialTemplate = material;
             terrain.reflectionProbeUsage = ReflectionProbeUsage.Simple;
+            // Terrain and recycled meshes must share the same world-aligned bake;
+            // per-tile GI coordinates would bring back visible replacement squares.
+            material.SetTexture("_SandBakedGI", Texture2D.whiteTexture);
+            material.SetTexture("_SandBakedDirection", Texture2D.grayTexture);
+            material.SetVector("_SandBakedWorld", new Vector4(0, 0, 1f / 96, 1f / 96));
+            material.SetVector("_SandBakedST", new Vector4(0.8f, 0.8f, 0.1f, 0.1f));
+            material.SetFloat("_SandBakedEnabled", 1);
             var surface = SandDeformationSurface.GetOrCreate(collider);
             Require(surface != null, "Supported terrain did not get a deformation surface.");
             Require(terrain.materialTemplate != material, "Runtime material must be a private copy.");
@@ -66,6 +73,7 @@ public static class SandDeformationValidation
                 Require(renderer.reflectionProbeUsage == terrain.reflectionProbeUsage, "Replacement sand tile reflection settings must match the terrain.");
                 Require(renderer.motionVectorGenerationMode == MotionVectorGenerationMode.Camera,
                     "Static ground tiles must use camera motion vectors, not pooled-object motion.");
+                RequireBakedLighting(material, renderer.sharedMaterial);
             }
             Require(minimum < -0.04f && maximum > 0.025f, "Real geometry must include both a groove and raised shoulders.");
             // Contiguous wheel updates must not refill the preceding groove with end-cap piles.
@@ -214,6 +222,7 @@ public static class SandDeformationValidation
         Flush(surface);
         var reused = FindPatch(terrain, 80, 80);
         Require(reused != null && reused.sharedMesh == original, "Retired patch allocated a new mesh instead of reusing its buffers.");
+        RequireBakedLighting(terrain.materialTemplate, reused.GetComponent<MeshRenderer>().sharedMaterial);
         Require(reused.GetComponent<MeshRenderer>().lightProbeUsage == LightProbeUsage.Off
             && reused.GetComponent<MeshRenderer>().reflectionProbeUsage == terrain.reflectionProbeUsage
             && reused.GetComponent<MeshRenderer>().motionVectorGenerationMode == MotionVectorGenerationMode.Camera,
@@ -240,6 +249,16 @@ public static class SandDeformationValidation
         Require(fades == 1, "Fade work must rebuild no more than one complete patch per update.");
         Require(!Covered(terrain, 7.95f, 5), "Retired tile still clips its old terrain location.");
         VerifyLocalizedCoverage(surface, terrain, baseY);
+    }
+
+    private static void RequireBakedLighting(Material original, Material replacement)
+    {
+        Require(replacement.GetFloat("_SandBakedEnabled") == original.GetFloat("_SandBakedEnabled")
+            && replacement.GetTexture("_SandBakedGI") == original.GetTexture("_SandBakedGI")
+            && replacement.GetTexture("_SandBakedDirection") == original.GetTexture("_SandBakedDirection")
+            && replacement.GetVector("_SandBakedWorld") == original.GetVector("_SandBakedWorld")
+            && replacement.GetVector("_SandBakedST") == original.GetVector("_SandBakedST"),
+            "Replacement sand did not inherit the terrain's world-aligned baked indirect light.");
     }
 
     private static bool Covered(Terrain terrain, float x, float z)

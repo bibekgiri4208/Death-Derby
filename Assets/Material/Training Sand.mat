@@ -22,7 +22,15 @@ Material:
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs: []
+    m_TexEnvs:
+    - _SandBakedDirection:
+        m_Texture: {fileID: 2800000, guid: 2041271408d750549894755ff8ad9030, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SandBakedGI:
+        m_Texture: {fileID: 2800000, guid: e26c331bcb31bf94dbf76e4ab869214e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _PatchScale: 32
@@ -32,8 +40,11 @@ Material:
     - _DetailFadeDistance: 16
     - _GrainStrength: 0.28
     - _Smoothness: 0.055
+    - _SandBakedEnabled: 1
     m_Colors:
     - _BaseColor: {r: 0.78, g: 0.56, b: 0.31, a: 1}
     - _LowColor: {r: 0.69, g: 0.475, b: 0.25, a: 1}
+    - _SandBakedST: {r: 0.9760742, g: 0.9760742, b: 0.00024414062, a: 0.00024414062}
+    - _SandBakedWorld: {r: 0, g: 0, b: 0.001, a: 0.001}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
