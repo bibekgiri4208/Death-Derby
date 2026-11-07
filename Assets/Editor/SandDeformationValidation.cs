@@ -117,6 +117,7 @@ public static class SandDeformationValidation
             Require(surface.ActivePatchCount == SandDeformationSurface.MaximumPatches, "Patch cache did not respect its fixed capacity.");
             VerifyPoolAndFadeBudget(surface, terrain, baseY, frame);
             VerifyCoverageExpiry(surface, terrain, frame);
+            VerifyLandingAcrossPatchBudget(surface, terrain, baseY, frame);
             Require(terrain.terrainData == data && collider.terrainData == data, "Terrain/collider data was replaced.");
             float[,] after = data.GetHeights(0, 0, 129, 129);
             for (int z = 0; z < 129; z++)
@@ -151,7 +152,7 @@ public static class SandDeformationValidation
                 Require(SandDeformationSurface.GetOrCreate(collider) == null, "Textured terrains must not be silently converted.");
             }
             finally { Object.DestroyImmediate(flat); terrain.materialTemplate = material; }
-            Debug.Log("SAND_DEFORMATION_PASS: localized coverage, untouched terrain, atlas seams, mask reuse/fade/expiry, grooves, raised berms, seam heights/normals, partial-upload equivalence, pooled mesh reuse, single-patch fade budget, stationary wheelspin, teleport/NaN guards, cache limit, original collision/data, cleanup, flat-sand compatibility and shader passes checked.");
+            Debug.Log("SAND_DEFORMATION_PASS: localized coverage, untouched terrain, atlas seams, mask reuse/fade/expiry, grooves, raised berms, seam heights/normals, partial-upload equivalence, pooled mesh reuse, single-patch fade budget, four-tile landing allocation budget, stationary wheelspin, teleport/NaN guards, cache limit, original collision/data, cleanup, flat-sand compatibility and shader passes checked.");
         }
         finally
         {
@@ -322,5 +323,54 @@ public static class SandDeformationValidation
             entry.Value.GetType().GetField("lastTouch").SetValue(entry.Value, Time.time - SandDeformationSurface.Lifetime - 1);
         Flush(surface);
         Require(surface.ActivePatchCount == 0 && !Covered(terrain, 20.05f, 4.05f), "Expired deformation did not restore original terrain coverage.");
+    }
+
+    private static void VerifyLandingAcrossPatchBudget(SandDeformationSurface surface, Terrain terrain, float baseY, FieldInfo frame)
+    {
+        // A hard landing at a four-tile junction needs more than the two new
+        // meshes allowed per frame. Never dig half a rut against untouched sand.
+        Vector3 point = new Vector3(16.05f, baseY, 16.05f);
+        frame.SetValue(surface, -1);
+        surface.DeformSegment(point, point, Vector3.right, 0.65f, 0.08f, 0.06f, 1);
+        Flush(surface);
+        Require(surface.ActivePatchCount == 2, "Landing must retain the two-patch creation budget.");
+        foreach (var filter in terrain.GetComponentsInChildren<MeshFilter>())
+        foreach (Vector3 vertex in filter.sharedMesh.vertices)
+            Require(Mathf.Abs(vertex.y - baseY) < 0.000001f, "Partial landing footprint opened a crack against a missing tile.");
+        var coverage = (Texture2D)terrain.materialTemplate.GetTexture("_SandPatchCoverage");
+        foreach (byte value in coverage.GetRawTextureData<byte>())
+            Require(value == 0, "Incomplete landing clipped out original terrain.");
+
+        frame.SetValue(surface, -1);
+        surface.DeformSegment(point, point, Vector3.right, 0.65f, 0.08f, 0.06f, 1);
+        Flush(surface);
+        Require(surface.ActivePatchCount == 4, "Complete landing footprint did not become available next frame.");
+        Require(Covered(terrain, 15.95f, 15.95f) && Covered(terrain, 16.05f, 16.05f), "Complete landing lost its rut.");
+        foreach (var filter in terrain.GetComponentsInChildren<MeshFilter>())
+        {
+            MeshFilter across = FindPatch(terrain, filter.transform.localPosition.x + 8, filter.transform.localPosition.z);
+            MeshFilter ahead = FindPatch(terrain, filter.transform.localPosition.x, filter.transform.localPosition.z + 8);
+            Vector3[] vertices = filter.sharedMesh.vertices, normals = filter.sharedMesh.normals;
+            Vector3[] acrossVertices = across != null ? across.sharedMesh.vertices : null;
+            Vector3[] acrossNormals = across != null ? across.sharedMesh.normals : null;
+            Vector3[] aheadVertices = ahead != null ? ahead.sharedMesh.vertices : null;
+            Vector3[] aheadNormals = ahead != null ? ahead.sharedMesh.normals : null;
+            int edge = SandDeformationSurface.PatchSegments, row = edge + 1;
+            for (int i = 0; i <= edge; i++)
+            {
+                if (across != null)
+                {
+                    Require(Mathf.Abs(vertices[edge + i * row].y - acrossVertices[i * row].y) < 0.000001f, "Landing split a horizontal patch seam.");
+                    Require(Vector3.Distance(normals[edge + i * row], acrossNormals[i * row]) < 0.001f, "Landing split horizontal seam normals.");
+                }
+                if (ahead != null)
+                {
+                    Require(Mathf.Abs(vertices[i + edge * row].y - aheadVertices[i].y) < 0.000001f, "Landing split a vertical patch seam.");
+                    Require(Vector3.Distance(normals[i + edge * row], aheadNormals[i]) < 0.001f, "Landing split vertical seam normals.");
+                }
+            }
+        }
+        VerifyPartialUpdates(surface);
+        VerifyLocalizedCoverage(surface, terrain, baseY);
     }
 }

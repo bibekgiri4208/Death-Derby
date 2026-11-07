@@ -1,4 +1,3 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -11,19 +10,6 @@ using UnityEngine.UI;
 /// </summary>
 public class ResultBoard : MonoBehaviour
 {
-    [Header("Board")]
-    [Tooltip("Panel hidden during the match and revealed on game over. Defaults to this GameObject.")]
-    [SerializeField] private GameObject board;
-
-    [Tooltip("Label that shows the winner, e.g. 'Player 1' or 'Player 2'.")]
-    [SerializeField] private TextMeshProUGUI resultText;
-
-    [Header("Menu Buttons")]
-    [Tooltip("Result screen buttons in left-to-right order. The first one is focused after the entrance " +
-             "and input delay. Navigation is restricted to this row so HUD elements such as the health bar " +
-             "sliders cannot be selected while the board is up.")]
-    [SerializeField] private Button[] menuButtons;
-
     [Header("Board Entrance")]
     [SerializeField] private ResultBoardTransition entrance = new ResultBoardTransition();
 
@@ -60,15 +46,13 @@ public class ResultBoard : MonoBehaviour
     private bool cursorUnlocked;
     private Navigation[] savedNavigation;
     private DerbyMenuView menuView;
+    private GameObject board;
+    private Button[] menuButtons;
 
     private void Awake()
     {
-        if (board == null)
-            board = gameObject;
-
-        menuView = DerbyMenuView.CreateResults(transform, board, menuButtons, true);
+        menuView = DerbyMenuView.CreateResults(transform, true);
         board = menuView.Main;
-        resultText = menuView.Winner;
         menuButtons = menuView.Buttons;
         entrance.Initialize(this, board);
     }
@@ -110,9 +94,6 @@ public class ResultBoard : MonoBehaviour
         IsShowing = true;
         WinnerIndex = winnerIndex;
 
-        // A negative winner means nobody out-scored the other player, e.g. a tied round.
-        if (resultText != null)
-            resultText.text = winnerIndex >= 0 ? $"Player {winnerIndex + 1}" : "Draw";
         menuView.SetWinner(winnerIndex);
         menuView.ShowBackdrop();
 

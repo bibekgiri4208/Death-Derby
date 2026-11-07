@@ -146,14 +146,19 @@ public sealed class SandDeformationSurface : MonoBehaviour
         int maxX = Mathf.Clamp(Mathf.FloorToInt((Mathf.Max(a.x, b.x) + radius + Step) / PatchSize), 0, columns - 1);
         int minZ = Mathf.Clamp(Mathf.FloorToInt((Mathf.Min(a.y, b.y) - radius - Step) / PatchSize), 0, rows - 1);
         int maxZ = Mathf.Clamp(Mathf.FloorToInt((Mathf.Max(a.y, b.y) + radius + Step) / PatchSize), 0, rows - 1);
+        // A landing can touch four tiles while creation is limited to two per
+        // frame. Allocate the entire footprint before changing any samples;
+        // otherwise an edge rut ends below the untouched neighbouring terrain.
+        // Keep partial allocations flat and retry on the next wheel contact.
+        for (int z = minZ; z <= maxZ; z++)
+        for (int x = minX; x <= maxX; x++)
+            if (Acquire(x, z, b, now) == null) return;
+
         for (int z = minZ; z <= maxZ; z++)
         for (int x = minX; x <= maxX; x++)
         {
-            Patch patch = Acquire(x, z, b, now);
-            if (patch != null)
-            {
-                using (StampMarker.Auto()) patch.Stamp(a, b, across, halfWidth, depth, pileHeight, sidewaysSlip, now);
-            }
+            Patch patch = patches[x + z * columns];
+            using (StampMarker.Auto()) patch.Stamp(a, b, across, halfWidth, depth, pileHeight, sidewaysSlip, now);
         }
     }
 

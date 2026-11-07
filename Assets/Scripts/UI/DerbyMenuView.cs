@@ -6,8 +6,7 @@ using UnityEngine.UI;
 using static DerbyGraphic;
 
 /// <summary>
-/// Reference-style presentation shared by the existing menu controllers. Building
-/// under the controllers keeps scene-specific logic and serialized actions intact.
+/// Runtime-only presentation shared by the match menu controllers.
 /// </summary>
 public sealed class DerbyMenuView
 {
@@ -67,10 +66,8 @@ public sealed class DerbyMenuView
         if (shield != null) shield.SetActive(false);
     }
 
-    public static DerbyMenuView CreatePause(PauseMenu controller, GameObject oldMain, GameObject oldOptions)
+    public static DerbyMenuView CreatePause(PauseMenu controller)
     {
-        if (oldMain != null) oldMain.SetActive(false);
-        if (oldOptions != null) oldOptions.SetActive(false);
         var view = new DerbyMenuView(controller.transform);
         RectTransform panel = Rect("Pause panel", view.root, Vector2.zero, new Vector2(440, 414));
         view.Main = panel.gameObject;
@@ -100,26 +97,8 @@ public sealed class DerbyMenuView
         return view;
     }
 
-    public static DerbyMenuView CreateResults(Transform host, GameObject oldBoard, Button[] oldButtons, bool multiplayer)
+    public static DerbyMenuView CreateResults(Transform host, bool multiplayer)
     {
-        // Preserve the serialized UnityEvents (including scene-specific loading/audio).
-        var actions = new UnityAction[2];
-        for (int i = 0; i < actions.Length; i++)
-        {
-            if (oldButtons != null && i < oldButtons.Length && oldButtons[i] != null)
-            {
-                Button original = oldButtons[i];
-                actions[i] = original.onClick.Invoke;
-            }
-        }
-        if (oldBoard != null)
-        {
-            foreach (Transform child in oldBoard.transform) child.gameObject.SetActive(false);
-            // Some boards also have an Image directly on the controller object.
-            Graphic background = oldBoard.GetComponent<Graphic>();
-            if (background != null) background.enabled = false;
-        }
-
         var view = new DerbyMenuView(host);
         RectTransform panel = Rect(multiplayer ? "Winner composition" : "Death composition", view.root,
                                    new Vector2(0, multiplayer ? -20 : 0), new Vector2(560, multiplayer ? 460 : 390));
@@ -130,8 +109,8 @@ public sealed class DerbyMenuView
         float y = multiplayer ? -133 : -121;
         view.Buttons = new[]
         {
-            MenuButton(panel, "RESTART", Artwork.Restart, Hex(0xFFE858), Hex(0xFFB817), new Vector2(-122, y), new Vector2(224, 54), actions[0]),
-            MenuButton(panel, "MAIN MENU", Artwork.Home, Blue, Hex(0x0088EF), new Vector2(122, y), new Vector2(224, 54), actions[1])
+            MenuButton(panel, "RESTART", Artwork.Restart, Hex(0xFFE858), Hex(0xFFB817), new Vector2(-122, y), new Vector2(224, 54), MatchMenuActions.Restart),
+            MenuButton(panel, "MAIN MENU", Artwork.Home, Blue, Hex(0x0088EF), new Vector2(122, y), new Vector2(224, 54), MatchMenuActions.ReturnToGarage)
         };
         Navigate(view.Buttons, false);
         return view;

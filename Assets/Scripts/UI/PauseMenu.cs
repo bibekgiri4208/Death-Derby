@@ -4,20 +4,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
 {
-    private const string GarageSceneName = "Garage";
-
-    [Header("UI Panels")]
-    [SerializeField] private GameObject mainPauseMenu;
-    [SerializeField] private GameObject optionsMenu;
-
-    [Header("First Selected Buttons")]
-    [SerializeField] private GameObject mainMenuFirstButton;
-    [SerializeField] private GameObject optionsMenuFirstButton;
-
     [Header("Settings")]
     [SerializeField] private float doublePressWindow = 0.4f;
 
@@ -44,11 +33,13 @@ public class PauseMenu : MonoBehaviour
     [Header("Music Toggle")]
     [Tooltip("Name of the music object in the current scene that the Music button controls.")]
     [SerializeField] private string musicObjectName = "Background Music";
-    [Tooltip("Label under the options menu that shows the current music state.")]
-    [SerializeField] private string musicStateLabelName = "Music Text";
 
     public static bool IsPaused { get; private set; }
 
+    private GameObject mainPauseMenu;
+    private GameObject optionsMenu;
+    private GameObject mainMenuFirstButton;
+    private GameObject optionsMenuFirstButton;
     private float lastEscPressTime = -Mathf.Infinity;
     private AudioSource audioSource;
     private bool cursorWasVisible;
@@ -58,7 +49,6 @@ public class PauseMenu : MonoBehaviour
     private CanvasGroup optionsGroup;
     private Coroutine panelTransition;
     private FpsCounter cachedFpsCounter;
-    private TMP_Text cachedFpsMeterLabel;
     private bool musicOn;
     private DerbyMenuView menuView;
     private Vector3 mainRestPosition;
@@ -73,7 +63,7 @@ public class PauseMenu : MonoBehaviour
             audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.ignoreListenerPause = true;
 
-        menuView = DerbyMenuView.CreatePause(this, mainPauseMenu, optionsMenu);
+        menuView = DerbyMenuView.CreatePause(this);
         mainPauseMenu = menuView.Main;
         optionsMenu = menuView.Options;
         mainMenuFirstButton = menuView.Buttons[0].gameObject;
@@ -368,10 +358,7 @@ public class PauseMenu : MonoBehaviour
 
     public void Restart()
     {
-        PlayButtonSound();
-        AudioListener.pause = false;
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        MatchMenuActions.Restart();
     }
 
     public void OpenOptions()
@@ -470,11 +457,7 @@ public class PauseMenu : MonoBehaviour
 
     public void ReturnToGarage()
     {
-        PlayButtonSound();
-        AudioListener.pause = false;
-        Time.timeScale = 1f;
-
-        LoadingScreenManager.LoadScene(GarageSceneName);
+        MatchMenuActions.ReturnToGarage();
     }
 
     public void ExitGame()
@@ -553,21 +536,10 @@ public class PauseMenu : MonoBehaviour
 
     private void UpdateMusicLabel()
     {
-        TMP_Text label = GetMusicStateLabel();
+        TMP_Text label = menuView?.MusicStateLabel;
         if (label == null) return;
 
         label.text = musicOn ? "MUSIC: ON" : "MUSIC: OFF";
-    }
-
-    private TMP_Text GetMusicStateLabel()
-    {
-        if (menuView?.MusicStateLabel != null) return menuView.MusicStateLabel;
-        if (optionsMenu == null) return null;
-
-        Transform labelTransform = FindChildByName(optionsMenu.transform, musicStateLabelName);
-        if (labelTransform == null) return null;
-
-        return labelTransform.GetComponentInChildren<TMP_Text>(true);
     }
 
     public void ToggleFpsMeter()
@@ -622,36 +594,9 @@ public class PauseMenu : MonoBehaviour
         return null;
     }
 
-    private TMP_Text GetFpsMeterLabel()
-    {
-        if (menuView?.FpsStateLabel != null) return menuView.FpsStateLabel;
-        if (cachedFpsMeterLabel != null) return cachedFpsMeterLabel;
-        if (optionsMenu == null) return null;
-
-        Transform labelTransform = FindChildByName(optionsMenu.transform, "Fps Text");
-        if (labelTransform != null)
-            cachedFpsMeterLabel = labelTransform.GetComponentInChildren<TMP_Text>(true);
-
-        return cachedFpsMeterLabel;
-    }
-
-    private static Transform FindChildByName(Transform parent, string name)
-    {
-        foreach (Transform child in parent)
-        {
-            if (child.name == name)
-                return child;
-
-            Transform nested = FindChildByName(child, name);
-            if (nested != null)
-                return nested;
-        }
-        return null;
-    }
-
     private void UpdateFpsMeterLabel(bool enabled)
     {
-        TMP_Text label = GetFpsMeterLabel();
+        TMP_Text label = menuView?.FpsStateLabel;
         if (label != null)
             label.text = enabled ? "FPS: ON" : "FPS: OFF";
     }

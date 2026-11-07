@@ -1,4 +1,3 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -10,35 +9,6 @@ using UnityEngine.UI;
 /// </summary>
 public class ScoreBoard : MonoBehaviour
 {
-    [Header("Board")]
-    [Tooltip("Panel hidden during the match and revealed on game over. Defaults to this GameObject.")]
-    [SerializeField] private GameObject board;
-
-    [Tooltip("Centre label. Shows the score, e.g. 'Score: 12'.")]
-    [SerializeField] private TextMeshProUGUI resultText;
-
-    [Header("Board Text")]
-    [Tooltip("Leave empty to look up the headline label by name under the board.")]
-    [SerializeField] private TextMeshProUGUI headerText;
-
-    [Tooltip("Name of the big top label under the board, used when no Header Text reference is set.")]
-    [SerializeField] private string headerTextName = "Winner logo";
-
-    [Tooltip("Headline when the round ends because the player was destroyed.")]
-    [SerializeField] private string diedHeaderText = "You Died";
-
-    [Tooltip("Headline when the round ends because the clock ran out.")]
-    [SerializeField] private string timeUpHeaderText = "Time Up";
-
-    [Tooltip("{0} is replaced with the final kill count.")]
-    [SerializeField] private string scoreFormat = "Score: {0}";
-
-    [Header("Menu Buttons")]
-    [Tooltip("Result screen buttons in left-to-right order. The first one is focused after the entrance " +
-             "and input delay. Navigation is restricted to this row so HUD elements cannot be selected " +
-             "while the board is up.")]
-    [SerializeField] private Button[] menuButtons;
-
     [Header("Board Entrance")]
     [SerializeField] private ResultBoardTransition entrance = new ResultBoardTransition();
 
@@ -74,19 +44,15 @@ public class ScoreBoard : MonoBehaviour
     private bool frozeTime;
     private bool cursorUnlocked;
     private Navigation[] savedNavigation;
-    private TextMeshProUGUI cachedHeaderLabel;
     private Health playerHealth;
     private DerbyMenuView menuView;
+    private GameObject board;
+    private Button[] menuButtons;
 
     private void Awake()
     {
-        if (board == null)
-            board = gameObject;
-
-        menuView = DerbyMenuView.CreateResults(transform, board, menuButtons, false);
+        menuView = DerbyMenuView.CreateResults(transform, false);
         board = menuView.Main;
-        resultText = menuView.Score;
-        headerText = menuView.Header;
         menuButtons = menuView.Buttons;
         entrance.Initialize(this, board);
     }
@@ -166,8 +132,6 @@ public class ScoreBoard : MonoBehaviour
         IsShowing = true;
         Score = CurrentScore();
 
-        ApplyHeaderText(timeExpired);
-        ApplyScoreText(Score);
         menuView.SetSoloResult(timeExpired, Score);
         menuView.ShowBackdrop();
 
@@ -201,25 +165,6 @@ public class ScoreBoard : MonoBehaviour
         menuView?.HideBackdrop();
     }
 
-    private void ApplyHeaderText(bool timeExpired)
-    {
-        TextMeshProUGUI label = GetHeaderLabel();
-        if (label == null)
-            return;
-
-        label.text = timeExpired ? timeUpHeaderText : diedHeaderText;
-    }
-
-    private void ApplyScoreText(int score)
-    {
-        if (resultText == null)
-            return;
-
-        resultText.text = scoreFormat.Contains("{0}")
-            ? string.Format(scoreFormat, score)
-            : scoreFormat + score;
-    }
-
     // Desert is single player, so the one counter in the scene is always the one to report.
     private static int CurrentScore()
     {
@@ -232,39 +177,6 @@ public class ScoreBoard : MonoBehaviour
         }
 
         return best;
-    }
-
-    private TextMeshProUGUI GetHeaderLabel()
-    {
-        if (headerText != null)
-            return headerText;
-
-        if (cachedHeaderLabel != null)
-            return cachedHeaderLabel;
-
-        if (board == null || string.IsNullOrEmpty(headerTextName))
-            return null;
-
-        Transform labelTransform = FindChildByName(board.transform, headerTextName);
-        if (labelTransform != null)
-            cachedHeaderLabel = labelTransform.GetComponentInChildren<TextMeshProUGUI>(true);
-
-        return cachedHeaderLabel;
-    }
-
-    private static Transform FindChildByName(Transform parent, string name)
-    {
-        foreach (Transform child in parent)
-        {
-            if (child.name == name)
-                return child;
-
-            Transform nested = FindChildByName(child, name);
-            if (nested != null)
-                return nested;
-        }
-
-        return null;
     }
 
     // Undo everything Show() changed on global or shared state.
