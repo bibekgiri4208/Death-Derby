@@ -152,7 +152,9 @@ public static class SandDeformationValidation
                 Require(SandDeformationSurface.GetOrCreate(collider) == null, "Textured terrains must not be silently converted.");
             }
             finally { Object.DestroyImmediate(flat); terrain.materialTemplate = material; }
-            Debug.Log("SAND_DEFORMATION_PASS: localized coverage, untouched terrain, atlas seams, mask reuse/fade/expiry, grooves, raised berms, seam heights/normals, partial-upload equivalence, pooled mesh reuse, single-patch fade budget, four-tile landing allocation budget, stationary wheelspin, teleport/NaN guards, cache limit, original collision/data, cleanup, flat-sand compatibility and shader passes checked.");
+            VerifyUnevenTerrainFallback(shader);
+            VerifyDesertTerrainFallback();
+            Debug.Log("SAND_DEFORMATION_PASS: localized coverage, untouched terrain, atlas seams, mask reuse/fade/expiry, grooves, raised berms, seam heights/normals, partial-upload equivalence, pooled mesh reuse, single-patch fade budget, four-tile landing allocation budget, stationary wheelspin, teleport/NaN guards, cache limit, original collision/data, cleanup, flat-sand compatibility, uneven/desert terrain non-cutout fallback and shader passes checked.");
         }
         finally
         {
@@ -178,6 +180,65 @@ public static class SandDeformationValidation
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException(message);
+    }
+
+    private static void VerifyUnevenTerrainFallback(Shader shader)
+    {
+        var data = new TerrainData { heightmapResolution = 129, size = new Vector3(96, 8, 96) };
+        var material = new Material(shader);
+        try
+        {
+            var heights = new float[129, 129];
+            foreach (bool isolatedHill in new[] { false, true })
+            {
+                for (int z = 0; z < 129; z++)
+                for (int x = 0; x < 129; x++)
+                    heights[z, x] = isolatedHill ? 0.25f : 0.25f + x * 0.001f + Mathf.Sin(z * 0.15f) * 0.02f;
+                // Even contacts on a broad flat area must not enable cutouts on a
+                // terrain whose LOD triangles can extend into a neighbouring hill.
+                if (isolatedHill) heights[100, 100] = 0.5f;
+                data.SetHeights(0, 0, heights);
+                RequireNonCutoutFallback(data, material, isolatedHill ? "Flat area beside a hill" : "Curved dune");
+            }
+        }
+        finally { Object.DestroyImmediate(material); Object.DestroyImmediate(data); }
+    }
+
+    private static void VerifyDesertTerrainFallback()
+    {
+        // Use the actual scene assets without opening Desert or starting its audio.
+        var data = AssetDatabase.LoadAssetAtPath<TerrainData>("Assets/New Terrain.asset");
+        var material = AssetDatabase.LoadAssetAtPath<Material>("Assets/Material/Desert Sand.mat");
+        Require(data != null && material != null, "Desert terrain or sand material missing.");
+        RequireNonCutoutFallback(data, material, "Desert");
+    }
+
+    private static void RequireNonCutoutFallback(TerrainData data, Material material, string label)
+    {
+        var host = Terrain.CreateTerrainGameObject(data);
+        try
+        {
+            var terrain = host.GetComponent<Terrain>();
+            var collider = host.GetComponent<TerrainCollider>();
+            terrain.materialTemplate = material;
+            int resolution = data.heightmapResolution;
+            var before = data.GetHeights(0, 0, resolution, resolution);
+            // Multiple wheels must all reject replacement geometry, including
+            // after an unsuccessful component's cleanup.
+            for (int wheel = 0; wheel < 4; wheel++)
+            {
+                Require(SandDeformationSurface.GetOrCreate(collider) == null, label + " must fall back to non-cutout tyre imprints.");
+                Require(terrain.materialTemplate == material, label + " changed its original sand material.");
+                Require(terrain.GetComponentsInChildren<MeshFilter>().Length == 0, label + " created mismatched replacement geometry.");
+            }
+            Require(material.GetFloat("_SandPatchEnabled") == 0, label + " enabled terrain clipping.");
+            Require(collider.terrainData == data && terrain.terrainData == data, label + " replaced terrain/collision data.");
+            var after = data.GetHeights(0, 0, resolution, resolution);
+            for (int z = 0; z < resolution; z++)
+            for (int x = 0; x < resolution; x++)
+                Require(before[z, x] == after[z, x], label + " changed terrain heights.");
+        }
+        finally { Object.DestroyImmediate(host); }
     }
 
     private static void RequireContinuousRut(Mesh mesh, float baseY)

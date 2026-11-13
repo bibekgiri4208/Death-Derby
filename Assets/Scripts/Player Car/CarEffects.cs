@@ -37,7 +37,7 @@ public class CarEffects : MonoBehaviour
     [Range(0f, 1f)] public float tireTrackStrength = 0.38f;
 
     [Header("Interactive Sand (Visual Only)")]
-    [Tooltip("Replace flat tracks with real mesh ruts and raised sand on supported sand terrains. Does not change collision or handling.")]
+    [Tooltip("Use real mesh ruts and raised sand on flat sand terrains. Uneven dunes keep tyre imprints without terrain cutouts. Does not change collision or handling.")]
     public bool enableSandDeformation = true;
     [Tooltip("Maximum visible rut depth during wheelspin. Ordinary rolling makes shallower grooves.")]
     [Range(0.005f, 0.08f)] public float sandRutDepth = 0.045f;

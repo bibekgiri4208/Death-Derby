@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 /// <summary>
-/// Bounded, scene-local heightfield meshes replace the visible sand under tyre paths.
+/// Bounded, scene-local heightfield meshes replace flat sand under tyre paths.
+/// Uneven terrains retain non-cutout tyre imprints through WheelSurfaceEffects.
 /// TerrainData, TerrainCollider, navigation and shared material assets are never edited.
 /// </summary>
 [DisallowMultipleComponent, RequireComponent(typeof(Terrain))]
@@ -91,6 +92,15 @@ public sealed class SandDeformationSurface : MonoBehaviour
         rows = Mathf.CeilToInt(size.z / PatchSize);
         if (columns < 1 || rows < 1 || columns > 512 || rows > 512) return false;
         heights = terrain.terrainData.GetHeights(0, 0, terrain.terrainData.heightmapResolution, terrain.terrainData.heightmapResolution);
+        // These fixed-grid meshes cannot reproduce Unity Terrain's camera-dependent
+        // triangulation/LOD on dunes. Even bilinear height sampling leaves different
+        // surfaces at the cutout edges, causing cracks, floating strips and patches.
+        // Require a completely flat heightfield before enabling ANY terrain clipping.
+        // A locally flat tile is insufficient: coarser terrain triangles can reach
+        // into a neighbouring slope. WheelSurfaceEffects falls back to tyre ribbons.
+        float flatHeight = heights[0, 0];
+        foreach (float height in heights)
+            if (height != flatHeight) { heights = null; return false; }
         groundMaterial = new Material(template) { name = originalMaterial.name + " (Runtime Interactive Sand)", hideFlags = HideFlags.DontSave };
         if (template != originalMaterial)
         {
