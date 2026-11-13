@@ -6,6 +6,10 @@ using UnityEngine.Rendering.Universal;
 /// <summary>Contact-driven sand effects, owned by CarEffects. No per-frame allocations.</summary>
 public sealed class WheelSurfaceEffects
 {
+    private const float ContactLifetimeMin = 0.28f;
+    private const float ContactLifetimeMax = 0.45f;
+    private const float ContactDepthFade = 0.08f;
+
     private sealed class WheelState
     {
         public WheelCollider wheel;
@@ -101,7 +105,7 @@ public sealed class WheelSurfaceEffects
         main.scalingMode = ParticleSystemScalingMode.Shape;
         main.simulationSpeed = 1;
         main.maxParticles = 256;
-        main.startLifetime = new ParticleSystem.MinMaxCurve(1f, 1.7f);
+        main.startLifetime = new ParticleSystem.MinMaxCurve(ContactLifetimeMin, ContactLifetimeMax);
         main.startSpeed = 0;
         main.startSize3D = false;
         main.startSize = new ParticleSystem.MinMaxCurve(0.4f, 0.7f);
@@ -134,20 +138,27 @@ public sealed class WheelSurfaceEffects
         color.enabled = true;
         var gradient = new Gradient();
         gradient.SetKeys(new[] { new GradientColorKey(Color.white, 0), new GradientColorKey(Color.white, 1) },
-            new[] { new GradientAlphaKey(0, 0), new GradientAlphaKey(1, 0.1f),
-                new GradientAlphaKey(0.55f, 0.55f), new GradientAlphaKey(0, 1) });
+            // A delayed fade-in leaves a speed-dependent empty gap at the wheel.
+            // The small contact puff is already visible at birth; only the wake
+            // below fades in slowly as it expands behind the car.
+            new[] { new GradientAlphaKey(0.85f, 0), new GradientAlphaKey(1, 0.08f),
+                new GradientAlphaKey(0.45f, 0.5f), new GradientAlphaKey(0, 1) });
         color.color = gradient;
         var size = dust.sizeOverLifetime;
         size.enabled = true;
         size.separateAxes = false;
         size.size = new ParticleSystem.MinMaxCurve(1,
-            new AnimationCurve(new Keyframe(0, 0.6f), new Keyframe(0.25f, 1.5f), new Keyframe(1, 3.6f)));
+            new AnimationCurve(new Keyframe(0, 0.85f), new Keyframe(0.3f, 1.4f), new Keyframe(1, 2.2f)));
         var drag = dust.limitVelocityOverLifetime;
         drag.enabled = true;
         drag.separateAxes = false;
-        drag.limit = 4f;
+        // Do not immediately clamp inherited wheel momentum to walking speed.
+        drag.limit = 60f;
         drag.dampen = 0.3f;
         drag.drag = 1.2f;
+        // Speed-scaled drag otherwise cancels that momentum within a few frames.
+        drag.multiplyDragByParticleVelocity = false;
+        drag.multiplyDragByParticleSize = false;
         var noise = dust.noise;
         noise.enabled = true;
         noise.quality = ParticleSystemNoiseQuality.Low;
@@ -179,6 +190,8 @@ public sealed class WheelSurfaceEffects
         var properties = new MaterialPropertyBlock();
         var pipeline = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
         properties.SetFloat("_SoftParticlesEnabled", pipeline != null && pipeline.supportsCameraDepthTexture ? 1 : 0);
+        // Keep soft intersections without erasing the whole ground-level puff.
+        properties.SetFloat("_DepthFadeDistance", ContactDepthFade);
         renderer.SetPropertyBlock(properties);
         SandDustRendererFeature.Register(dust);
         dust.Play(false);
@@ -192,9 +205,17 @@ public sealed class WheelSurfaceEffects
         main.startLifetime = new ParticleSystem.MinMaxCurve(settings.dustWakeLifetime * 0.75f, settings.dustWakeLifetime * 1.15f);
         main.startSize = new ParticleSystem.MinMaxCurve(settings.dustWakeSize * 0.8f, settings.dustWakeSize * 1.2f);
         main.gravityModifier = -0.008f;
-        haze.GetComponent<ParticleSystemRenderer>().maxParticleSize = 0.5f;
+        var renderer = haze.GetComponent<ParticleSystemRenderer>();
+        renderer.maxParticleSize = 0.5f;
+        var properties = new MaterialPropertyBlock();
+        renderer.GetPropertyBlock(properties);
+        properties.SetFloat("_DepthFadeDistance", material.GetFloat("_DepthFadeDistance"));
+        renderer.SetPropertyBlock(properties);
         var drag = haze.limitVelocityOverLifetime;
+        drag.limit = 4f;
         drag.drag = 0.65f;
+        drag.multiplyDragByParticleVelocity = true;
+        drag.multiplyDragByParticleSize = true;
         var noise = haze.noise;
         noise.strengthX = 0.45f;
         noise.strengthY = 0.16f;
@@ -284,15 +305,20 @@ public sealed class WheelSurfaceEffects
         if (state.dust == null) return;
         if (!state.dust.isPlaying) state.dust.Play(false);
         Vector3 tangent = Vector3.ProjectOnPlane(Random.insideUnitSphere, normal);
-        Vector3 wake = velocity * Random.Range(0.04f, 0.1f);
+        Vector3 outward = WheelOutward(state, normal);
+        // Freshly ejected sand carries wheel momentum. The old 4-10% velocity
+        // left even newly visible particles metres behind a fast-moving tyre.
+        // World simulation and drag still let these short puffs peel into the wake.
+        Vector3 wake = velocity * Random.Range(0.65f, 0.8f);
         float speedSpread = Mathf.Lerp(1, 1.35f, Mathf.InverseLerp(8, 35, velocity.magnitude));
         float kick = Mathf.Max(0, settings.maxSmokeParticleSpeed) * (0.25f + slip * 0.6f);
         var emit = new ParticleSystem.EmitParams {
-            position = point + normal * 0.12f + tangent * 0.08f,
-            velocity = wake + tangent * kick + normal * Random.Range(0.45f, 0.8f),
+            // Expose the puff at the outer tyre shoulder, not inside the wheel mesh.
+            position = point + normal * 0.2f + outward * (settings.tireTrackWidth * 0.5f + 0.06f) + tangent * 0.04f,
+            velocity = wake + outward * Random.Range(0.25f, 0.6f) + tangent * kick + normal * Random.Range(0.45f, 0.8f),
             startSize = Random.Range(0.4f, 0.7f) * speedSpread * (1 + slip * 0.3f),
-            startLifetime = Random.Range(1f, 1.7f),
-            startColor = new Color(1, 1, 1, settings.dustOpacity * Random.Range(0.65f, 0.9f)),
+            startLifetime = Random.Range(ContactLifetimeMin, ContactLifetimeMax),
+            startColor = new Color(1, 1, 1, settings.dustOpacity * Random.Range(0.85f, 1)),
             applyShapeToPosition = false
         };
         state.dust.Emit(emit, 1);
@@ -302,8 +328,7 @@ public sealed class WheelSurfaceEffects
     {
         if (state.haze == null) return;
         if (!state.haze.isPlaying) state.haze.Play(false);
-        float side = Mathf.Sign(Vector3.Dot(state.wheel.transform.position - controller.transform.position, controller.transform.right));
-        Vector3 outward = Vector3.ProjectOnPlane(controller.transform.right * side, normal).normalized;
+        Vector3 outward = WheelOutward(state, normal);
         Vector3 spread = Vector3.ProjectOnPlane(Random.insideUnitSphere, normal);
         // A faster car stirs a wider, taller turbulent wake. Without this the same
         // particles just get spaced farther apart and dust appears thinner at speed.
@@ -319,6 +344,12 @@ public sealed class WheelSurfaceEffects
             applyShapeToPosition = false
         };
         state.haze.Emit(emit, 1);
+    }
+
+    private Vector3 WheelOutward(WheelState state, Vector3 normal)
+    {
+        float side = Mathf.Sign(Vector3.Dot(state.wheel.transform.position - controller.transform.position, controller.transform.right));
+        return Vector3.ProjectOnPlane(controller.transform.right * side, normal).normalized;
     }
 
     private bool UpdateDeformation(WheelState state, WheelHit hit, float slip, float mass, float speed)
