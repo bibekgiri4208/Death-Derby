@@ -7,7 +7,7 @@ public static class MatchMenuActions
     public static void Restart()
     {
         PrepareSceneChange();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        LoadingScreenManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public static void ReturnToGarage()

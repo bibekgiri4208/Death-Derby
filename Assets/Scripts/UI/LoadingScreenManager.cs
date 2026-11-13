@@ -5,43 +5,26 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// Fixed-duration loading screen: shows a fill bar climbing to 100% over
-/// `minimumLoadTime` seconds, then activates the requested target scene.
-/// The manager auto-spawns when the "Loading Screen" scene loads and
-/// auto-wires its UI, so no inspector setup is required.
+/// Builds a persistent loading overlay in the current scene, then loads the
+/// destination asynchronously. No dedicated loading scene or scene wiring is needed.
 /// </summary>
 public class LoadingScreenManager : MonoBehaviour
 {
     public static LoadingScreenManager Instance { get; private set; }
 
-    [Header("UI References")]
-    [SerializeField] private GameObject loadingPanel;
-    [SerializeField] private TextMeshProUGUI loadingText;
-    [SerializeField] private TextMeshProUGUI progressText;
-    [SerializeField] private Slider progressBar;
-
-    [Header("Load Settings")]
-    [SerializeField] private float minimumLoadTime = 2f;
-
-    [Header("Loading Artwork")]
-    [Tooltip("Full-screen image that shows the artwork for the scene being loaded.")]
-    [SerializeField] private Image backgroundImage;
-    [Tooltip("Artwork shown while loading the Desert. Leave empty to keep the scene's default image.")]
-    [SerializeField] private Sprite desertLoadingImage;
-    [Tooltip("Artwork shown while loading the Coop scene. Leave empty to keep the scene's default image.")]
-    [SerializeField] private Sprite coopLoadingImage;
-    [Tooltip("Artwork shown while loading the Training scene. Leave empty to keep the scene's default image.")]
-    [SerializeField] private Sprite trainingLoadingImage;
-
-    private static string targetScene;
+    private LoadingScreenSettings settings;
+    private TextMeshProUGUI loadingText;
+    private TextMeshProUGUI progressText;
+    private RectTransform progressFill;
     private bool isLoading;
 
-    private const string LoadingSceneName = "Loading Screen";
-    private const string DesertSceneName = "Desert";
-    private const string CoopSceneName = "Coop";
-    private const string TrainingSceneName = "Training";
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics()
+    {
+        Instance = null;
+    }
 
-    void Awake()
+    private void Awake()
     {
         if (Instance != null && Instance != this)
         {
@@ -50,207 +33,193 @@ public class LoadingScreenManager : MonoBehaviour
         }
 
         Instance = this;
-        AutoWireReferences();
+        DontDestroyOnLoad(gameObject);
     }
 
-    void Start()
+    private void OnDestroy()
     {
-        if (string.IsNullOrEmpty(targetScene))
-            return;
-
-        ApplyLoadingImage(targetScene);
-
-        if (loadingPanel != null)
-            loadingPanel.SetActive(true);
-
-        StartCoroutine(LoadSceneAsync(targetScene));
+        if (Instance == this)
+            Instance = null;
     }
 
-    /// <summary>Swaps the full-screen artwork to match the scene being loaded.</summary>
-    private void ApplyLoadingImage(string sceneName)
-    {
-        if (backgroundImage == null) return;
-
-        Sprite sprite = GetLoadingImage(sceneName);
-
-        // A null result means "no dedicated artwork", so the image keeps whatever
-        // the Loading Screen scene already shows.
-        if (sprite != null)
-            backgroundImage.sprite = sprite;
-    }
-
-    private Sprite GetLoadingImage(string sceneName)
-    {
-        if (sceneName == DesertSceneName) return desertLoadingImage;
-        if (sceneName == CoopSceneName) return coopLoadingImage;
-        if (sceneName == TrainingSceneName) return trainingLoadingImage;
-        return null;
-    }
-
-    void Update()
-    {
-        if (!isLoading || loadingText == null)
-            return;
-
-        float dots = Mathf.Repeat(Time.unscaledTime * 2f, 4f);
-        string dotStr = new string('.', Mathf.FloorToInt(dots));
-        loadingText.text = "LOADING" + dotStr;
-    }
-
-    /// <summary>Loads the loading screen first, then switches to `sceneName`.</summary>
+    /// <summary>Shows the destination's artwork before beginning the scene load.</summary>
     public static void LoadScene(string sceneName)
     {
-        if (string.IsNullOrEmpty(sceneName))
+        if (string.IsNullOrEmpty(sceneName) || (Instance != null && Instance.isLoading))
             return;
 
-        targetScene = sceneName;
-        SceneManager.LoadScene(LoadingSceneName);
-    }
-
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void ResetStatics()
-    {
-        targetScene = null;
-    }
-
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void AutoSpawn()
-    {
-        if (SceneManager.GetActiveScene().name != LoadingSceneName)
+        if (!Application.CanStreamedLevelBeLoaded(sceneName))
+        {
+            Debug.LogError("LoadingScreenManager: scene '" + sceneName + "' is not enabled in the build scene list.");
             return;
+        }
 
-        if (FindAnyObjectByType<LoadingScreenManager>() != null)
-            return;
+        if (Instance == null)
+            new GameObject("Loading Screen Overlay", typeof(RectTransform)).AddComponent<LoadingScreenManager>();
 
-        new GameObject("Loading Screen Manager").AddComponent<LoadingScreenManager>();
+        Instance.isLoading = true;
+        Instance.settings = Resources.Load<LoadingScreenSettings>("DerbyUI/LoadingScreenSettings");
+        Instance.BuildUI(sceneName);
+        Instance.StartCoroutine(Instance.LoadSceneAsync(sceneName));
     }
 
-    private void AutoWireReferences()
+    private void Update()
     {
-        if (backgroundImage == null)
+        if (isLoading && loadingText != null)
+            loadingText.text = "LOADING" + new string('.', Mathf.FloorToInt(Mathf.Repeat(Time.unscaledTime * 2f, 4f)));
+    }
+
+    private void BuildUI(string sceneName)
+    {
+        Canvas canvas = gameObject.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = short.MaxValue;
+        CanvasScaler scaler = gameObject.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920, 1080);
+        scaler.matchWidthOrHeight = 0.5f;
+        gameObject.AddComponent<GraphicRaycaster>();
+
+        RectTransform backdrop = Rect("Input Blocker", transform, Vector2.zero, Vector2.one);
+        Image blocker = backdrop.gameObject.AddComponent<Image>();
+        blocker.color = Color.black;
+        blocker.raycastTarget = true;
+
+        Sprite artwork = settings != null ? settings.GetArtwork(sceneName) : null;
+        if (artwork != null)
         {
-            foreach (Image candidate in FindObjectsByType<Image>(FindObjectsInactive.Include))
-            {
-                if (candidate.gameObject.name == "Background")
-                {
-                    backgroundImage = candidate;
-                    break;
-                }
-            }
+            RectTransform background = Rect("Loading Artwork", backdrop, Vector2.zero, Vector2.one);
+            Image image = background.gameObject.AddComponent<Image>();
+            image.sprite = artwork;
+            image.raycastTarget = false;
+            // Fill any screen aspect ratio without stretching the artwork.
+            AspectRatioFitter fitter = background.gameObject.AddComponent<AspectRatioFitter>();
+            fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            fitter.aspectRatio = artwork.rect.width / artwork.rect.height;
         }
 
-        if (progressBar == null)
-        {
-            progressBar = FindAnyObjectByType<Slider>();
+        RectTransform footer = Rect("Loading Status", backdrop, Vector2.zero, new Vector2(1, 0));
+        footer.pivot = new Vector2(0.5f, 0);
+        footer.sizeDelta = new Vector2(0, 174);
+        Image shade = footer.gameObject.AddComponent<Image>();
+        shade.color = new Color(0.025f, 0.03f, 0.04f, 0.88f);
+        shade.raycastTarget = false;
 
-            if (progressBar != null)
-            {
-                Transform fill = FindDeepChild(progressBar.transform, "Fill Color");
-                if (fill != null)
-                    progressBar.fillRect = fill as RectTransform;
+        TextMeshProUGUI mode = Label("Mode", footer, GetModeLabel(sceneName), 34,
+            TextAlignmentOptions.MidlineLeft, new Vector2(0.05f, 0.57f), new Vector2(0.6f, 0.92f));
+        mode.fontStyle = FontStyles.Bold;
+        mode.color = new Color(1f, 0.78f, 0.18f);
+        loadingText = Label("Loading Text", footer, "LOADING", 24,
+            TextAlignmentOptions.MidlineLeft, new Vector2(0.05f, 0.3f), new Vector2(0.7f, 0.56f));
+        progressText = Label("Progress Text", footer, "0%", 26,
+            TextAlignmentOptions.MidlineRight, new Vector2(0.75f, 0.3f), new Vector2(0.95f, 0.56f));
 
-                progressBar.minValue = 0f;
-                progressBar.maxValue = 1f;
-            }
-        }
-
-        if (loadingText == null)
-        {
-            foreach (TextMeshProUGUI candidate in FindObjectsByType<TextMeshProUGUI>())
-            {
-                if (candidate.gameObject.name == "Loading Text")
-                {
-                    loadingText = candidate;
-                    break;
-                }
-            }
-        }
-
-        if (progressText == null)
-        {
-            foreach (TextMeshProUGUI candidate in FindObjectsByType<TextMeshProUGUI>())
-            {
-                if (candidate.gameObject.name == "Progress Text")
-                {
-                    progressText = candidate;
-                    break;
-                }
-            }
-        }
+        RectTransform track = Rect("Progress Track", footer, new Vector2(0.05f, 0.18f), new Vector2(0.95f, 0.23f));
+        Image trackImage = track.gameObject.AddComponent<Image>();
+        trackImage.color = new Color(1, 1, 1, 0.18f);
+        trackImage.raycastTarget = false;
+        progressFill = Rect("Progress Fill", track, Vector2.zero, new Vector2(0, 1));
+        Image fillImage = progressFill.gameObject.AddComponent<Image>();
+        fillImage.color = new Color(1f, 0.65f, 0.08f);
+        fillImage.raycastTarget = false;
+        SetProgress(0);
     }
 
     private IEnumerator LoadSceneAsync(string sceneName)
     {
-        isLoading = true;
+        float previousTimeScale = Time.timeScale;
+        bool previousAudioPause = AudioListener.pause;
+        Time.timeScale = 0f;
+        AudioListener.pause = true;
 
-        if (progressBar != null)
-            progressBar.value = 0f;
+        // Let the overlay render before scene loading can occupy the main thread.
+        yield return null;
 
-        if (progressText != null)
-            progressText.text = "0%";
-
-        Time.timeScale = 1f;
-        AudioListener.pause = false;
-
-        AsyncOperation asyncOp = SceneManager.LoadSceneAsync(sceneName);
-        if (asyncOp == null)
+        AsyncOperation operation = null;
+        try
         {
-            yield return new WaitForSecondsRealtime(minimumLoadTime);
-            SceneManager.LoadScene(sceneName);
+            operation = SceneManager.LoadSceneAsync(sceneName);
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogException(exception, this);
+        }
+
+        if (operation == null)
+        {
+            Time.timeScale = previousTimeScale;
+            AudioListener.pause = previousAudioPause;
+            isLoading = false;
+            gameObject.SetActive(false);
+            Destroy(gameObject);
             yield break;
         }
 
-        asyncOp.allowSceneActivation = false;
-
-        while (asyncOp.progress < 0.9f)
-            yield return null;
-
-        float fakeProgress = 0f;
-        float elapsedTime = 0f;
-
-        while (elapsedTime < minimumLoadTime)
+        operation.allowSceneActivation = false;
+        float elapsed = 0f;
+        float minimumTime = settings != null ? Mathf.Max(0, settings.minimumDisplayTime) : 1f;
+        while (operation.progress < 0.9f || elapsed < minimumTime)
         {
-            elapsedTime += Time.unscaledDeltaTime;
-            fakeProgress = Mathf.Clamp01(elapsedTime / minimumLoadTime);
-
-            if (progressBar != null)
-                progressBar.value = fakeProgress;
-
-            if (progressText != null)
-                progressText.text = Mathf.RoundToInt(fakeProgress * 100f) + "%";
-
+            elapsed += Time.unscaledDeltaTime;
+            float timedProgress = minimumTime > 0 ? Mathf.Clamp01(elapsed / minimumTime) : 1f;
+            SetProgress(Mathf.Min(operation.progress / 0.9f, timedProgress, 0.99f));
             yield return null;
         }
 
-        fakeProgress = 1f;
+        SetProgress(1);
+        yield return new WaitForSecondsRealtime(0.15f);
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
+        operation.allowSceneActivation = true;
+        while (!operation.isDone)
+            yield return null;
 
-        if (progressBar != null)
-            progressBar.value = fakeProgress;
-
-        if (progressText != null)
-            progressText.text = "100%";
-
-        yield return new WaitForSecondsRealtime(0.3f);
-
-        asyncOp.allowSceneActivation = true;
+        // Keep covering the screen until the new scene's Start methods have run.
+        yield return null;
+        isLoading = false;
+        gameObject.SetActive(false);
+        Destroy(gameObject);
     }
 
-    private static Transform FindDeepChild(Transform parent, string name)
+    private void SetProgress(float progress)
     {
-        if (parent == null || string.IsNullOrEmpty(name))
-            return null;
+        progressFill.anchorMax = new Vector2(Mathf.Clamp01(progress), 1);
+        progressText.text = Mathf.FloorToInt(Mathf.Clamp01(progress) * 100) + "%";
+    }
 
-        for (int i = 0; i < parent.childCount; i++)
+    private static string GetModeLabel(string sceneName)
+    {
+        switch (sceneName)
         {
-            Transform child = parent.GetChild(i);
-            if (child.name == name)
-                return child;
-
-            Transform result = FindDeepChild(child, name);
-            if (result != null)
-                return result;
+            case "Desert": return "DESERT";
+            case "Coop":
+            case "PVP": return "PVP";
+            case "Training": return "TRAINING";
+            default: return sceneName.ToUpperInvariant();
         }
+    }
 
-        return null;
+    private static RectTransform Rect(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax)
+    {
+        var rect = new GameObject(name, typeof(RectTransform)).GetComponent<RectTransform>();
+        rect.SetParent(parent, false);
+        rect.anchorMin = anchorMin;
+        rect.anchorMax = anchorMax;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+        return rect;
+    }
+
+    private static TextMeshProUGUI Label(string name, Transform parent, string text, float size,
+        TextAlignmentOptions alignment, Vector2 anchorMin, Vector2 anchorMax)
+    {
+        TextMeshProUGUI label = Rect(name, parent, anchorMin, anchorMax).gameObject.AddComponent<TextMeshProUGUI>();
+        label.font = TMP_Settings.defaultFontAsset;
+        label.text = text;
+        label.fontSize = size;
+        label.alignment = alignment;
+        label.color = Color.white;
+        label.raycastTarget = false;
+        return label;
     }
 }
